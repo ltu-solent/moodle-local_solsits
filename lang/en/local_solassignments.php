@@ -25,4 +25,13 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['notset'] = 'Not set';
+
 $string['pluginname'] = 'SOL Assignments';
+
+$string['sits'] = 'SITS';
+$string['sitsreference'] = 'SITS reference';
+$string['sittingdate'] = 'Sitting date';
+$string['sittingdescription'] = 'Sitting description';
+$string['sittingreference'] = 'Sitting reference';
+$string['status'] = 'Status';

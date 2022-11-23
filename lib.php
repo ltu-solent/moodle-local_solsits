@@ -41,39 +41,24 @@ function local_solassignments_coursemodule_standard_elements(moodleform_mod $for
     }
     $solassign = $DB->get_record('local_solassignments', ['cmid' => $cm->id]);
 
-    $isadmin = is_siteadmin();
-    $mform->addElement('header', 'sits_section', 'SITS');
+    if (!$solassign) {
+        // Not a SITS assignment, so don't bother.
+        return;
+    }
+    $mform->addElement('header', 'sits_section', new lang_string('sits', 'local_solassignments'));
 
-    $mform->addElement('text', 'sits_ref', 'Sits reference');
-    $mform->setType('sits_ref', PARAM_TEXT);
+    $mform->addElement('static', 'sits_ref', new lang_string('sitsreference', 'local_solassignments'), $solassign->sitsref);
+    $mform->addElement('static', 'sits_sitting', new lang_string('sittingreference', 'local_solassignments'), $solassign->sitting);
+    $mform->addElement('static', 'sits_sitting_desc', new lang_string('sittingdescription', 'local_solassignments'), $solassign->sitting_desc);
 
-    $mform->addElement('text', 'sits_sitting', 'Sitting reference');
-    $mform->setType('sits_sitting', PARAM_TEXT);
-
-    $mform->addElement('text', 'sits_sitting_desc', 'Sitting description');
-    $mform->setType('sits_sitting_desc', PARAM_TEXT);
-    $mform->setDefault('sits_sitting_desc', 'FIRST_SITTING');
-
-    if ($isadmin) {
-        $mform->addElement('date_time_selector', 'sits_sitting_date', 'Sitting date');
-        $mform->setType('sits_sitting_date', PARAM_INT);
-        $mform->setDefault('sits_sitting_date', 0);
+    $sittingdate = '';
+    if ($solassign->sitting_date > 0) {
+        $sittingdate = date('Y-m-d', $solassign->sitting_date);
     } else {
-        $sittingdate = '';
-        if (isset($solassign) && $solassign->sitting_date > 0) {
-            $sittingdate = date('Y-m-d', $solassign->sitting_date);
-        } else {
-            $sittingdate = 'Not set';
-        }
-        $mform->addElement('static', 'sits_sitting_date', 'Sitting date', $sittingdate);
+        $sittingdate = get_string('notset', 'local_solassignments');
     }
-
-    $mform->addElement('text', 'sits_status', 'Status');
-    $mform->setType('sits_status', PARAM_TEXT);
-
-    if (!$isadmin) {
-        $mform->freeze(['sits_ref', 'sits_sitting', 'sits_sitting_desc', 'sits_sitting_date', 'sits_status']);
-    }
+    $mform->addElement('static', 'sits_sitting_date', new lang_string('sittingdate', 'local_solassignments'), $sittingdate);
+    $mform->addElement('static', 'sits_status', new lang_string('status', 'local_solassignments'), $solassign->status);
 }
 
 /**
@@ -93,6 +78,8 @@ function local_solassignments_coursemodule_definition_after_data(moodleform_mod 
     if (!$solassign) {
         return;
     }
+    // We're doing a static form, so no need to set anything.
+    return;
     // Assign the data.
     // error_log(print_r($solassign, true));
     $mform->getElement('sits_ref')->setValue($solassign->sitsref);
@@ -114,6 +101,8 @@ function local_solassignments_coursemodule_definition_after_data(moodleform_mod 
  */
 function local_solassignments_coursemodule_edit_post_actions($data, $course) {
     global $DB;
+    // We're doing a static form, so we're not saving data.
+    return $data;
     $isadmin = is_siteadmin();
     if (!$isadmin) {
         return $data;

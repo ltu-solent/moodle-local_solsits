@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * SolSITS version file
+ * Capabilities
  *
  * @package   local_solsits
  * @author    Mark Sharp <mark.sharp@solent.ac.uk>
@@ -25,7 +25,20 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2022112107;
-$plugin->release   = 2022112100;
-$plugin->requires  = 2020061500;
-$plugin->component = 'local_solsits';
+$capabilities = [
+
+    'local/solsits:manageassignments' => array(
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW,
+        )
+    ),
+    'local/solsits:managetemplates' => array(
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW,
+        )
+    )
+];

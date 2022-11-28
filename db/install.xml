@@ -1,19 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="local/solassignments/db" VERSION="20141018" COMMENT="XMLDB file for Moodle local/solassignments"
+<XMLDB PATH="local/solsits/db" VERSION="20141018" COMMENT="XMLDB file for Moodle local/solsits"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
   >
     <TABLES>
-		<TABLE NAME="local_solassignments" COMMENT="Assignments imported from SITS">
+		<TABLE NAME="local_solsits_assign" COMMENT="Assignments imported from SITS">
 			<FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true"/>
-                <FIELD NAME="cmid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false"/>
                 <FIELD NAME="sitsref" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" />
-                <FIELD NAME="sitting" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false"/>
-                <FIELD NAME="sitting_desc" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false"  />
-                <FIELD NAME="sitting_date" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false"  />
-                <FIELD NAME="status" TYPE="char" LENGTH="10" NOTNULL="true" SEQUENCE="false" />
+                <FIELD NAME="cmid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false"/>
                 <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false"/>
+                <FIELD NAME="sitting" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false"/>
+                <FIELD NAME="sittingdesc" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false"  />
+                <FIELD NAME="externaldate" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false"  />
+                <FIELD NAME="status" TYPE="char" LENGTH="10" NOTNULL="true" SEQUENCE="false" />
+                <FIELD NAME="title" SEQUENCE="false" TYPE="char" LENGTH="100" NOTNULL="true" />
+                <FIELD NAME="weighting" SEQUENCE="false" TYPE="float" NOTNULL="true" DEFAULT="1" UNSIGNED="true" />
+                <FIELD NAME="duedate" SEQUENCE="false" TYPE="int" NOTNULL="true" UNSIGNED="true" LENGTH="10" />
+                <FIELD NAME="grademarkexempt" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="0" />
+                <FIELD NAME="availablefrom" SEQUENCE="false" TYPE="int" NOTNULL="true" LENGTH="10" UNSIGNED="true" DEFAULT="0" />
+                <FIELD NAME="usermodified" LENGTH="10" SEQUENCE="false" TYPE="int" NOTNULL="true" UNSIGNED="true" />
                 <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" />
                 <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" />
 			</FIELDS>
@@ -22,8 +28,12 @@
 			  <KEY NAME="courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id" COMMENT="The course instance." PREVIOUS="primary"/>
 			  <KEY NAME="cmid" TYPE="foreign" FIELDS="cmid" REFTABLE="course_modules" REFFIELDS="id" COMMENT="The course module." PREVIOUS="primary"/>
 			</KEYS>
+            <INDEXES>
+                <INDEX NAME="sitsref" UNIQUE="true" FIELDS="sitsref" />
+                <INDEX NAME="courseid" UNIQUE="false" FIELDS="courseid" />
+            </INDEXES>
 		</TABLE>
-        <TABLE NAME="local_solassignments_grades" COMMENT="Student grades to be sent to SITS">
+        <TABLE NAME="local_solsits_assign_grades" COMMENT="Student grades to be sent to SITS">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" />
                 <FIELD NAME="solassignmentid" SEQUENCE="false" TYPE="int" LENGTH="10" UNSIGNED="true" NOTNULL="true" />
@@ -41,6 +51,45 @@
                 <KEY NAME="graderid" TYPE="foreign" FIELDS="graderid" REFTABLE="user" REFFIELDS="id" COMMENT="The user who released the grades." PREVIOUS="primary"/>
 			    <KEY NAME="studentid" TYPE="foreign" FIELDS="studentid" REFTABLE="user" REFFIELDS="id" COMMENT="The student." PREVIOUS="primary"/>
             </KEYS>
+        </TABLE>
+        <TABLE NAME="local_solsits_courses" COMMENT="SITS managed courses and modules">
+            <FIELDS>
+                <FIELD NAME="id" SEQUENCE="true" TYPE="int" NOTNULL="true" UNSIGNED="true" LENGTH="10" />
+                <FIELD NAME="courseid" SEQUENCE="false" TYPE="int" NOTNULL="true" UNSIGNED="true" LENGTH="10" COMMENT="ID of course being created" />
+                <FIELD NAME="templateapplied" SEQUENCE="false" TYPE="int" NOTNULL="true" DEFAULT="0" LENGTH="1" UNSIGNED="true" COMMENT="Has the appropriate template been applied?" />
+                <FIELD NAME="session" SEQUENCE="false" TYPE="char" NOTNULL="true" LENGTH="20" />
+                <FIELD NAME="pagetype" SEQUENCE="false" TYPE="char" NOTNULL="true" LENGTH="10" DEFAULT="module" COMMENT="This will determine which template gets applied." />
+                <FIELD NAME="usermodified" SEQUENCE="false" TYPE="int" NOTNULL="true" LENGTH="10" UNSIGNED="true" />
+                <FIELD NAME="timecreated" SEQUENCE="false" TYPE="int" NOTNULL="true" UNSIGNED="true" LENGTH="10" />
+                <FIELD NAME="timemodified" SEQUENCE="false" TYPE="int" NOTNULL="true" UNSIGNED="true" LENGTH="10" />
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id" />
+                <KEY NAME="courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id" COMMENT="Course id" />
+                <KEY NAME="usermodified" TYPE="foreign" FIELDS="usermodified" REFTABLE="user" REFFIELDS="id" />
+            </KEYS>
+            <INDEXES>
+                <INDEX NAME="courseid" UNIQUE="true" FIELDS="courseid" />
+            </INDEXES>
+        </TABLE>
+        <TABLE NAME="local_solsits_templates" COMMENT="Templates course/module templates">
+            <FIELDS>
+                <FIELD NAME="id" SEQUENCE="true" TYPE="int" NOTNULL="true" UNSIGNED="true" LENGTH="10" />
+                <FIELD NAME="pagetype" SEQUENCE="false" TYPE="char" NOTNULL="true" LENGTH="10" DEFAULT="module" COMMENT="Type course or module"/>
+                <FIELD NAME="courseid" SEQUENCE="false" TYPE="int" NOTNULL="true" LENGTH="10" UNSIGNED="true" />
+                <FIELD NAME="session" SEQUENCE="false" TYPE="char" NOTNULL="true" LENGTH="20" COMMENT="Academic session using in combination with type to find the courseid" />
+                <FIELD NAME="enabled" SEQUENCE="false" TYPE="int" NOTNULL="true" LENGTH="1" DEFAULT="0" UNSIGNED="true" />
+                <FIELD NAME="usermodified" SEQUENCE="false" TYPE="int" NOTNULL="true" LENGTH="10" UNSIGNED="true" />
+                <FIELD NAME="timecreated" SEQUENCE="false" TYPE="int" NOTNULL="true" UNSIGNED="true" LENGTH="10" />
+                <FIELD NAME="timemodified" SEQUENCE="false" TYPE="int" NOTNULL="true" UNSIGNED="true" LENGTH="10" />
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id" />
+                <KEY NAME="courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id" />
+            </KEYS>
+            <INDEXES>
+                <INDEX NAME="pagetypesession" UNIQUE="true" FIELDS="pagetype,session" />
+            </INDEXES>
         </TABLE>
     </TABLES> 
 </XMLDB>

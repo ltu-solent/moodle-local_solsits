@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Lib for solassignments
+ * Lib for solsits
  *
- * @package   local_solassignments
+ * @package   local_solsits
  * @author    Mark Sharp <mark.sharp@solent.ac.uk>
  * @copyright 2022 Solent University {@link https://www.solent.ac.uk}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -32,7 +32,7 @@ defined('MOODLE_INTERNAL') || die();
  * @param MoodleQuickForm $mform
  * @return void
  */
-function local_solassignments_coursemodule_standard_elements(moodleform_mod $formwrapper, MoodleQuickForm $mform) {
+function local_solsits_coursemodule_standard_elements(moodleform_mod $formwrapper, MoodleQuickForm $mform) {
     global $DB;
     // Is this an assignment?
     $cm = $formwrapper->get_coursemodule();
@@ -45,20 +45,39 @@ function local_solassignments_coursemodule_standard_elements(moodleform_mod $for
         // Not a SITS assignment, so don't bother.
         return;
     }
-    $mform->addElement('header', 'sits_section', new lang_string('sits', 'local_solassignments'));
+    $mform->addElement('header', 'sits_section', new lang_string('sits', 'local_solsits'));
 
-    $mform->addElement('static', 'sits_ref', new lang_string('sitsreference', 'local_solassignments'), $solassign->sitsref);
-    $mform->addElement('static', 'sits_sitting', new lang_string('sittingreference', 'local_solassignments'), $solassign->sitting);
-    $mform->addElement('static', 'sits_sitting_desc', new lang_string('sittingdescription', 'local_solassignments'), $solassign->sitting_desc);
+    $mform->addElement('static', 'sits_ref', new lang_string('sitsreference', 'local_solsits'), $solassign->sitsref);
+    $mform->addElement('static', 'sits_sitting', new lang_string('sittingreference', 'local_solsits'), $solassign->sitting);
+    $mform->addElement('static', 'sits_sittingdesc', new lang_string('sittingdescription', 'local_solsits'), $solassign->sittingdesc);
 
-    $sittingdate = '';
-    if ($solassign->sitting_date > 0) {
-        $sittingdate = date('Y-m-d', $solassign->sitting_date);
+    $externaldate = '';
+    if ($solassign->externaldate > 0) {
+        $externaldate = date('Y-m-d', $solassign->externaldate);
     } else {
-        $sittingdate = get_string('notset', 'local_solassignments');
+        $externaldate = get_string('notset', 'local_solsits');
     }
-    $mform->addElement('static', 'sits_sitting_date', new lang_string('sittingdate', 'local_solassignments'), $sittingdate);
-    $mform->addElement('static', 'sits_status', new lang_string('status', 'local_solassignments'), $solassign->status);
+    $mform->addElement('static', 'sits_externaldate', new lang_string('externaldate', 'local_solsits'), $externaldate);
+    $mform->addElement('static', 'sits_status', new lang_string('status', 'local_solsits'), $solassign->status);
+
+    $weighting = (int)($solassign->weighting * 100);
+    $mform->addElement('static', 'sits_weighting', new lang_string('weighting', 'local_solsits'), $weighting . '%');
+
+    $mform->addElement('static', 'sits_assessmentcode', new lang_string('assessmentcode', 'local_solsits'), $solassign->assessmentcode);
+
+    $duedate = date('y-m-d', $solassign->duedate);
+    $mform->addElement('static', 'sits_duedate', new lang_string('duedate', 'local_solsits'), $duedate);
+
+    $grademarkexempt = $solassign->grademarkexempt ? get_string('Yes') : get_string('No');
+    $mform->addElement('static', 'sits_grademarkexempt', new lang_string('grademarkexempt', 'local_solsits'), $grademarkexempt);
+
+    $availablefrom = '';
+    if ($solassign->availablefrom > 0) {
+        $availablefrom = get_string('immediately', 'local_solsits');
+    } else {
+        $availablefrom = date('Y-m-d', $solassign->availablefrom);
+    }
+    $mform->addElement('static', 'sits_availablefrom', new lang_string('availablefrom', 'local_solsits'), $availablefrom);
 }
 
 /**
@@ -68,7 +87,7 @@ function local_solassignments_coursemodule_standard_elements(moodleform_mod $for
  * @param MoodleQuickForm $mform
  * @return void
  */
-function local_solassignments_coursemodule_definition_after_data(moodleform_mod $formwrapper, MoodleQuickForm $mform) {
+function local_solsits_coursemodule_definition_after_data(moodleform_mod $formwrapper, MoodleQuickForm $mform) {
     global $DB;
     $cm = $formwrapper->get_coursemodule();
     if ($cm->modname != 'assign') {
@@ -99,7 +118,7 @@ function local_solassignments_coursemodule_definition_after_data(moodleform_mod 
  * @param stdClass $course
  * @return stdClass Updated data
  */
-function local_solassignments_coursemodule_edit_post_actions($data, $course) {
+function local_solsits_coursemodule_edit_post_actions($data, $course) {
     global $DB;
     // We're doing a static form, so we're not saving data.
     return $data;

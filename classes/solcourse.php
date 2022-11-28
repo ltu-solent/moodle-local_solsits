@@ -15,23 +15,45 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * SolAssignments Language file
+ * SOL Course record
  *
- * @package   local_solassignments
+ * @package   local_solsits
  * @author    Mark Sharp <mark.sharp@solent.ac.uk>
  * @copyright 2022 Solent University {@link https://www.solent.ac.uk}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace local_solsits;
 
-$string['notset'] = 'Not set';
+use core\persistent;
 
-$string['pluginname'] = 'SOL Assignments';
+class solcourse extends persistent {
+    /**
+     * Table name for solcourses.
+     */
+    const TABLE = 'local_solsits_courses';
 
-$string['sits'] = 'SITS';
-$string['sitsreference'] = 'SITS reference';
-$string['sittingdate'] = 'Sitting date';
-$string['sittingdescription'] = 'Sitting description';
-$string['sittingreference'] = 'Sitting reference';
-$string['status'] = 'Status';
+    /**
+     * Return the definition of the properties of this model.
+     *
+     * @return array
+     */
+    protected static function define_properties() {
+        global $USER;
+        return [
+            'courseid' => [
+                'type' => PARAM_INT
+            ],
+            'pagetype' => [
+                'type' => PARAM_ALPHA
+            ],
+            'session' => [
+                'type' => PARAM_RAW
+            ],
+            'templateapplied' => [
+                'type' => PARAM_BOOL,
+                'default' => false
+            ],
+        ];
+    }
+}

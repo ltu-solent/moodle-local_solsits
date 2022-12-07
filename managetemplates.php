@@ -26,7 +26,6 @@
 require_once('../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
-// Start the page.
 // admin_externalpage_setup('local_solsitscat', '', null, '/local/solsits/managetemplates.php');
 $context = context_system::instance();
 require_capability('local/solsits:managetemplates', $context);

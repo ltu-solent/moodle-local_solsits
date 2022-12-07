@@ -30,15 +30,21 @@ use lang_string;
 use moodle_url;
 use table_sql;
 
+defined('MOODLE_INTERNAL') || die();
 require_once("$CFG->libdir/tablelib.php");
 
+/**
+ * Table for listing soltemplate persistent records.
+ */
 class soltemplates_table extends table_sql {
+    /**
+     * Constructor to set up table
+     *
+     * @param string $uniqueid
+     */
     public function __construct($uniqueid) {
         parent::__construct($uniqueid);
         $this->useridfield = 'modifiedby';
-        // $this->pagetypes = \local_solsits\api::pagetypes_menu();
-        // $this->systemroles = \local_solsits\api::availableroles(CONTEXT_SYSTEM);
-        // $this->courseroles = \local_solsits\api::availableroles(CONTEXT_COURSE);
         $columns = [
             'id',
             'templatename',
@@ -72,8 +78,14 @@ class soltemplates_table extends table_sql {
         $this->set_sql('*', "{local_solsits_templates}", $where);
     }
 
-    public function col_actions($col) {
-        $params = ['action' => 'edit', 'id' => $col->id];
+    /**
+     * Output actions column
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_actions($row) {
+        $params = ['action' => 'edit', 'id' => $row->id];
         $edit = new moodle_url('/local/solsits/edittemplate.php', $params);
         $html = html_writer::link($edit, get_string('edit'));
 
@@ -83,36 +95,74 @@ class soltemplates_table extends table_sql {
         return $html;
     }
 
-    public function col_enabled($col) {
-        return ($col->enabled) ? new lang_string('enabled', 'local_solsits')
+    /**
+     * Output enabled column
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_enabled($row) {
+        return ($row->enabled) ? new lang_string('enabled', 'local_solsits')
             : new lang_string('notenabled', 'local_solsits');
     }
 
-    public function col_pagetype($col) {
-        return ucfirst($col->pagetype);
+    /**
+     * Output pagetype column
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_pagetype($row) {
+        return ucfirst($row->pagetype);
     }
 
-    public function col_session($col) {
-        return $col->session;
+    /**
+     * Output session column
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_session($row) {
+        return $row->session;
     }
 
-    public function col_templatename($col) {
+    /**
+     * Output templatename column
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_templatename($row) {
         global $DB;
-        $course = $DB->get_field('course', 'fullname', ['id' => $col->courseid]);
+        $course = $DB->get_field('course', 'fullname', ['id' => $row->courseid]);
+        if (!$course) {
+            return get_string('checkcoursedeleted', 'local_solsits');
+        }
         return $course;
     }
 
-    public function col_usermodified($col) {
-        $modifiedby = core_user::get_user($col->usermodified);
+    /**
+     * Output usermodified column
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_usermodified($row) {
+        $modifiedby = core_user::get_user($row->usermodified);
         if (!$modifiedby || $modifiedby->deleted) {
             return get_string('deleteduser', 'local_solsits');
         }
         return fullname($modifiedby);
     }
 
-    public function col_timemodified($col) {
-        return userdate($col->timemodified, get_string('strftimedatetimeshort', 'core_langconfig'));
+    /**
+     * Output timemodified column
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_timemodified($row) {
+        return userdate($row->timemodified, get_string('strftimedatetimeshort', 'core_langconfig'));
     }
 
 }
-

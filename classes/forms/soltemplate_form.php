@@ -28,8 +28,10 @@ namespace local_solsits\forms;
 use core\form\persistent as persistent_form;
 use lang_string;
 use local_solsits\helper;
-use local_solsits\soltemplate;
 
+/**
+ * Form to manage soltemplate persistent records.
+ */
 class soltemplate_form extends persistent_form {
 
     /**
@@ -45,10 +47,9 @@ class soltemplate_form extends persistent_form {
      * @return void
      */
     public function definition() {
-        global $DB;
         $mform = $this->_form;
 
-        $options = helper::get_pagetypes();
+        $options = helper::get_pagetypes_menu();
         $mform->addElement('select', 'pagetype', new lang_string('pagetype', 'local_solsits'), $options);
         $mform->addRule('pagetype', get_string('required'), 'required', null, 'client');
         $mform->addHelpButton('pagetype', 'pagetype', 'local_solsits');
@@ -69,6 +70,5 @@ class soltemplate_form extends persistent_form {
         $mform->addElement('advcheckbox', 'enabled', new lang_string('enabled', 'local_solsits'));
 
         $this->add_action_buttons();
-
     }
 }

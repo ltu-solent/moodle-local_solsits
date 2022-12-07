@@ -28,7 +28,6 @@ use local_solsits\soltemplate;
 require_once('../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
-// Start the page.
 // admin_externalpage_setup('local_solsits', '', null, '/local/solsits/edittemplate.php');
 $context = context_system::instance();
 require_capability('local/solsits:managetemplates', $context);
@@ -68,7 +67,8 @@ $customdata = [
 ];
 
 if ($confirmdelete && confirm_sesskey()) {
-    $title = $soltemplate->get('title');
+    $templatecourseid = $soltemplate->get('courseid');
+    $title = $DB->get_field('course', 'fullname', ['id' => $templatecourseid]);
     $soltemplate->delete();
     redirect(new moodle_url('/local/solsits/managetemplates.php'),
         get_string('deletedtemplate', 'local_solsits', $title),
@@ -108,7 +108,9 @@ $PAGE->set_heading(get_string('editsoltemplate', 'local_solsits'));
 echo $OUTPUT->header();
 
 if ($action == 'delete') {
-    $heading = new lang_string('confirmdeletetemplate', 'local_solsits', $soltemplate->get('title'));
+    $templatecourseid = $soltemplate->get('courseid');
+    $title = $DB->get_field('course', 'fullname', ['id' => $templatecourseid]);
+    $heading = new lang_string('confirmdeletetemplate', 'local_solsits', $title);
     echo html_writer::tag('h3', $heading);
     $deleteurl = new moodle_url('/local/solsits/edittemplate.php', [
         'action' => 'delete',

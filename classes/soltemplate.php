@@ -28,12 +28,21 @@ namespace local_solsits;
 use core\persistent;
 use lang_string;
 
+/**
+ * Soltemplate persistent record.
+ */
 class soltemplate extends persistent {
     /**
      * Table name for templates.
      */
     const TABLE = 'local_solsits_templates';
+    /**
+     * Module pagetype
+     */
     public const MODULE = 'module';
+    /**
+     * Course pagetype
+     */
     public const COURSE = 'course';
 
 
@@ -65,33 +74,42 @@ class soltemplate extends persistent {
         ];
     }
 
+    /**
+     * Validate pagetypes
+     *
+     * @param string $value Expected pagetype
+     * @return bool|lang_string True success; string on failure.
+     */
     protected function validate_pagetype($value) {
-        $valid = [
-            self::COURSE,
-            self::MODULE
-        ];
+        $valid = helper::get_pagetypes_menu();
         if (!in_array($value, $valid)) {
             return new lang_string('invalidpagetype', 'local_solsits');
         }
         return true;
     }
 
-    protected function validate_session($value) {
-        $years = range(2020, date('Y') + 1);
-        $options = [];
-        foreach ($years as $year) {
-            $yearplusone = $year + 1;
-            $options[$year . '/' . $yearplusone] = $year . '/' . $yearplusone;
-        }
+    /**
+     * Validate the session
+     *
+     * @param string $value The expected format is 2023/24 - but check.
+     * @return bool|lang_string True success; string on failure.
+     */
+    protected static function validate_session($value) {
+        $options = helper::get_session_menu();
         if (!isset($options[$value])) {
             return new lang_string('invalidsession', 'local_solsits');
         }
         return true;
     }
 
+    /**
+     * Validate the courseid
+     *
+     * @param string $value The courseid
+     * @return bool|lang_string True success; string on failure.
+     */
     protected function validate_courseid($value) {
         global $DB;
-        error_log($value);
         if (!is_numeric($value)) {
             return new lang_string('invalidcourseid', 'local_solsits');
         }

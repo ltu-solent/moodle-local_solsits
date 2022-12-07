@@ -25,6 +25,9 @@
 
 namespace local_solsits;
 
+/**
+ * Helper class for common functions.
+ */
 class helper {
 
     /**
@@ -32,10 +35,10 @@ class helper {
      *
      * @return array
      */
-    public static function get_pagetypes(): array {
+    public static function get_pagetypes_menu(): array {
         $options = [
-            soltemplate::MODULE => ucfirst(soltemplate::MODULE),
-            soltemplate::COURSE => ucfirst(soltemplate::COURSE)
+            soltemplate::MODULE => soltemplate::MODULE,
+            soltemplate::COURSE => soltemplate::COURSE
         ];
         return $options;
     }
@@ -48,7 +51,7 @@ class helper {
         $years = range(2020, date('Y') + 1);
         $options = [];
         foreach ($years as $year) {
-            $yearplusone = $year + 1;
+            $yearplusone = substr($year, 2, 2) + 1;
             $options[$year . '/' . $yearplusone] = $year . '/' . $yearplusone;
         }
         return array_reverse($options);

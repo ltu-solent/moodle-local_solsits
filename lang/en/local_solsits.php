@@ -27,8 +27,11 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['actions'] = 'Actions';
 $string['assessmentcode'] = 'Assessment code';
+$string['assignmentsettings'] = 'Assignment settings';
+$string['assignmentsettings_desc'] = 'Settings to help manage assignment creation';
 $string['availablefrom'] = 'Available from';
 
+$string['checkcoursedeleted'] = 'Check: This template no longer exists';
 $string['confirmdeletetemplate'] = 'Confirm deletion of "{$a}"';
 
 $string['deletedtemplate'] = '"{$a}" has been deleted.';
@@ -74,6 +77,8 @@ $string['solsits:manageassignments'] = 'Manage SITS assignments';
 $string['solsits:managetemplates'] = 'Manage Templates';
 $string['status'] = 'Status';
 
+$string['targetsection'] = 'Assignment section';
+$string['targetsection_desc'] = 'Which section No. should assignments be created in?';
 $string['templatecat'] = 'Template category';
 $string['templatecat_desc'] = 'The source of all template files';
 $string['templatecourse'] = 'Template course';

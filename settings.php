@@ -40,6 +40,17 @@ $description = new lang_string('templatecat_desc', 'local_solsits');
 $options = core_course_category::make_categories_list('moodle/category:manage');
 $settings->add(new admin_setting_configselect($name, $title, $description, '', $options));
 
+$name = 'local_solsits/assignmentsettings';
+$title = new lang_string('assignmentsettings', 'local_solsits');
+$description = new lang_string('assignmentsettings_desc', 'local_solsits');
+$settings->add(new admin_setting_heading($name, $title, $description));
+
+$name = 'local_solsits/targetsection';
+$title = new lang_string('targetsection', 'local_solsits');
+$description = new lang_string('targetsection_desc', 'local_solsits');
+$options = array_combine(range(1, 10), range(1, 10));
+$settings->add(new admin_setting_configselect($name, $title, $description, 1, $options));
+
 $ADMIN->add('local_solsitscat', $settings);
 
 $name = 'local_solsits/managetemplates';

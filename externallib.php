@@ -32,8 +32,16 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/lib/externallib.php');
 
+/**
+ * External Webservice functions for local_solsits
+ */
 class local_solsits_external extends external_api {
 
+    /**
+     * Parameters required for adding SITS assignments
+     *
+     * @return external_function_parameters
+     */
     public static function add_assignments_parameters(): external_function_parameters {
         return new external_function_parameters([
             'assignments' => new external_multiple_structure(
@@ -48,13 +56,20 @@ class local_solsits_external extends external_api {
                     'assessmentcode' => new external_value(PARAM_TEXT, 'Assessment code (PROJ1 etc)'),
                     'duedate' => new external_value(PARAM_INT, 'Due date timestamp (usually 4pm)'),
                     'grademarkexempt' => new external_value(PARAM_BOOL, 'Is this grademark exempt', VALUE_DEFAULT, false),
-                    'availablefrom' => new external_value(PARAM_INT, 'When the assignment is available to the student from', VALUE_OPTIONAL),
+                    'availablefrom' => new external_value(
+                        PARAM_INT, 'When the assignment is available to the student from', VALUE_OPTIONAL),
                     // Do we want all the other dates? Or do we continue to process them ourselves?
                 ])
             )
         ]);
     }
 
+    /**
+     * Add SITS assignments to Moodle
+     *
+     * @param array $assignments
+     * @return array Details about added records.
+     */
     public static function add_assignments($assignments) {
         global $DB;
         $params = self::validate_parameters(self::add_assignments_parameters(),
@@ -62,7 +77,7 @@ class local_solsits_external extends external_api {
         $transaction = $DB->start_delegated_transaction();
         $inserted = [];
         foreach ($params['assignments'] as $assignment) {
-            if ($DB->record_exists('local_solsits',['sitsref' => $assignment->sitsref])) {
+            if ($DB->record_exists('local_solsits', ['sitsref' => $assignment->sitsref])) {
                 throw new invalid_parameter_exception(
                     get_string('error:sitsrefinuse', 'local_solsits', $assignment->sitsref)
                 );
@@ -81,17 +96,22 @@ class local_solsits_external extends external_api {
 
             // Send data to helper class to create the assignment.
             // Then when you've got the cmid back, create the solassignment record and save that.
-            // Return the solassignmentid
-            $assign = new sitsassign(null, $assignment);
-            $assign->add();
-            $inserted[] = $assign->get('id');
+            // Return the solassignmentid.
+            $assign = new sitsassign('', $assignment);
+            $coursemoduleid = $assign->add();
+            $inserted[] = $coursemoduleid;
         }
 
         $transaction->allow_commit();
         return $inserted;
     }
 
-    public static function add_assignments_returns() {
+    /**
+     * Expected return values when adding a SITS assignment
+     *
+     * @return external_multiple_structure
+     */
+    public static function add_assignments_returns(): external_multiple_structure {
         return new external_multiple_structure(
             new external_single_structure([
                 new external_value(PARAM_INT, 'ID in the SOLSITS assignment table')
@@ -99,7 +119,12 @@ class local_solsits_external extends external_api {
         );
     }
 
-    public static function update_assignments_parameters() {
+    /**
+     * Update SITS assignment record
+     *
+     * @return external_function_parameters
+     */
+    public static function update_assignments_parameters(): external_function_parameters {
         return new external_function_parameters([
             'assignments' => new external_multiple_structure(
                 new external_single_structure([
@@ -112,19 +137,32 @@ class local_solsits_external extends external_api {
                     'weighting' => new external_value(PARAM_FLOAT, 'Assignment weighting expressed as a decimal'),
                     'assessmentcode' => new external_value(PARAM_TEXT, 'Assessment code (PROJ1 etc)'),
                     'duedate' => new external_value(PARAM_INT, 'Due date timestamp (usually 4pm)'),
-                    'grademarkexempt' => new external_value(PARAM_BOOL, 'Is this grademark exempt', VALUE_DEFAULT, false),
-                    'availablefrom' => new external_value(PARAM_INT, 'When the assignment is available to the student from', VALUE_OPTIONAL),
+                    'grademarkexempt' => new external_value(
+                        PARAM_BOOL, 'Is this grademark exempt', VALUE_DEFAULT, false),
+                    'availablefrom' => new external_value(
+                        PARAM_INT, 'When the assignment is available to the student from', VALUE_OPTIONAL),
                     // Do we want all the other dates? Or do we continue to process them ourselves?
                 ])
             )
         ]);
     }
 
+    /**
+     * Update SITS assignment record
+     *
+     * @param array $assignments
+     * @return void
+     */
     public static function update_assignments($assignments) {
         // Do updates.
     }
 
-    public static function update_assignments_returns() {
+    /**
+     * Data returned when updating an assignment
+     *
+     * @return external_multiple_structure
+     */
+    public static function update_assignments_returns(): external_multiple_structure {
         return new external_multiple_structure(
             new external_single_structure([
                 new external_value(PARAM_INT, 'ID in the SOLSITS assignment table')
@@ -132,31 +170,49 @@ class local_solsits_external extends external_api {
         );
     }
 
+    /**
+     * Validate parameters for register sitscourses.
+     *
+     * @return external_function_parameters
+     */
     public static function register_sitscourses_parameters(): external_function_parameters {
         return new external_function_parameters([
             'courses' => new external_multiple_structure(
                 new external_single_structure([
                     'courseid' => new external_value(PARAM_INT, 'Course id'),
                     'pagetype' => new external_value(PARAM_ALPHA, 'course or module', VALUE_DEFAULT, 'module'),
-                    'session' => new external_value(PARAM_RAW, 'Session e.g. 2022/2023')
+                    'session' => new external_value(PARAM_RAW, 'Session e.g. 2022/23 - check formating as this will be validated')
                 ])
             )
         ]);
     }
 
+    /**
+     * Register SITS courses and modules in Moodle
+     *
+     * @param array $courses
+     * @return array Details of registered courses
+     */
     public static function register_sitscourses($courses) {
         global $DB, $USER;
         $params = self::validate_parameters(self::register_sitscourses_parameters(),
                 array('courses' => $courses));
         $transaction = $DB->start_delegated_transaction();
         $inserted = [];
-        $validpagetypes = helper::get_pagetypes();
+        $validpagetypes = helper::get_pagetypes_menu();
         foreach ($params['courses'] as $course) {
+            $courseexists = $DB->record_exists('course', ['id' => $course['courseid']]);
+            if (!$courseexists) {
+                throw new invalid_parameter_exception(
+                    get_string('error:coursenotexist', 'local_solsits', $course['courseid'])
+                );
+            }
             if (!in_array($course['pagetype'], $validpagetypes)) {
                 throw new invalid_parameter_exception(
                     get_string('error:invalidpagetype', 'local_solsits', $course['pagetype'])
                 );
             }
+
             $existing = solcourse::get_record(['courseid' => $course['courseid']]);
             if (!$existing) {
                 $sitscourse = new solcourse(0, (object)$course);
@@ -169,6 +225,7 @@ class local_solsits_external extends external_api {
                     'session' => $sitscourse->get('session')
                 ];
             } else {
+                // If it already exists, don't throw an error, just return the record.
                 $inserted[] = [
                     'id' => $existing->get('id'),
                     'courseid' => $existing->get('courseid'),
@@ -182,7 +239,12 @@ class local_solsits_external extends external_api {
         return $inserted;
     }
 
-    public static function register_sitscourses_returns() {
+    /**
+     * Returned data format for register sitscourses
+     *
+     * @return external_multiple_structure
+     */
+    public static function register_sitscourses_returns(): external_multiple_structure {
         return new external_multiple_structure(
             new external_single_structure([
                 'id' => new external_value(PARAM_INT),

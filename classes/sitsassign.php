@@ -29,27 +29,59 @@ use assign;
 use context_module;
 use core_date;
 use DateTime;
+use lang_string;
 use moodle_exception;
 use stdClass;
 
-defined('MOODLE_INTERNAL') || die();
-
+/**
+ * Sits assignment class
+ */
 class sitsassign {
+    /**
+     * Moodle assignment instance
+     *
+     * @var assign
+     */
     private $assign;
+
+    /**
+     * SolAssignment persistent record
+     *
+     * @var solassignment
+     */
     private $solassignment;
+
+    /**
+     * Data coming from SITS
+     *
+     * @var stdClass
+     */
     private $sitsdata;
+
+    /**
+     * The formdata being submitted to create the Moodle assignment
+     *
+     * @var array
+     */
     private $formdata;
+
+    /**
+     * SolSits config settings
+     *
+     * @var stdClass
+     */
     private $config;
+
     /**
      * Class that manages SITS assignments
      *
      * @param string $sitsref
-     * @param object $sitsdata
+     * @param stdClass $sitsdata
      */
-    public function __construct($sitsref = null, $sitsdata) {
+    public function __construct($sitsref = '', stdClass $sitsdata = null) {
         $this->config = get_config('local_solsits');
         $this->sitsdata = $sitsdata;
-        if ($sitsref != null) {
+        if ($sitsref != '') {
             $this->solassignment = solassignment::get_record(['sitsref' => $sitsref]);
             if (!$this->solassignment) {
                 throw new moodle_exception('invalidrecord');
@@ -60,6 +92,11 @@ class sitsassign {
         }
     }
 
+    /**
+     * Add a new SITS assignment to Moodle.
+     *
+     * @return void
+     */
     public function add() {
         // Merge the default data and the sitsdata
         $this->formdata = clone $this->defaultsettings();
@@ -75,16 +112,27 @@ class sitsassign {
         $moduleinfo->section = $this->config->targetsection;
         // $assignid = $this->assign->add_instance($moduleinfo, true);
         $this->calculatedates($moduleinfo);
-        add_moduleinfo($moduleinfo, $this->sitsdata->courseid);
+        $moduleinfo = add_moduleinfo($moduleinfo, $this->sitsdata->courseid, $this->formdata);
+        return $moduleinfo->cm->id;
     }
 
+    /**
+     * Update an existing Moodle assignment
+     *
+     * @return void
+     */
     public function update() {
         $this->assign->update_instance($this->formdata);
         // update_moduleinfo();
     }
 
+    /**
+     * Calculate the relative dates to the duedate
+     *
+     * @param stdClass $moduleinfo
+     * @return void
+     */
     private function calculatedates(&$moduleinfo) {
-        
         if ($this->sitsdata->availablefrom == 0) {
             $moduleinfo->allowsubmissionsfromdate = 0;
         } else {
@@ -97,6 +145,11 @@ class sitsassign {
         }
     }
 
+    /**
+     * Default settings for a new assignment
+     *
+     * @return stdClass
+     */
     private function defaultsettings() {
 
         $assigncfg = get_config('assign');
@@ -132,5 +185,59 @@ class sitsassign {
         $misconduct = get_config('assignfeedback_misconduct');
         $sample = get_config('assignfeedback_sample');
         return $settings;
+    }
+
+    /**
+     * Add SITS assignment data to the Moodle assignment settings page, if relevant.
+     *
+     * @param \moodleform_mod $formwrapper
+     * @param \MoodleQuickForm $mform
+     * @return void
+     */
+    public static function coursemodule_form(\moodleform_mod $formwrapper, \MoodleQuickForm $mform) {
+        global $DB;
+        $cm = $formwrapper->get_coursemodule();
+        if (!isset($cm) || $cm->modname != 'assign') {
+            return;
+        }
+        $solassign = $DB->get_record('local_solsits_assign', ['cmid' => $cm->id]);
+
+        if (!$solassign) {
+            // Not a SITS assignment, so don't bother.
+            return;
+        }
+        $mform->addElement('header', 'sits_section', new lang_string('sits', 'local_solsits'));
+
+        $mform->addElement('static', 'sits_ref', new lang_string('sitsreference', 'local_solsits'), $solassign->sitsref);
+        $mform->addElement('static', 'sits_sitting', new lang_string('sittingreference', 'local_solsits'), $solassign->sitting);
+        $mform->addElement('static', 'sits_sittingdesc', new lang_string('sittingdescription', 'local_solsits'), $solassign->sittingdesc);
+
+        $externaldate = '';
+        if ($solassign->externaldate > 0) {
+            $externaldate = date('Y-m-d', $solassign->externaldate);
+        } else {
+            $externaldate = get_string('notset', 'local_solsits');
+        }
+        $mform->addElement('static', 'sits_externaldate', new lang_string('externaldate', 'local_solsits'), $externaldate);
+        $mform->addElement('static', 'sits_status', new lang_string('status', 'local_solsits'), $solassign->status);
+
+        $weighting = (int)($solassign->weighting * 100);
+        $mform->addElement('static', 'sits_weighting', new lang_string('weighting', 'local_solsits'), $weighting . '%');
+
+        $mform->addElement('static', 'sits_assessmentcode', new lang_string('assessmentcode', 'local_solsits'), $solassign->assessmentcode);
+
+        $duedate = date('y-m-d', $solassign->duedate);
+        $mform->addElement('static', 'sits_duedate', new lang_string('duedate', 'local_solsits'), $duedate);
+
+        $grademarkexempt = $solassign->grademarkexempt ? get_string('Yes') : get_string('No');
+        $mform->addElement('static', 'sits_grademarkexempt', new lang_string('grademarkexempt', 'local_solsits'), $grademarkexempt);
+
+        $availablefrom = '';
+        if ($solassign->availablefrom > 0) {
+            $availablefrom = get_string('immediately', 'local_solsits');
+        } else {
+            $availablefrom = date('Y-m-d', $solassign->availablefrom);
+        }
+        $mform->addElement('static', 'sits_availablefrom', new lang_string('availablefrom', 'local_solsits'), $availablefrom);
     }
 }

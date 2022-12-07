@@ -29,6 +29,9 @@ use core\persistent;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * The SITS assignment as it's coming from SITS
+ */
 class solassignment extends persistent {
     /**
      * Table name for solassignments.
@@ -41,7 +44,6 @@ class solassignment extends persistent {
      * @return array
      */
     protected static function define_properties() {
-        global $USER;
         return [
             'sitsref' => [
                 'type' => PARAM_TEXT

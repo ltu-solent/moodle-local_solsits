@@ -75,6 +75,7 @@ $string['sittingreference'] = 'Sitting reference';
 $string['solassignments:manage'] = 'Manage SITS Assignments';
 $string['solsits:manageassignments'] = 'Manage SITS assignments';
 $string['solsits:managetemplates'] = 'Manage Templates';
+$string['solsits:registersitscourse'] = 'Register SITS course';
 $string['status'] = 'Status';
 
 $string['targetsection'] = 'Assignment section';

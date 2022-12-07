@@ -40,5 +40,12 @@ $capabilities = [
         'archetypes' => array(
             'manager' => CAP_ALLOW,
         )
-    )
+    ),
+    'local/solsits:registersitscourse' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archtypes' => [
+            'manager' => CAP_ALLOW
+        ]
+    ]
 ];

@@ -197,6 +197,8 @@ class local_solsits_external extends external_api {
         global $DB, $USER;
         $params = self::validate_parameters(self::register_sitscourses_parameters(),
                 array('courses' => $courses));
+        $systemcontext = context_system::instance();
+        require_capability('local/solsits:registersitscourse', $systemcontext);
         $transaction = $DB->start_delegated_transaction();
         $inserted = [];
         $validpagetypes = helper::get_pagetypes_menu();

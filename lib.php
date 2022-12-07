@@ -23,7 +23,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+use local_solsits\sitsassign;
 
 /**
  * Define extra fields in the Assignment activity
@@ -33,51 +33,8 @@ defined('MOODLE_INTERNAL') || die();
  * @return void
  */
 function local_solsits_coursemodule_standard_elements(moodleform_mod $formwrapper, MoodleQuickForm $mform) {
-    global $DB;
     // Is this an assignment?
-    $cm = $formwrapper->get_coursemodule();
-    if ($cm->modname != 'assign') {
-        return;
-    }
-    $solassign = $DB->get_record('local_solassignments', ['cmid' => $cm->id]);
-
-    if (!$solassign) {
-        // Not a SITS assignment, so don't bother.
-        return;
-    }
-    $mform->addElement('header', 'sits_section', new lang_string('sits', 'local_solsits'));
-
-    $mform->addElement('static', 'sits_ref', new lang_string('sitsreference', 'local_solsits'), $solassign->sitsref);
-    $mform->addElement('static', 'sits_sitting', new lang_string('sittingreference', 'local_solsits'), $solassign->sitting);
-    $mform->addElement('static', 'sits_sittingdesc', new lang_string('sittingdescription', 'local_solsits'), $solassign->sittingdesc);
-
-    $externaldate = '';
-    if ($solassign->externaldate > 0) {
-        $externaldate = date('Y-m-d', $solassign->externaldate);
-    } else {
-        $externaldate = get_string('notset', 'local_solsits');
-    }
-    $mform->addElement('static', 'sits_externaldate', new lang_string('externaldate', 'local_solsits'), $externaldate);
-    $mform->addElement('static', 'sits_status', new lang_string('status', 'local_solsits'), $solassign->status);
-
-    $weighting = (int)($solassign->weighting * 100);
-    $mform->addElement('static', 'sits_weighting', new lang_string('weighting', 'local_solsits'), $weighting . '%');
-
-    $mform->addElement('static', 'sits_assessmentcode', new lang_string('assessmentcode', 'local_solsits'), $solassign->assessmentcode);
-
-    $duedate = date('y-m-d', $solassign->duedate);
-    $mform->addElement('static', 'sits_duedate', new lang_string('duedate', 'local_solsits'), $duedate);
-
-    $grademarkexempt = $solassign->grademarkexempt ? get_string('Yes') : get_string('No');
-    $mform->addElement('static', 'sits_grademarkexempt', new lang_string('grademarkexempt', 'local_solsits'), $grademarkexempt);
-
-    $availablefrom = '';
-    if ($solassign->availablefrom > 0) {
-        $availablefrom = get_string('immediately', 'local_solsits');
-    } else {
-        $availablefrom = date('Y-m-d', $solassign->availablefrom);
-    }
-    $mform->addElement('static', 'sits_availablefrom', new lang_string('availablefrom', 'local_solsits'), $availablefrom);
+    sitsassign::coursemodule_form($formwrapper, $mform);
 }
 
 /**
@@ -89,18 +46,18 @@ function local_solsits_coursemodule_standard_elements(moodleform_mod $formwrappe
  */
 function local_solsits_coursemodule_definition_after_data(moodleform_mod $formwrapper, MoodleQuickForm $mform) {
     global $DB;
+    // We're doing a static form, so no need to set anything.
+    return;
     $cm = $formwrapper->get_coursemodule();
-    if ($cm->modname != 'assign') {
+    if (!isset($cm) || $cm->modname != 'assign') {
         return;
     }
-    $solassign = $DB->get_record('local_solassignments', ['cmid' => $cm->id]);
+    $solassign = $DB->get_record('local_solsits_assign', ['cmid' => $cm->id]);
     if (!$solassign) {
         return;
     }
-    // We're doing a static form, so no need to set anything.
-    return;
+
     // Assign the data.
-    // error_log(print_r($solassign, true));
     $mform->getElement('sits_ref')->setValue($solassign->sitsref);
     $mform->getElement('sits_sitting')->setValue($solassign->sitting);
     $mform->getElement('sits_sitting_desc')->setValue($solassign->sitting_desc);
@@ -126,7 +83,7 @@ function local_solsits_coursemodule_edit_post_actions($data, $course) {
     if (!$isadmin) {
         return $data;
     }
-    $solassign = $DB->get_record('local_solassignments', ['cmid' => $data->coursemodule]);
+    $solassign = $DB->get_record('local_solsits_assign', ['cmid' => $data->coursemodule]);
     if (!$solassign) {
         $solassign = new stdClass();
         $solassign->cmid = $data->coursemodule;
@@ -142,9 +99,28 @@ function local_solsits_coursemodule_edit_post_actions($data, $course) {
     $solassign->timemodified = time();
 
     if (isset($solassign->id)) {
-        $DB->update_record('local_solassignments', $solassign);
+        $DB->update_record('local_solsits_assign', $solassign);
     } else {
-        $DB->insert_record('local_solassignments', $solassign);
+        $DB->insert_record('local_solsits_assign', $solassign);
     }
     return $data;
+}
+
+/**
+ * Take some action before the course module is deleted.
+ *
+ * @param stdClass $cm
+ * @return void
+ */
+function local_solsits_pre_course_module_delete($cm) {
+    // This might be a better alternative to the event watcher as this might run
+    // before submissions are deleted.
+
+    // If cm is assignment.
+    // If is formative assignment.
+    // Send email to module leader and LTU.
+    // Include the number of submissions in the email.
+
+    // Alternatively use the event course_module_deleted.
+    return;
 }

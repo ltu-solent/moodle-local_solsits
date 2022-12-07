@@ -26,7 +26,14 @@
 namespace local_solsits;
 
 use core\persistent;
+use lang_string;
 
+/**
+ * SolCourse class.
+ *
+ * Used to register which courses have come from SITS
+ * and allows use to apply an appropriate template.
+ */
 class solcourse extends persistent {
     /**
      * Table name for solcourses.
@@ -45,7 +52,9 @@ class solcourse extends persistent {
                 'type' => PARAM_INT
             ],
             'pagetype' => [
-                'type' => PARAM_ALPHA
+                'type' => PARAM_ALPHA,
+                'default' => soltemplate::MODULE,
+                'options' => helper::get_pagetypes_menu()
             ],
             'session' => [
                 'type' => PARAM_RAW
@@ -55,5 +64,50 @@ class solcourse extends persistent {
                 'default' => false
             ],
         ];
+    }
+
+    /**
+     * Ensure pagetype is valid.
+     *
+     * @param string $value
+     * @return bool|lang_string True success, lang_string on failure.
+     */
+    protected function validate_pagetype($value) {
+        $valid = helper::get_pagetypes_menu();
+        if (!in_array($value, $valid)) {
+            return new lang_string('invalidpagetype', 'local_solsits');
+        }
+        return true;
+    }
+
+    /**
+     * Validate the session
+     *
+     * @param string $value The expected format is 2023/24 - but check.
+     * @return bool|lang_string
+     */
+    protected function validate_session($value) {
+        $options = helper::get_session_menu();
+        if (!isset($options[$value])) {
+            return new lang_string('invalidsession', 'local_solsits');
+        }
+        return true;
+    }
+
+    /**
+     * Validate the courseid exists
+     *
+     * @param int $value courseid
+     * @return bool|lang_string
+     */
+    protected function validate_courseid($value) {
+        global $DB;
+        if (!is_numeric($value)) {
+            return new lang_string('invalidcourseid', 'local_solsits');
+        }
+        if (!$DB->record_exists('course', ['id' => $value])) {
+            return new lang_string('invalidcourseid', 'local_solsits');
+        }
+        return true;
     }
 }

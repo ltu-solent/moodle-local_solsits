@@ -76,7 +76,7 @@
             <FIELDS>
                 <FIELD NAME="id" SEQUENCE="true" TYPE="int" NOTNULL="true" UNSIGNED="true" LENGTH="10" />
                 <FIELD NAME="pagetype" SEQUENCE="false" TYPE="char" NOTNULL="true" LENGTH="10" DEFAULT="module" COMMENT="Type course or module"/>
-                <FIELD NAME="courseid" SEQUENCE="false" TYPE="int" NOTNULL="true" LENGTH="10" UNSIGNED="true" />
+                <FIELD NAME="courseid" SEQUENCE="false" TYPE="int" NOTNULL="true" LENGTH="10" UNSIGNED="true" COMMENT="Courseid for the template course" />
                 <FIELD NAME="session" SEQUENCE="false" TYPE="char" NOTNULL="true" LENGTH="20" COMMENT="Academic session using in combination with type to find the courseid" />
                 <FIELD NAME="enabled" SEQUENCE="false" TYPE="int" NOTNULL="true" LENGTH="1" DEFAULT="0" UNSIGNED="true" />
                 <FIELD NAME="usermodified" SEQUENCE="false" TYPE="int" NOTNULL="true" LENGTH="10" UNSIGNED="true" />

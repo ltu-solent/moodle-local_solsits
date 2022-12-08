@@ -48,6 +48,7 @@ class externallib_test extends externallib_advanced_testcase {
      * Test register sitscourse
      *
      * @dataProvider register_sitscourse_provider
+     * @covers \local_solsits\externallib::register_sitscourse
      * @return void
      */
     public function test_register_sitscourse($code, $occurrence, $period, $session, $pagetype, $error, $nocourse) {
@@ -57,7 +58,13 @@ class externallib_test extends externallib_advanced_testcase {
         $this->setUser($wsuser);
         $wsroleid = $this->assignUserCapability('local/solsits:registersitscourse', $systemcontext->id);
         set_role_contextlevels($wsroleid, [CONTEXT_SYSTEM]);
-        $idnumber = implode('_', [$code, $occurrence, $period, $session]);
+        $idnumber = 'empty';
+        if ($pagetype == 'module') {
+            $idnumber = implode('_', [$code, $occurrence, $period, $session]);
+        } else if ($pagetype == 'course') {
+            $idnumber = $code;
+        }
+
         if ($nocourse) {
             // Some made up id.
             $course = new stdClass();
@@ -74,7 +81,10 @@ class externallib_test extends externallib_advanced_testcase {
             'session' => $session
         ];
         try {
-            \local_solsits_external::register_sitscourses([$registerthis]);
+            $result = \local_solsits_external::register_sitscourses([$registerthis]);
+            $this->assertEquals($course->id, $result[0]['courseid']);
+            $this->assertEquals($session, $result[0]['session']);
+            $this->assertEquals($pagetype, $result[0]['pagetype']);
         } catch (Exception $ex) {
             $this->assertTrue($ex instanceof $error['exception']['class']);
             $this->assertEquals($error['exception']['message'], $ex->getMessage());
@@ -86,14 +96,28 @@ class externallib_test extends externallib_advanced_testcase {
         \local_solsits_external::register_sitscourses([$registerthis]);
     }
 
+    /**
+     * Provider method for register_sitscourse
+     *
+     * @return array
+     */
     public function register_sitscourse_provider() {
         return [
-            'success' => [
+            'module' => [
                 'code' => 'ABC101',
                 'occurrence' => 'A',
                 'period' => 'S1',
                 'session' => '2022/23',
                 'pagetype' => 'module',
+                'error' => false,
+                'nocourse' => false,
+            ],
+            'course' => [
+                'code' => 'MSCPSY',
+                'occurrence' => '',
+                'period' => '',
+                'session' => '2022/23',
+                'pagetype' => 'course',
                 'error' => false,
                 'nocourse' => false,
             ],

@@ -38,6 +38,7 @@ $string['confirmdeletetemplate'] = 'Confirm deletion of "{$a}"';
 $string['deletedtemplate'] = '"{$a}" has been deleted.';
 $string['deleteduser'] = 'Deleted user';
 $string['duedate'] = 'Due date';
+$string['duplicatepagetypesession'] = 'A template already exists for this session and page-type combination';
 
 $string['editsoltemplate'] = 'Edit Template';
 $string['enabled'] = 'Enabled';

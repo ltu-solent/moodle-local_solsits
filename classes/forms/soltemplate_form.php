@@ -28,6 +28,7 @@ namespace local_solsits\forms;
 use core\form\persistent as persistent_form;
 use lang_string;
 use local_solsits\helper;
+use local_solsits\soltemplate;
 
 /**
  * Form to manage soltemplate persistent records.
@@ -70,5 +71,39 @@ class soltemplate_form extends persistent_form {
         $mform->addElement('advcheckbox', 'enabled', new lang_string('enabled', 'local_solsits'));
 
         $this->add_action_buttons();
+    }
+
+    /**
+     * Extra validation.
+     *
+     * @param  stdClass $data Data to validate.
+     * @param  array $files Array of files.
+     * @param  array $errors Currently reported errors.
+     * @return array of additional errors, or overridden errors.
+     */
+    protected function extra_validation($data, $files, array &$errors) {
+        // Session and Pagetype are combined to be a unique key, so check.
+        $existing = soltemplate::get_records_select(
+            'pagetype = :pagetype AND session = :session',
+            [
+                'pagetype' => $data->pagetype,
+                'session' => $data->session
+            ]
+        );
+        if ($existing) {
+            if ($data->id = 0) {
+                $errors['pagetype'] = get_string('duplicatepagetypesession', 'local_solsits');
+                $errors['session'] = $errors['pagetype'];
+            } else {
+                $existing = reset($existing);
+                // Don't throw a duplication error on itself.
+                if ($data->id != $existing->get('id')) {
+                    $errors['pagetype'] = get_string('duplicatepagetypesession', 'local_solsits');
+                    $errors['session'] = $errors['pagetype'];
+                }
+            }
+
+        }
+        return $errors;
     }
 }

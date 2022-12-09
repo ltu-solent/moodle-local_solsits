@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * SolSITS version file
+ * SOL-SITS tasks
  *
  * @package   local_solsits
  * @author    Mark Sharp <mark.sharp@solent.ac.uk>
@@ -25,7 +25,14 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2022112110;
-$plugin->release   = 2022112100;
-$plugin->requires  = 2020061500;
-$plugin->component = 'local_solsits';
+$tasks = [
+    [
+        'classname' => '\local_solsits\task\applytemplate_task',
+        'blocking' => 0,
+        'minute' => '*',
+        'hour' => '*',
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '*'
+    ]
+];

@@ -47,6 +47,13 @@ class externallib_test extends externallib_advanced_testcase {
     /**
      * Test register sitscourse
      *
+     * @param string $code Module/Course code
+     * @param string $occurrence Occurrence letter
+     * @param string $period Teaching period S1,S2 etc
+     * @param string $session Academic year 2021/22
+     * @param string $pagetype module or course
+     * @param bool|array $error Expected error or none
+     * @param bool $nocourse Create course or not.
      * @dataProvider register_sitscourse_provider
      * @covers \local_solsits\externallib::register_sitscourse
      * @return void

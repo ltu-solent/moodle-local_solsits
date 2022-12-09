@@ -26,6 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['actions'] = 'Actions';
+$string['applytemplatetask'] = 'Apply template';
 $string['assessmentcode'] = 'Assessment code';
 $string['assignmentsettings'] = 'Assignment settings';
 $string['assignmentsettings_desc'] = 'Settings to help manage assignment creation';
@@ -55,6 +56,8 @@ $string['invalidsession'] = 'Invalid session';
 $string['lastmodified'] = 'Last modified';
 
 $string['managetemplates'] = 'Manage templates';
+$string['maxtemplates'] = 'Max templates';
+$string['maxtemplates_desc'] = 'Maximum number of courses to apply templates to in a single run.';
 
 $string['newsavedtemplate'] = 'New template saved';
 $string['newsoltemplate'] = 'New template';
@@ -80,6 +83,7 @@ $string['status'] = 'Status';
 
 $string['targetsection'] = 'Assignment section';
 $string['targetsection_desc'] = 'Which section No. should assignments be created in?';
+$string['templateapplied'] = 'Template {$a->templatekey} has been applied to {$a->courseidnumber}';
 $string['templatecat'] = 'Template category';
 $string['templatecat_desc'] = 'The source of all template files';
 $string['templatecourse'] = 'Template course';

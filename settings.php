@@ -40,6 +40,12 @@ $description = new lang_string('templatecat_desc', 'local_solsits');
 $options = core_course_category::make_categories_list('moodle/category:manage');
 $settings->add(new admin_setting_configselect($name, $title, $description, '', $options));
 
+$name = 'local_solsits/maxtemplates';
+$title = new lang_string('maxtemplates', 'local_solsits');
+$description = new lang_string('maxtemplates_desc', 'local_solsits');
+$options = array_combine(range(1, 30), range(1, 30));
+$settings->add(new admin_setting_configselect($name, $title, $description, 1, $options));
+
 $name = 'local_solsits/assignmentsettings';
 $title = new lang_string('assignmentsettings', 'local_solsits');
 $description = new lang_string('assignmentsettings_desc', 'local_solsits');

@@ -70,7 +70,7 @@ class soltemplates_table extends table_sql {
         $this->define_columns($columns);
         $this->define_headers($columnheadings);
         $this->no_sorting('actions');
-        $this->sortable(true, 'id');
+        $this->sortable(true, 'session', SORT_DESC);
         $this->collapsible(false);
 
         $this->define_baseurl(new moodle_url("/local/solsits/managetemplates.php"));
@@ -138,7 +138,8 @@ class soltemplates_table extends table_sql {
         if (!$course) {
             return get_string('checkcoursedeleted', 'local_solsits');
         }
-        return $course;
+        $url = new moodle_url('/course/view.php', ['id' => $row->courseid]);
+        return html_writer::link($url, $course);
     }
 
     /**

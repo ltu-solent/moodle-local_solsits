@@ -26,7 +26,7 @@
 require_once('../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
-// admin_externalpage_setup('local_solsitscat', '', null, '/local/solsits/managetemplates.php');
+admin_externalpage_setup('local_solsits/managetemplates', '', null, '/local/solsits/managetemplates.php');
 $context = context_system::instance();
 require_capability('local/solsits:managetemplates', $context);
 
@@ -34,7 +34,7 @@ $PAGE->set_context($context);
 $PAGE->set_heading(get_string('pluginname', 'local_solsits'));
 $PAGE->set_pagelayout('admin');
 $PAGE->set_title(get_string('pluginname', 'local_solsits'));
-$PAGE->set_url($CFG->wwwroot.'/local/solalerts/index.php');
+$PAGE->set_url($CFG->wwwroot.'/local/solsits/managetemplates.php');
 
 echo $OUTPUT->header();
 

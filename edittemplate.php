@@ -28,17 +28,10 @@ use local_solsits\soltemplate;
 require_once('../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
-// admin_externalpage_setup('local_solsits', '', null, '/local/solsits/edittemplate.php');
-$context = context_system::instance();
-require_capability('local/solsits:managetemplates', $context);
-
 
 $id = optional_param('id', 0, PARAM_INT);
 $action = optional_param('action', 'new', PARAM_ALPHA);
 $confirmdelete = optional_param('confirmdelete', null, PARAM_BOOL);
-
-$PAGE->set_context($context);
-$PAGE->set_pagelayout('admin');
 
 if (!in_array($action, ['edit', 'delete', 'new'])) {
     $action = 'new';
@@ -47,6 +40,19 @@ $pageparams = [
     'action' => $action,
     'id' => $id
 ];
+
+
+admin_externalpage_setup('local_solsits/managetemplates', '', $pageparams, '/local/solsits/edittemplate.php');
+$context = context_system::instance();
+require_capability('local/solsits:managetemplates', $context);
+
+
+$PAGE->set_context($context);
+$PAGE->set_pagelayout('admin');
+$PAGE->set_url(new moodle_url('/local/solsits/edittemplate.php', $pageparams));
+$PAGE->navbar->add(get_string('localplugins'), new moodle_url('/admin/category.php?category=localplugins'));
+$PAGE->navbar->add(get_string('pluginname', 'local_solsits'), new moodle_url('/admin/category.php?category=local_solsitscat'));
+$PAGE->navbar->add(get_string('managetemplates', 'local_solsits'), new moodle_url('/local/solsits/managetemplates.php'));
 
 $soltemplate = null;
 $form = null;
@@ -76,7 +82,7 @@ if ($confirmdelete && confirm_sesskey()) {
         \core\output\notification::NOTIFY_INFO);
 }
 
-$PAGE->set_url(new moodle_url('/local/solsits/edittemplate.php', $pageparams));
+
 $form = new soltemplate_form($PAGE->url->out(false), $customdata);
 if ($form->is_cancelled()) {
     redirect(new moodle_url('/local/solsits/managetemplates.php'));

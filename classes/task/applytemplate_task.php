@@ -74,11 +74,16 @@ class applytemplate_task extends scheduled_task {
                         'session' => $untemplated->get('session')
                     ]
                 );
-                if (count($template) == 0) {
-                    // There is no template here, so skip to the next untemplated.
-                    continue;
+                if (count($template) > 0) {
+                    $availabletemplates[$templatekey] = reset($template);
+                } else {
+                    // Set available templates to false to save repeated checks.
+                    $availabletemplates[$templatekey] = false;
                 }
-                $availabletemplates[$templatekey] = reset($template);
+            }
+            if ($availabletemplates[$templatekey] === false) {
+                // There is no template here, so skip to the next untemplated.
+                continue;
             }
 
             $course = $DB->get_record('course', ['id' => $untemplated->get('courseid')]);

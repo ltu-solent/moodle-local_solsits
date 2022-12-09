@@ -42,7 +42,9 @@ $string['duplicatepagetypesession'] = 'A template already exists for this sessio
 
 $string['editsoltemplate'] = 'Edit Template';
 $string['enabled'] = 'Enabled';
+$string['error:courseedited'] = 'Course has been edited. Cannot apply template. {$a}';
 $string['error:coursenotexist'] = 'Course specified doesn\'t exist: {$a}';
+$string['error:coursevisible'] = 'Course visible. Cannot apply template. {$a}';
 $string['error:invalidpagetype'] = 'Invalid pagetype: {$a}';
 $string['error:sitsrefinuse'] = 'SITS Reference already in use: {$a}';
 $string['externaldate'] = 'External date';

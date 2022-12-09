@@ -93,9 +93,19 @@ class applytemplate_task extends scheduled_task {
                 // Skip this and do the next course.
                 continue;
             }
+            // Check the target course is not visible and has not been edited.
+            if ($course->visible == 1) {
+                mtrace(get_string('error:coursevisible', 'local_solsits', $course->idnumber));
+                continue;
+            }
+            $activities = $DB->get_records('course_modules', ['course' => $course->id]);
+            if (count($activities) > 1) {
+                // Something has happened here. Do not apply template.
+                // Course is always created with a forum.
+                mtrace(get_string('error:courseedited', 'local_solsits', $course->idnumber));
+                continue;
+            }
             $count++;
-            // Check that the target is actually empty.
-                // What do you do if it's not?
 
             // Apply the template (this will delete existing content).
             $courseexternal = new core_course_external();

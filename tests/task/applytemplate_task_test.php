@@ -173,4 +173,72 @@ Template course_2021/22 has been applied to 2021/22_course_2
 ';
         $this->expectOutputString($expectedoutput);
     }
+
+    /**
+     * Under certain circumstances a template will not be applied
+     *
+     * @param bool $visible Is target course visible
+     * @param bool $hasactivities Has it been editted
+     * @param string $message Expected error message
+     * @dataProvider preventapplytemplate_provider
+     * @return void
+     */
+    public function test_preventapplytemplate($visible, $hasactivities, $message) {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $this->create_template_course('2021/22', 'module', 1);
+        $idnumber = random_string(6) . '_A_S1_2021/22';
+        $course = $this->getDataGenerator()->create_course([
+            'visible' => $visible,
+            'idnumber' => $idnumber,
+            'shortname' => $idnumber
+        ]);
+        if ($hasactivities) {
+            // Add a couple of labels.
+            $this->getDataGenerator()->create_module('label', [
+                'course' => $course->id,
+                'intro' => "Label 1 on course."
+            ]);
+            $this->getDataGenerator()->create_module('label', [
+                'course' => $course->id,
+                'intro' => "Label 2 on course."
+            ]);
+        }
+        $sitscourse = new stdClass();
+        $sitscourse->courseid = $course->id;
+        $sitscourse->pagetype = 'module';
+        $sitscourse->session = '2021/22';
+        // Add course to solcourse table to manage templating.
+        $solcourse = new solcourse(0, $sitscourse);
+        $solcourse->save();
+        $this->execute_task('\local_solsits\task\applytemplate_task');
+        $solcourses = solcourse::get_records_select('templateapplied = 1');
+        $this->assertCount(0, $solcourses);
+        $this->expectOutputString($message . " {$idnumber}\n");
+    }
+
+    /**
+     * Provider for test_preventapplytemplate
+     *
+     * @return array
+     */
+    public function preventapplytemplate_provider(): array {
+        return [
+            'visible' => [
+                'visible' => 1,
+                'hasactivities' => 0,
+                'message' => "Course visible. Cannot apply template."
+            ],
+            'hasactivities' => [
+                'visible' => 0,
+                'hasactivities' => 1,
+                'message' => "Course has been edited. Cannot apply template."
+            ],
+            'both' => [
+                'visible' => 1,
+                'hasactivities' => 1,
+                'message' => "Course visible. Cannot apply template."
+            ]
+        ];
+    }
 }

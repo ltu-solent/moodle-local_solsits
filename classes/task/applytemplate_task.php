@@ -30,6 +30,11 @@ use core_course_external;
 use local_solsits\solcourse;
 use local_solsits\soltemplate;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot . '/course/externallib.php');
+require_once($CFG->dirroot . '/lib/enrollib.php');
+
 /**
  * Task to apply templates
  */
@@ -105,9 +110,16 @@ class applytemplate_task extends scheduled_task {
                 mtrace(get_string('error:courseedited', 'local_solsits', $course->idnumber));
                 continue;
             }
+            $enrolledusers = enrol_get_course_users($course->id);
+            if (count($enrolledusers) > 0) {
+                mtrace(get_string('error:usersenrolledalready', 'local_solsits', $course->idnumber));
+                continue;
+            }
             $count++;
 
-            // Apply the template (this will delete existing content).
+            // Apply the template.
+            // This will delete existing content.
+            // This will remove all existing enrolments.
             $courseexternal = new core_course_external();
             $courseexternal->import_course($availabletemplates[$templatekey]->get('courseid'), $course->id, 1);
             $course->visible = 1;

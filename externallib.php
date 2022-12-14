@@ -219,22 +219,10 @@ class local_solsits_external extends external_api {
             if (!$existing) {
                 $sitscourse = new solcourse(0, (object)$course);
                 $sitscourse->save();
-                $inserted[] = [
-                    'id' => $sitscourse->get('id'),
-                    'courseid' => $sitscourse->get('courseid'),
-                    'templateapplied' => $sitscourse->get('templateapplied'),
-                    'pagetype' => $sitscourse->get('pagetype'),
-                    'session' => $sitscourse->get('session')
-                ];
+                $inserted[] = (array)$sitscourse->to_record();
             } else {
                 // If it already exists, don't throw an error, just return the record.
-                $inserted[] = [
-                    'id' => $existing->get('id'),
-                    'courseid' => $existing->get('courseid'),
-                    'templateapplied' => $existing->get('templateapplied'),
-                    'pagetype' => $existing->get('pagetype'),
-                    'session' => $existing->get('session')
-                ];
+                $inserted[] = (array)$existing->to_record();
             }
         }
         $transaction->allow_commit();
@@ -253,8 +241,91 @@ class local_solsits_external extends external_api {
                 'courseid' => new external_value(PARAM_INT),
                 'templateapplied' => new external_value(PARAM_BOOL),
                 'pagetype' => new external_value(PARAM_ALPHA),
-                'session' => new external_value(PARAM_RAW)
+                'session' => new external_value(PARAM_RAW),
+                'usermodified' => new external_value(PARAM_INT),
+                'timecreated' => new external_value(PARAM_INT),
+                'timemodified' => new external_value(PARAM_INT)
             ])
         );
+    }
+
+    /**
+     * Returns the sitscourse record for a given courseid
+     *
+     * @return external_function_parameters
+     */
+    public static function get_sitscourse_template_parameters(): external_function_parameters {
+        return new external_function_parameters([
+            'sitscourses' => new external_multiple_structure(
+                new external_single_structure([
+                    'courseid' => new external_value(PARAM_INT, 'Course id')
+                ])
+            )
+        ]);
+    }
+
+    /**
+     * Get the sitscourse record for a given courseid
+     *
+     * @param array $courses
+     * @return array
+     */
+    public static function get_sitscourse_template($courses) {
+        global $DB;
+        $params = self::validate_parameters(self::get_sitscourse_template_parameters(),
+                array('sitscourses' => $courses));
+        $systemcontext = context_system::instance();
+        $return = [
+            'sitscourses' => [],
+            'warnings' => []
+        ];
+        require_capability('local/solsits:registersitscourse', $systemcontext);
+        foreach ($courses as $course) {
+            $existing = solcourse::get_record(['courseid' => $course['courseid']]);
+            if (!$existing) {
+                $return['warnings'][] = array(
+                    'item' => 'sitscourse',
+                    'itemid' => $course['courseid'],
+                    'warningcode' => '1',
+                    'message' => 'Sitscourse record doesn\'t exist for ' . $course['courseid']
+                );
+                continue;
+            }
+            $mcourse = $DB->get_record('course', ['id' => $course['courseid']]);
+            if (!$mcourse) {
+                $return['warnings'][] = array(
+                    'item' => 'course',
+                    'itemid' => $course['courseid'],
+                    'warningcode' => '2',
+                    'message' => 'Moodle course record doesn\'t exist for ' . $course['courseid']
+                );
+                continue;
+            }
+            $return['sitscourses'][] = (array)$existing->to_record();
+        }
+        return $return;
+    }
+
+    /**
+     * Returned data format for register sitscourses
+     *
+     * @return external_single_structure
+     */
+    public static function get_sitscourse_template_returns(): external_single_structure {
+        return new external_single_structure([
+            'sitscourses' => new external_multiple_structure(
+                new external_single_structure([
+                    'id' => new external_value(PARAM_INT),
+                    'courseid' => new external_value(PARAM_INT),
+                    'templateapplied' => new external_value(PARAM_BOOL),
+                    'pagetype' => new external_value(PARAM_ALPHA),
+                    'session' => new external_value(PARAM_RAW),
+                    'usermodified' => new external_value(PARAM_INT),
+                    'timecreated' => new external_value(PARAM_INT),
+                    'timemodified' => new external_value(PARAM_INT)
+                ], 'sitscourse record')
+            ),
+            'warnings' => new external_warnings()
+        ]);
     }
 }

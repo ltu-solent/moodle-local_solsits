@@ -172,4 +172,46 @@ class externallib_test extends externallib_advanced_testcase {
             ]
         ];
     }
+
+    /**
+     * Test external function to retrieve a sitscourse record for given course id
+     *
+     * @covers \local_solsits\externallib::get_sitscourse_template
+     * @return void
+     */
+    public function test_get_sitscourse_template() {
+        $this->resetAfterTest();
+        $wsuser = $this->getDataGenerator()->create_user();
+        $systemcontext = context_system::instance();
+        $this->setUser($wsuser);
+        $wsroleid = $this->assignUserCapability('local/solsits:registersitscourse', $systemcontext->id);
+        set_role_contextlevels($wsroleid, [CONTEXT_SYSTEM]);
+        $pagetype = 'module';
+        $session = '2022/23';
+        $course1 = $this->getDataGenerator()->create_course();
+        $registerthis = [
+            'courseid' => $course1->id,
+            'pagetype' => $pagetype,
+            'session' => $session
+        ];
+        \local_solsits_external::register_sitscourses([$registerthis]);
+        $getthis = [
+            'courseid' => $course1->id
+        ];
+        $result = \local_solsits_external::get_sitscourse_template([$getthis]);
+        $this->assertEquals($course1->id, $result['sitscourses'][0]['courseid']);
+        $this->assertEquals($session, $result['sitscourses'][0]['session']);
+        $this->assertEquals($pagetype, $result['sitscourses'][0]['pagetype']);
+        $this->assertEquals(0, $result['sitscourses'][0]['templateapplied']);
+
+        $course2 = $this->getDataGenerator()->create_course();
+        // Don't register the course.
+        $getthis = [
+            'courseid' => $course2->id
+        ];
+        $result = \local_solsits_external::get_sitscourse_template([$getthis]);
+        $this->assertCount(0, $result['sitscourses']);
+        $this->assertEquals(1, $result['warnings'][0]['warningcode']);
+        $this->assertEquals($course2->id, $result['warnings'][0]['itemid']);
+    }
 }

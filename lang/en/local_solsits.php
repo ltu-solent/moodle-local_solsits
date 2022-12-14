@@ -47,6 +47,7 @@ $string['error:coursenotexist'] = 'Course specified doesn\'t exist: {$a}';
 $string['error:coursevisible'] = 'Course visible. Cannot apply template. {$a}';
 $string['error:invalidpagetype'] = 'Invalid pagetype: {$a}';
 $string['error:sitsrefinuse'] = 'SITS Reference already in use: {$a}';
+$string['error:usersenrolledalready'] = 'Enrolments already exist. Cannot apply template. {$a}';
 $string['externaldate'] = 'External date';
 
 $string['generalsettings'] = 'General settings';

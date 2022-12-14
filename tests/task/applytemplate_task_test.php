@@ -179,11 +179,13 @@ Template course_2021/22 has been applied to 2021/22_course_2
      *
      * @param bool $visible Is target course visible
      * @param bool $hasactivities Has it been editted
+     * @param bool $hasusers Does this course already have users enrolled?
      * @param string $message Expected error message
+     * @covers \local_solsits\task\applytemplate_task
      * @dataProvider preventapplytemplate_provider
      * @return void
      */
-    public function test_preventapplytemplate($visible, $hasactivities, $message) {
+    public function test_preventapplytemplate($visible, $hasactivities, $hasusers, $message) {
         $this->resetAfterTest();
         $this->setAdminUser();
         $this->create_template_course('2021/22', 'module', 1);
@@ -203,6 +205,12 @@ Template course_2021/22 has been applied to 2021/22_course_2
                 'course' => $course->id,
                 'intro' => "Label 2 on course."
             ]);
+        }
+        if ($hasusers) {
+            $user1 = $this->getDataGenerator()->create_user();
+            $user2 = $this->getDataGenerator()->create_user();
+            $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'student');
+            $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'editingteacher');
         }
         $sitscourse = new stdClass();
         $sitscourse->courseid = $course->id;
@@ -227,16 +235,25 @@ Template course_2021/22 has been applied to 2021/22_course_2
             'visible' => [
                 'visible' => 1,
                 'hasactivities' => 0,
+                'hasusers' => 0,
                 'message' => "Course visible. Cannot apply template."
             ],
             'hasactivities' => [
                 'visible' => 0,
                 'hasactivities' => 1,
+                'hasusers' => 0,
                 'message' => "Course has been edited. Cannot apply template."
             ],
-            'both' => [
+            'hasusers' => [
+                'visible' => 0,
+                'hasactivities' => 0,
+                'hasusers' => 1,
+                'message' => 'Enrolments already exist. Cannot apply template.'
+            ],
+            'all' => [
                 'visible' => 1,
                 'hasactivities' => 1,
+                'hasusers' => 1,
                 'message' => "Course visible. Cannot apply template."
             ]
         ];

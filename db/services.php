@@ -47,7 +47,15 @@ $functions = [
         'methodname' => 'register_sitscourses',
         'classpath' => 'local/solsits/externallib.php',
         'description' => 'Register that a Moodle course has come from SITS so that templates can be appplied',
-        'capabilities' => 'local/solsits:managetemplates',
+        'capabilities' => 'local/solsits:registersitscourse',
         'type' => 'write'
+    ],
+    'local_solsits_get_sitscourse_template' => [
+        'classname' => 'local_solsits_external',
+        'methodname' => 'get_sitscourse_template',
+        'classpath' => 'local/solsits/externallib.php',
+        'description' => 'Check that a Moodle course has come from SITS has had its template appplied',
+        'capabilities' => 'local/solsits:registersitscourse',
+        'type' => 'read'
     ]
 ];

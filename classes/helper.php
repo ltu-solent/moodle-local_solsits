@@ -25,6 +25,11 @@
 
 namespace local_solsits;
 
+use context_system;
+use core_course\customfield\course_handler;
+use core_customfield\category;
+use core_customfield\field;
+
 /**
  * Helper class for common functions.
  */
@@ -69,6 +74,114 @@ class helper {
             return [];
         }
         return $DB->get_records_menu('course', ['category' => $templatecat], 'fullname ASC', 'id, fullname');
+    }
+
+    /**
+     * Create customfields for SITS data
+     *
+     * @param string $shortname
+     * @return void
+     */
+    public static function create_sits_coursecustomfields($shortname) {
+        // This is the required configdata fields for "text" data type.
+        // If you require different fields, enter manually below.
+        $configdatavisible = json_encode([
+            'locked' => 1,
+            'visibility' => course_handler::VISIBLETOALL,
+            'ispassword' => 0,
+            'required' => 0,
+            'uniquevalues' => 0,
+            'defaultvalue' => '',
+            'displaysize' => 50,
+            'maxlength' => 1333,
+            'link' => ''
+        ]);
+        $configdatainvisible = json_encode([
+            'locked' => 1,
+            'visibility' => course_handler::NOTVISIBLE,
+            'ispassword' => 0,
+            'required' => 0,
+            'uniquevalues' => 0,
+            'defaultvalue' => '',
+            'displaysize' => 50,
+            'maxlength' => 1333,
+            'link' => ''
+        ]);
+        $predefined = [
+            'academic_year' => [
+                'name' => 'Academic year'
+            ],
+            'level_code' => [
+                'name' => 'Academic level'
+            ],
+            'location_code' => [
+                'name' => 'Location'
+            ],
+            'module_code' => [
+                'name' => 'Module or Course code'
+            ],
+            'org_2' => [
+                'name' => 'Faculty/School'
+            ],
+            'org_3' => [
+                'name' => 'Department'
+            ],
+            'pagetype' => [
+                'name' => 'Page type',
+                'configdata' => $configdatainvisible
+            ],
+            'period_code' => [
+                'name' => 'Period',
+                'configdata' => $configdatainvisible
+            ],
+            'related_courses' => [
+                'name' => 'Related courses'
+            ],
+            'subject_area' => [
+                'name' => 'Subject area'
+            ],
+            'templateapplied' => [
+                'name' => 'Template applied',
+                'configdata' => $configdatainvisible
+            ]
+        ];
+
+        if (!array_key_exists($shortname, $predefined)) {
+            // Not defined. Do nothing.
+            return;
+        }
+
+        $category = category::get_record([
+            'name' => 'Student Records System',
+            'area' => 'course',
+            'component' => 'core_course'
+        ]);
+        if (!$category) {
+            // No category, so create and use it.
+            $category = new category(0, (object)[
+                'name' => 'Student Records System',
+                'description' => 'Fields managed by the university\'s Student records system. Do not change unless asked to.',
+                'area' => 'course',
+                'component' => 'core_course',
+                'contextid' => context_system::instance()->id
+            ]);
+            $category->save();
+        }
+        $field = field::get_record([
+            'shortname' => $shortname,
+            'categoryid' => $category->get('id')
+        ]);
+        if ($field) {
+            // Already exists. Nothing to do here.
+            return;
+        }
+        $data = (object)$predefined[$shortname];
+        $data->categoryid = $category->get('id');
+        $data->shortname = $shortname;
+        $data->type = $data->type ?? 'text';
+        $data->configdata = $data->configdata ?? $configdatavisible;
+        $field = new field(0, $data);
+        $field->save();
     }
 }
 

@@ -33,8 +33,7 @@ require_once($CFG->dirroot . '/webservice/tests/helpers.php');
 require_once($CFG->dirroot . '/local/solsits/tests/task/task_trait.php');
 
 use advanced_testcase;
-use local_solsits\solcourse;
-use stdClass;
+use local_solsits\soltemplate;
 
 /**
  * Apply template test class
@@ -69,25 +68,21 @@ class applytemplate_task_test extends advanced_testcase {
                 $course = $this->getDataGenerator()->create_course([
                     'idnumber' => $key . '_' . $x,
                     'shortname' => $key . '_' . $x,
-                    'visible' => 0 // Initially the course should be hidden until the template has been applied.
+                    'visible' => 0, // Initially the course should be hidden until the template has been applied.
+                    'customfield_pagetype' => $pagetype,
+                    'customfield_academic_year' => $session,
+                    'customfield_templateapplied' => 0
                 ]);
                 $targetcourses[$key][] = $course;
-                $sitscourse = new stdClass();
-                $sitscourse->courseid = $course->id;
-                $sitscourse->pagetype = $pagetype;
-                $sitscourse->session = $session;
-                // Add course to solcourse table to manage templating.
-                $solcourse = new solcourse(0, $sitscourse);
-                $solcourse->save();
             }
         }
         // Explicitly set this to 1 (default is 1).
         set_config('maxtemplates', 1, 'local_solsits');
-        $solcourses = solcourse::get_records_select('templateapplied = 0');
+        $solcourses = soltemplate::get_templateapplied_records();
         $this->assertCount(18, $solcourses);
         // This should do nothing.
         $this->execute_task('\local_solsits\task\applytemplate_task');
-        $solcourses = solcourse::get_records_select('templateapplied = 0');
+        $solcourses = soltemplate::get_templateapplied_records();
         $this->assertCount(18, $solcourses);
 
         $soltemplates = [];
@@ -96,7 +91,7 @@ class applytemplate_task_test extends advanced_testcase {
 
         // This should still do nothing.
         $this->execute_task('\local_solsits\task\applytemplate_task');
-        $solcourses = solcourse::get_records_select('templateapplied = 0');
+        $solcourses = soltemplate::get_templateapplied_records();
         $this->assertCount(18, $solcourses);
 
         // Let's enable this template.
@@ -104,7 +99,7 @@ class applytemplate_task_test extends advanced_testcase {
 
         // This should now process 1 module.
         $this->execute_task('\local_solsits\task\applytemplate_task');
-        $solcourses = solcourse::get_records_select('templateapplied = 1');
+        $solcourses = soltemplate::get_templateapplied_records('', '', 1);
         $this->assertCount(1, $solcourses);
         $firstcourse = reset($solcourses); // Get the course that has had the template applied.
         foreach ($targetcourses['2020/21_module'] as $key => $module) {
@@ -113,7 +108,7 @@ class applytemplate_task_test extends advanced_testcase {
             // The visibility has changed, so get updated record.
             $updatedcourse = $DB->get_record('course', ['id' => $module->id]);
             $targetcourses['2020/21_module'][$key] = $updatedcourse;
-            if ($firstcourse->get('courseid') == $module->id) {
+            if ($firstcourse->id == $module->id) {
                 // This has the template applied and is now visible.
                 $this->assertNotFalse($labelintemplates);
                 $this->assertEquals(1, $updatedcourse->visible);
@@ -126,7 +121,7 @@ class applytemplate_task_test extends advanced_testcase {
         // Running the task again, should do the remaining two.
         set_config('maxtemplates', 3, 'local_solsits');
         $this->execute_task('\local_solsits\task\applytemplate_task');
-        $solcourses = solcourse::get_records_select('templateapplied = 1');
+        $solcourses = soltemplate::get_templateapplied_records('', '', 1);
         $this->assertCount(3, $solcourses);
         foreach ($targetcourses['2020/21_module'] as $key => $module) {
             $labelintemplates = $DB->get_record('label', [
@@ -139,7 +134,7 @@ class applytemplate_task_test extends advanced_testcase {
             $this->assertEquals(1, $updatedcourse->visible);
         }
 
-        $solcourses = solcourse::get_records_select('templateapplied = 0');
+        $solcourses = soltemplate::get_templateapplied_records('', '', 0);
         $this->assertCount(15, $solcourses);
 
         // Create 2 more templates, set max at 2. This will take 3 runs to complete.
@@ -151,15 +146,15 @@ class applytemplate_task_test extends advanced_testcase {
         }
 
         $this->execute_task('\local_solsits\task\applytemplate_task');
-        $solcourses = solcourse::get_records_select('templateapplied = 1');
+        $solcourses = soltemplate::get_templateapplied_records('', '', 1);
         $this->assertCount(5, $solcourses);
 
         $this->execute_task('\local_solsits\task\applytemplate_task');
-        $solcourses = solcourse::get_records_select('templateapplied = 1');
+        $solcourses = soltemplate::get_templateapplied_records('', '', 1);
         $this->assertCount(7, $solcourses);
 
         $this->execute_task('\local_solsits\task\applytemplate_task');
-        $solcourses = solcourse::get_records_select('templateapplied = 1');
+        $solcourses = soltemplate::get_templateapplied_records('', '', 1);
         $this->assertCount(9, $solcourses);
         $expectedoutput = 'Template module_2020/21 has been applied to 2020/21_module_0
 Template module_2020/21 has been applied to 2020/21_module_1
@@ -193,7 +188,10 @@ Template course_2021/22 has been applied to 2021/22_course_2
         $course = $this->getDataGenerator()->create_course([
             'visible' => $visible,
             'idnumber' => $idnumber,
-            'shortname' => $idnumber
+            'shortname' => $idnumber,
+            'customfield_pagetype' => 'module',
+            'customfield_academic_year' => '2021/22',
+            'customfield_templateapplied' => 0
         ]);
         if ($hasactivities) {
             // Add a couple of labels.
@@ -212,15 +210,9 @@ Template course_2021/22 has been applied to 2021/22_course_2
             $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'student');
             $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'editingteacher');
         }
-        $sitscourse = new stdClass();
-        $sitscourse->courseid = $course->id;
-        $sitscourse->pagetype = 'module';
-        $sitscourse->session = '2021/22';
-        // Add course to solcourse table to manage templating.
-        $solcourse = new solcourse(0, $sitscourse);
-        $solcourse->save();
+
         $this->execute_task('\local_solsits\task\applytemplate_task');
-        $solcourses = solcourse::get_records_select('templateapplied = 1');
+        $solcourses = soltemplate::get_templateapplied_records('', '', 1);
         $this->assertCount(0, $solcourses);
         $this->expectOutputString($message . " {$idnumber}\n");
     }

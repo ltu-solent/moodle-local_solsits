@@ -27,7 +27,6 @@ namespace local_solsits\task;
 
 use core\task\scheduled_task;
 use core_course_external;
-use local_solsits\solcourse;
 use local_solsits\soltemplate;
 
 defined('MOODLE_INTERNAL') || die();
@@ -57,82 +56,76 @@ class applytemplate_task extends scheduled_task {
         global $DB;
         $max = get_config('local_solsits', 'maxtemplates');
         $count = 0;
-        // Get all courses/modules that haven't had their template applied.
-        $untemplateds = solcourse::get_records_select('templateapplied = 0');
-        $countuntemplateds = count($untemplateds);
-        if ($max > $countuntemplateds) {
-            $max = $countuntemplateds;
+        // Might want to order by most recently created template to save some looping.
+        $activetemplates = soltemplate::get_records(['enabled' => 1]);
+        if (count($activetemplates) == 0) {
+            // There are no templates, so there's nothing to do.
+            return;
         }
-        $availabletemplates = [];
-        foreach ($untemplateds as $untemplated) {
+
+        foreach ($activetemplates as $activetemplate) {
             if ($count >= $max) {
                 // Stop here don't do any more processing.
                 break;
             }
-            $templatekey = $untemplated->get('pagetype') . '_' . $untemplated->get('session');
-            // Does the template exist for this pagetype and session?
-            if (!isset($availabletemplates[$templatekey])) {
-                $template = soltemplate::get_records_select(
-                    "pagetype = :pagetype AND session = :session AND enabled = 1",
-                    [
-                        'pagetype' => $untemplated->get('pagetype'),
-                        'session' => $untemplated->get('session')
-                    ]
-                );
-                if (count($template) > 0) {
-                    $availabletemplates[$templatekey] = reset($template);
-                } else {
-                    // Set available templates to false to save repeated checks.
-                    $availabletemplates[$templatekey] = false;
+            $templatekey = $activetemplate->get('pagetype') . '_' . $activetemplate->get('session');
+            $untemplateds = soltemplate::get_templateapplied_records(
+                $activetemplate->get('pagetype'),
+                $activetemplate->get('session'),
+                0
+            );
+            $countuntemplateds = count($untemplateds);
+            if ($countuntemplateds == 0) {
+                // No courses to process for this template.
+                continue;
+            }
+            foreach ($untemplateds as $untemplated) {
+                if ($count >= $max) {
+                    // Stop here don't do any more processing.
+                    break;
                 }
-            }
-            if ($availabletemplates[$templatekey] === false) {
-                // There is no template here, so skip to the next untemplated.
-                continue;
-            }
+                $course = $DB->get_record('course', ['id' => $untemplated->id]);
+                if (!$course) {
+                    // This shouldn't happen, but it's possible if a course has been deleted.
+                    mtrace(get_string('error:coursenotexist', 'local_solsits', $untemplated->id));
+                    // Skip this and do the next course.
+                    continue;
+                }
+                // Check the target course is not visible and has not been edited.
+                if ($course->visible == 1) {
+                    mtrace(get_string('error:coursevisible', 'local_solsits', $course->idnumber));
+                    continue;
+                }
+                $activities = $DB->get_records('course_modules', ['course' => $course->id]);
+                if (count($activities) > 1) {
+                    // Something has happened here. Do not apply template.
+                    // Course is always created with a forum.
+                    mtrace(get_string('error:courseedited', 'local_solsits', $course->idnumber));
+                    continue;
+                }
+                $enrolledusers = enrol_get_course_users($course->id);
+                if (count($enrolledusers) > 0) {
+                    mtrace(get_string('error:usersenrolledalready', 'local_solsits', $course->idnumber));
+                    continue;
+                }
+                $count++;
 
-            $course = $DB->get_record('course', ['id' => $untemplated->get('courseid')]);
-            if (!$course) {
-                // This shouldn't happen, but it's possible if a course has been deleted.
-                mtrace(get_string('error:coursenotexist', 'local_solsits', $untemplated->get('courseid')));
-                // Skip this and do the next course.
-                continue;
-            }
-            // Check the target course is not visible and has not been edited.
-            if ($course->visible == 1) {
-                mtrace(get_string('error:coursevisible', 'local_solsits', $course->idnumber));
-                continue;
-            }
-            $activities = $DB->get_records('course_modules', ['course' => $course->id]);
-            if (count($activities) > 1) {
-                // Something has happened here. Do not apply template.
-                // Course is always created with a forum.
-                mtrace(get_string('error:courseedited', 'local_solsits', $course->idnumber));
-                continue;
-            }
-            $enrolledusers = enrol_get_course_users($course->id);
-            if (count($enrolledusers) > 0) {
-                mtrace(get_string('error:usersenrolledalready', 'local_solsits', $course->idnumber));
-                continue;
-            }
-            $count++;
+                // Apply the template.
+                // This will delete existing content.
+                // This will remove all existing enrolments.
+                $courseexternal = new core_course_external();
+                $courseexternal->import_course($activetemplate->get('courseid'), $course->id, 1);
+                $course->visible = 1;
+                $course->customfield_templateapplied = 1;
+                update_course($course);
+                rebuild_course_cache($course->id);
 
-            // Apply the template.
-            // This will delete existing content.
-            // This will remove all existing enrolments.
-            $courseexternal = new core_course_external();
-            $courseexternal->import_course($availabletemplates[$templatekey]->get('courseid'), $course->id, 1);
-            $course->visible = 1;
-            update_course($course);
-            rebuild_course_cache($course->id);
-
-            // Mark the solcourse record as templated.
-            $untemplated->set('templateapplied', 1);
-            $untemplated->save();
-            mtrace(get_string('templateapplied', 'local_solsits', [
-                'templatekey' => $templatekey,
-                'courseidnumber' => $course->idnumber
-            ]));
+                // Mark the solcourse record as templated.
+                mtrace(get_string('templateapplied', 'local_solsits', [
+                    'templatekey' => $templatekey,
+                    'courseidnumber' => $course->idnumber
+                ]));
+            }
         }
     }
 }

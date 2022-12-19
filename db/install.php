@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Upgrade functions for solsits
+ * Install functions for solsits
  *
  * @package   local_solsits
  * @author    Mark Sharp <mark.sharp@solent.ac.uk>
@@ -23,35 +23,27 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 /**
- * Stub for upgrade code
- * @param int $oldversion
- * @return bool
+ * This function is run when the plugin is installed.
+ *
+ * @return void
  */
-function xmldb_local_solsits_upgrade($oldversion) {
-    if ($oldversion < 2022112119) {
-        $fields = [
-            'academic_year',
-            'level_code',
-            'location_code',
-            'module_code',
-            'org_2',
-            'org_3',
-            'pagetype',
-            'period_code',
-            'related_courses',
-            'subject_area',
-            'templateapplied'
-        ];
-        foreach ($fields as $field) {
-            \local_solsits\helper::create_sits_coursecustomfields($field);
-        }
-        upgrade_plugin_savepoint(true, '2022112119', 'local', 'solsits');
+function xmldb_local_solsits_install() {
+    $fields = [
+        'academic_year',
+        'level_code',
+        'location_code',
+        'module_code',
+        'org_2',
+        'org_3',
+        'pagetype',
+        'period_code',
+        'related_courses',
+        'subject_area',
+        'templateapplied'
+    ];
+    foreach ($fields as $field) {
+        \local_solsits\helper::create_sits_coursecustomfields($field);
     }
-
-    // Existing Courses must have a solcourse record with templateapplied=true
-    // otherwise enrolments will never happen.
-    // Find all courses - add them to solcourses.
-    return true;
 }
+

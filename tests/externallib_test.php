@@ -59,6 +59,7 @@ class externallib_test extends externallib_advanced_testcase {
      * @return void
      */
     public function test_register_sitscourse($code, $occurrence, $period, $session, $pagetype, $error, $nocourse) {
+        global $CFG;
         $this->resetAfterTest();
         $wsuser = $this->getDataGenerator()->create_user();
         $systemcontext = context_system::instance();
@@ -94,7 +95,10 @@ class externallib_test extends externallib_advanced_testcase {
             $this->assertEquals($pagetype, $result[0]['pagetype']);
         } catch (Exception $ex) {
             $this->assertTrue($ex instanceof $error['exception']['class']);
-            $this->assertEquals($error['exception']['message'], $ex->getMessage());
+            // Only check the language string on 3.10+ as this wasn't updated for 3.9.
+            if ($CFG->version >= 2020110911 && $error['exception']['class'] == 'invalid_persistent_exception') {
+                $this->assertEquals($error['exception']['message'], $ex->getMessage());
+            }
         }
 
         // Call without required capability.

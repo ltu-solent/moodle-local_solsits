@@ -98,14 +98,15 @@ class sitsassign {
      * @return void
      */
     public function add() {
-        // Merge the default data and the sitsdata
+        // phpcs:disable
+        // Merge the default data and the sitsdata.
         $this->formdata = clone $this->defaultsettings();
         $moduleinfo = new stdClass();
         // What happens if the course hasn't had its template applied yet?
         // Section 1 won't exist, and the assignment will be deleted!
         // When a template is applied, all the content is deleted, including any
         // previously created assignment. This will throw an event. We could capture the delete event
-        // and do an action based on this. e.g. recreate the assignment (what happens if the template 
+        // and do an action based on this. e.g. recreate the assignment (what happens if the template
         // hasn't yet finished being applied?); send an email?
         // We should watch for deleted course modules anyway, as we don't want lecturers deleting them,
         // as they won't automatically reappear.
@@ -114,6 +115,7 @@ class sitsassign {
         $this->calculatedates($moduleinfo);
         $moduleinfo = add_moduleinfo($moduleinfo, $this->sitsdata->courseid, $this->formdata);
         return $moduleinfo->cm->id;
+        // phpcs:enable
     }
 
     /**
@@ -123,7 +125,9 @@ class sitsassign {
      */
     public function update() {
         $this->assign->update_instance($this->formdata);
+        // phpcs:disable
         // update_moduleinfo();
+        // phpcs:enable
     }
 
     /**
@@ -210,7 +214,8 @@ class sitsassign {
 
         $mform->addElement('static', 'sits_ref', new lang_string('sitsreference', 'local_solsits'), $solassign->sitsref);
         $mform->addElement('static', 'sits_sitting', new lang_string('sittingreference', 'local_solsits'), $solassign->sitting);
-        $mform->addElement('static', 'sits_sittingdesc', new lang_string('sittingdescription', 'local_solsits'), $solassign->sittingdesc);
+        $mform->addElement('static', 'sits_sittingdesc', new lang_string('sittingdescription', 'local_solsits'),
+            $solassign->sittingdesc);
 
         $externaldate = '';
         if ($solassign->externaldate > 0) {
@@ -224,7 +229,8 @@ class sitsassign {
         $weighting = (int)($solassign->weighting * 100);
         $mform->addElement('static', 'sits_weighting', new lang_string('weighting', 'local_solsits'), $weighting . '%');
 
-        $mform->addElement('static', 'sits_assessmentcode', new lang_string('assessmentcode', 'local_solsits'), $solassign->assessmentcode);
+        $mform->addElement('static', 'sits_assessmentcode', new lang_string('assessmentcode', 'local_solsits'),
+            $solassign->assessmentcode);
 
         $duedate = date('y-m-d', $solassign->duedate);
         $mform->addElement('static', 'sits_duedate', new lang_string('duedate', 'local_solsits'), $duedate);

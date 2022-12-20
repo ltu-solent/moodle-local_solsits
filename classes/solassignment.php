@@ -27,8 +27,6 @@ namespace local_solsits;
 
 use core\persistent;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * The SITS assignment as it's coming from SITS
  */

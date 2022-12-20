@@ -47,7 +47,7 @@ function xmldb_local_solsits_upgrade($oldversion) {
         foreach ($fields as $field) {
             \local_solsits\helper::create_sits_coursecustomfields($field);
         }
-        upgrade_plugin_savepoint(true, '2022112119', 'local', 'solsits');
+        upgrade_plugin_savepoint(true, 2022112119, 'local', 'solsits');
     }
 
     // Existing Courses must have a solcourse record with templateapplied=true

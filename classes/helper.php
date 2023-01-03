@@ -120,6 +120,9 @@ class helper {
             'module_code' => [
                 'name' => 'Module or Course code'
             ],
+            'module_occurrence' => [
+                'name' => 'Module occurrence'
+            ],
             'org_2' => [
                 'name' => 'Faculty/School'
             ],
@@ -142,7 +145,17 @@ class helper {
             ],
             'templateapplied' => [
                 'name' => 'Template applied',
-                'configdata' => $configdatainvisible
+                'configdata' => json_encode([
+                    'locked' => 1,
+                    'visibility' => course_handler::NOTVISIBLE,
+                    'ispassword' => 0,
+                    'required' => 0,
+                    'uniquevalues' => 0,
+                    'defaultvalue' => '0',
+                    'displaysize' => 50,
+                    'maxlength' => 1333,
+                    'link' => ''
+                ])
             ]
         ];
 

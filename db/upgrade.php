@@ -50,6 +50,16 @@ function xmldb_local_solsits_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2022112119, 'local', 'solsits');
     }
 
+    if ($oldversion < 2022112120) {
+        $fields = [
+            'module_occurrence',
+        ];
+        foreach ($fields as $field) {
+            \local_solsits\helper::create_sits_coursecustomfields($field);
+        }
+        upgrade_plugin_savepoint(true, 2022112120, 'local', 'solsits');
+    }
+
     // Existing Courses must have a solcourse record with templateapplied=true
     // otherwise enrolments will never happen.
     // Find all courses - add them to solcourses.

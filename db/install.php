@@ -34,6 +34,7 @@ function xmldb_local_solsits_install() {
         'level_code',
         'location_code',
         'module_code',
+        'module_occurrence',
         'org_2',
         'org_3',
         'pagetype',

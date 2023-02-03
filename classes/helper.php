@@ -211,10 +211,23 @@ class helper {
         return (bool)$value;
     }
 
+    /**
+     * Get pagetype custom field for given course
+     *
+     * @param int $courseid
+     * @return string
+     */
     public static function get_pagetype($courseid): string {
         return static::get_customfield($courseid, 'pagetype');
     }
 
+    /**
+     * Get field value for given course and field name
+     *
+     * @param int $courseid
+     * @param string $shortname
+     * @return mixed
+     */
     public static function get_customfield($courseid, $shortname) {
         $handler = course_handler::create();
         $datas = $handler->get_instance_data($courseid, true);

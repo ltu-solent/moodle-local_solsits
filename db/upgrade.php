@@ -60,6 +60,17 @@ function xmldb_local_solsits_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2022112120, 'local', 'solsits');
     }
 
+    if ($oldversion < 2022112121) {
+        $quercusconfig = get_config('local_quercus_tasks');
+        if ($quercusconfig->grademarkscale) {
+            set_config('grademarkscale', $quercusconfig->grademarkscale, 'local_solsits');
+        }
+        if ($quercusconfig->grademarkexemptscale) {
+            set_config('grademarkexemptscale', $quercusconfig->grademarkexemptscale, 'local_solsits');
+        }
+        upgrade_plugin_savepoint(true, 2022112121, 'local', 'solsits');
+    }
+
     // Existing Courses must have a solcourse record with templateapplied=true
     // otherwise enrolments will never happen.
     // Find all courses - add them to solcourses.

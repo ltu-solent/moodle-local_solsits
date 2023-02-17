@@ -29,6 +29,7 @@ use context_system;
 use core_course\customfield\course_handler;
 use core_customfield\category;
 use core_customfield\field;
+use Exception;
 
 /**
  * Helper class for common functions.
@@ -243,6 +244,48 @@ class helper {
             return $value;
         }
         return null;
+    }
+
+    /**
+     * If this is a summative assignment, only return sanctioned gradescales
+     *
+     * @param integer $courseid
+     * @return array
+     */
+    public static function get_scales_menu($courseid = 0) {
+        global $PAGE;
+        $cm = $PAGE->cm;
+        // Get the default scales menu.
+        $scales = \get_scales_menu($courseid);
+        if (!isset($cm)) {
+            return $scales;
+        }
+        if (!self::is_summative_assignment($cm->id)) {
+            return $scales;
+        }
+        // Filter out any non-Solent scales.
+        $solsitsconfig = get_config('local_solsits');
+        $solscales = [$solsitsconfig->grademarkscale, $solsitsconfig->grademarkexemptscale];
+        $scales = array_filter($scales, function($scaleid) use ($solscales) {
+            return in_array($scaleid, $solscales);
+        }, ARRAY_FILTER_USE_KEY);
+        // Format: [id => 'scale name'].
+        return $scales;
+    }
+
+    /**
+     * Given a coursemodule id, returns if this is a summative assignment.
+     *
+     * @param int $cmid Course module id
+     * @return boolean
+     */
+    public static function is_summative_assignment($cmid) {
+        try {
+            [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'assign');
+            return ($cm->idnumber != '');
+        } catch (Exception $ex) {
+            return false;
+        }
     }
 }
 

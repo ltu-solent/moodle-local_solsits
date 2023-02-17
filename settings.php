@@ -57,6 +57,20 @@ $description = new lang_string('targetsection_desc', 'local_solsits');
 $options = array_combine(range(1, 10), range(1, 10));
 $settings->add(new admin_setting_configselect($name, $title, $description, 1, $options));
 
+// Get available site scales.
+$scaleoptions = get_scales_menu();
+$name = 'local_solsits/grademarkscale';
+$title = new lang_string('grademarkscale', 'local_solsits');
+$description = new lang_string('grademarkscale_desc', 'local_solsits');
+$default = '';
+$settings->add(new admin_setting_configselect($name, $title, $description, $default, $scaleoptions));
+
+$name = 'local_solsits/grademarkexemptscale';
+$title = new lang_string('grademarkexemptscale', 'local_solsits');
+$description = new lang_string('grademarkexemptscale_desc', 'local_solsits');
+$default = '';
+$settings->add(new admin_setting_configselect($name, $title, $description, $default, $scaleoptions));
+
 $ADMIN->add('local_solsitscat', $settings);
 
 $name = 'local_solsits/managetemplates';

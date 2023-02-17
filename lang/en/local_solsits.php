@@ -52,6 +52,10 @@ $string['externaldate'] = 'External date';
 
 $string['generalsettings'] = 'General settings';
 $string['grademarkexempt'] = 'Grademark exempt';
+$string['grademarkexemptscale'] = 'Grademark exempt scale';
+$string['grademarkexemptscale_desc'] = 'Standard 100 point scale';
+$string['grademarkscale'] = 'Grademark scale';
+$string['grademarkscale_desc'] = 'Solent Grade scale A1, A2, A3, B1 etc';
 
 $string['immediately'] = 'Immediately';
 $string['invalidpagetype'] = 'Invalid pagetype';

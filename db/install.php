@@ -46,5 +46,14 @@ function xmldb_local_solsits_install() {
     foreach ($fields as $field) {
         \local_solsits\helper::create_sits_coursecustomfields($field);
     }
+
+    // Copy over settings from Quercus tasks plugin, where needed.
+    $quercusconfig = get_config('local_quercus_tasks');
+    if ($quercusconfig->grademarkscale) {
+        set_config('grademarkscale', $quercusconfig->grademarkscale, 'local_solsits');
+    }
+    if ($quercusconfig->grademarkexemptscale) {
+        set_config('grademarkexemptscale', $quercusconfig->grademarkexemptscale, 'local_solsits');
+    }
 }
 

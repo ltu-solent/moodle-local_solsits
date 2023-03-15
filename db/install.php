@@ -68,7 +68,10 @@ function xmldb_local_solsits_install() {
         $cap->timemodified = time();
         $cap->modifierid   = empty($USER->id) ? 0 : $USER->id;
         // Check it doesn't already exist.
-        $existing = $DB->get_record('role_capabilities', ['contextid' => $context->id, 'roleid' => $cap->roleid, 'capability' => $cap->capability]);
+        $existing = $DB->get_record('role_capabilities', [
+            'contextid' => $context->id,
+            'roleid' => $cap->roleid,
+            'capability' => $cap->capability]);
         if (!$existing) {
             $DB->insert_record('role_capabilities', $cap);
             // Trigger capability_assigned event.

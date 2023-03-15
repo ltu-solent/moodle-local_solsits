@@ -292,6 +292,7 @@ class helper {
     /**
      * Can the logged in user release grades in this context?
      *
+     * @param int $cmid Coursemodule id
      * @return boolean
      */
     public static function can_release_grades($cmid): bool {
@@ -304,7 +305,7 @@ class helper {
         [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'assign');
         // Update in upgrade.php script transfers capabilities from local/quercus_tasks:releasegrades.
         $hascapability = has_capability('local/solsits:releasegrades', $context);
-        $locked = $DB->get_field_select('grade_items', 'locked', 'itemmodule = ? AND iteminstance = ?', array('assign', $cm->instance));
+        $locked = $DB->get_field_select('grade_items', 'locked', 'itemmodule = ? AND iteminstance = ?', ['assign', $cm->instance]);
         $gradingpanel = ($PAGE->pagetype == 'mod-assign-gradingpanel');
         if ($hascapability && $locked == 0 && !$gradingpanel) {
             return true;
@@ -320,7 +321,7 @@ class helper {
      * to ensure core changes don't affect normal core unit tests. If this function doesn't exist,
      * a default value matching what Moodle expects is returned.
      *
-     * @param Mixed $params One or more arguments.
+     * @param mixed ...$return One or more arguments.
      * @return mixed
      */
     public static function returnresult(...$return) {

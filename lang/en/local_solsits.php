@@ -35,6 +35,10 @@ $string['availablefrom'] = 'Available from';
 $string['checkcoursedeleted'] = 'Check: This template no longer exists';
 $string['confirmdeletetemplate'] = 'Confirm deletion of "{$a}"';
 
+$string['defaultfilesubmissionfilesize'] = 'Default submission filesize';
+$string['defaultfilesubmissionfilesize_desc'] = 'Default filesize for file submissions';
+$string['defaultfilesubmissions'] = 'Default file submissions';
+$string['defaultfilesubmissions_desc'] = 'Default number of files used by the file submission plugin.';
 $string['deletedtemplate'] = '"{$a}" has been deleted.';
 $string['deleteduser'] = 'Deleted user';
 $string['duedate'] = 'Due date';
@@ -87,6 +91,7 @@ $string['solassignments:manage'] = 'Manage SITS Assignments';
 $string['solsits:manageassignments'] = 'Manage SITS assignments';
 $string['solsits:managetemplates'] = 'Manage Templates';
 $string['solsits:registersitscourse'] = 'Register SITS course';
+$string['solsits:releasegrades'] = 'Release grades';
 $string['status'] = 'Status';
 
 $string['targetsection'] = 'Assignment section';

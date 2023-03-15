@@ -30,6 +30,7 @@
  * @return bool
  */
 function xmldb_local_solsits_upgrade($oldversion) {
+    global $DB, $USER;
     if ($oldversion < 2022112119) {
         $fields = [
             'academic_year',
@@ -69,6 +70,41 @@ function xmldb_local_solsits_upgrade($oldversion) {
             set_config('grademarkexemptscale', $quercusconfig->grademarkexemptscale, 'local_solsits');
         }
         upgrade_plugin_savepoint(true, 2022112121, 'local', 'solsits');
+    }
+
+    if ($oldversion < 2022112122) {
+        // Copy over all the old quercus assignments to use the new capabilities for the same roles.
+        $oldcapabilities = $DB->get_records('role_capabilities', ['capability' => 'local/quercus_tasks:releasegrades']);
+        $context = context_system::instance();
+        foreach ($oldcapabilities as $oldcapability) {
+            $cap = new stdClass();
+            $cap->contextid    = $context->id;
+            $cap->roleid       = $oldcapability->roleid;
+            $cap->capability   = 'local/solsits:releasegrades';
+            $cap->permission   = $oldcapability->permission;
+            $cap->timemodified = time();
+            $cap->modifierid   = empty($USER->id) ? 0 : $USER->id;
+            // Check it doesn't already exist.
+            $existing = $DB->get_record('role_capabilities', ['contextid' => $context->id, 'roleid' => $cap->roleid, 'capability' => $cap->capability]);
+            if (!$existing) {
+                $DB->insert_record('role_capabilities', $cap);
+                // Trigger capability_assigned event.
+                \core\event\capability_assigned::create([
+                    'userid' => $cap->modifierid,
+                    'context' => $context,
+                    'objectid' => $cap->roleid,
+                    'other' => [
+                        'capability' => $cap->capability,
+                        'oldpermission' => CAP_INHERIT,
+                        'permission' => $cap->permission
+                    ]
+                ])->trigger();
+
+                // Reset any cache of this role, including MUC.
+                accesslib_clear_role_cache($cap->roleid);
+            }
+        }
+        upgrade_plugin_savepoint(true, 2022112122, 'local', 'solsits');
     }
 
     // Existing Courses must have a solcourse record with templateapplied=true

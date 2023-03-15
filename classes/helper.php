@@ -25,6 +25,7 @@
 
 namespace local_solsits;
 
+use context_module;
 use context_system;
 use core_course\customfield\course_handler;
 use core_customfield\category;
@@ -286,6 +287,57 @@ class helper {
         } catch (Exception $ex) {
             return false;
         }
+    }
+
+    /**
+     * Can the logged in user release grades in this context?
+     *
+     * @return boolean
+     */
+    public static function can_release_grades($cmid): bool {
+        global $DB, $PAGE;
+        $issummative = static::is_summative_assignment($cmid);
+        if (!$issummative) {
+            return true;
+        }
+        $context = context_module::instance($cmid);
+        [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'assign');
+        // Update in upgrade.php script transfers capabilities from local/quercus_tasks:releasegrades.
+        $hascapability = has_capability('local/solsits:releasegrades', $context);
+        $locked = $DB->get_field_select('grade_items', 'locked', 'itemmodule = ? AND iteminstance = ?', array('assign', $cm->instance));
+        $gradingpanel = ($PAGE->pagetype == 'mod-assign-gradingpanel');
+        if ($hascapability && $locked == 0 && !$gradingpanel) {
+            return true;
+        }
+        if ($locked != 0) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * This returns the parameter that was passed in. It's used by component_class_callback as a way
+     * to ensure core changes don't affect normal core unit tests. If this function doesn't exist,
+     * a default value matching what Moodle expects is returned.
+     *
+     * @param Mixed $params One or more arguments.
+     * @return mixed
+     */
+    public static function returnresult(...$return) {
+        if (count($return) > 1) {
+            return $return;
+        }
+        return $return[0];
+    }
+
+    /**
+     * Is used as a switch in core code edits. If running core unit tests locally set this to false.
+     * Used in conjunction with component_class_callback.
+     *
+     * @return bool
+     */
+    public static function issolsits() {
+        return true;
     }
 }
 

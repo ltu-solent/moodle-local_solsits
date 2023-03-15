@@ -29,6 +29,7 @@
  * @return void
  */
 function xmldb_local_solsits_install() {
+    global $DB, $USER;
     $fields = [
         'academic_year',
         'level_code',
@@ -49,11 +50,42 @@ function xmldb_local_solsits_install() {
 
     // Copy over settings from Quercus tasks plugin, where needed.
     $quercusconfig = get_config('local_quercus_tasks');
-    if ($quercusconfig->grademarkscale) {
+    if (isset($quercusconfig->grademarkscale)) {
         set_config('grademarkscale', $quercusconfig->grademarkscale, 'local_solsits');
     }
-    if ($quercusconfig->grademarkexemptscale) {
+    if (isset($quercusconfig->grademarkexemptscale)) {
         set_config('grademarkexemptscale', $quercusconfig->grademarkexemptscale, 'local_solsits');
+    }
+
+    $oldcapabilities = $DB->get_records('role_capabilities', ['capability' => 'local/quercus_tasks:releasegrades']);
+    $context = context_system::instance();
+    foreach ($oldcapabilities as $oldcapability) {
+        $cap = new stdClass();
+        $cap->contextid    = $context->id;
+        $cap->roleid       = $oldcapability->roleid;
+        $cap->capability   = 'local/solsits:releasegrades';
+        $cap->permission   = $oldcapability->permission;
+        $cap->timemodified = time();
+        $cap->modifierid   = empty($USER->id) ? 0 : $USER->id;
+        // Check it doesn't already exist.
+        $existing = $DB->get_record('role_capabilities', ['contextid' => $context->id, 'roleid' => $cap->roleid, 'capability' => $cap->capability]);
+        if (!$existing) {
+            $DB->insert_record('role_capabilities', $cap);
+            // Trigger capability_assigned event.
+            \core\event\capability_assigned::create([
+                'userid' => $cap->modifierid,
+                'context' => $context,
+                'objectid' => $cap->roleid,
+                'other' => [
+                    'capability' => $cap->capability,
+                    'oldpermission' => CAP_INHERIT,
+                    'permission' => $cap->permission
+                ]
+            ])->trigger();
+
+            // Reset any cache of this role, including MUC.
+            accesslib_clear_role_cache($cap->roleid);
+        }
     }
 }
 

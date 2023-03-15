@@ -47,5 +47,10 @@ $capabilities = [
         'archtypes' => [
             'manager' => CAP_ALLOW
         ]
+    ],
+    'local/solsits:releasegrades' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => []
     ]
 ];

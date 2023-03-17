@@ -173,6 +173,7 @@ class local_solsits_external extends external_api {
     /**
      * Validate parameters for register sitscourses.
      *
+     * @deprecated Not used, no longer required.
      * @return external_function_parameters
      */
     public static function register_sitscourses_parameters(): external_function_parameters {
@@ -190,6 +191,7 @@ class local_solsits_external extends external_api {
     /**
      * Register SITS courses and modules in Moodle
      *
+     * @deprecated Not used, no longer required.
      * @param array $courses
      * @return array Details of registered courses
      */
@@ -232,6 +234,7 @@ class local_solsits_external extends external_api {
     /**
      * Returned data format for register sitscourses
      *
+     * @deprecated Not used, no longer required.
      * @return external_multiple_structure
      */
     public static function register_sitscourses_returns(): external_multiple_structure {
@@ -252,6 +255,7 @@ class local_solsits_external extends external_api {
     /**
      * Returns the sitscourse record for a given courseid
      *
+     * @deprecated Not used, no longer required.
      * @return external_function_parameters
      */
     public static function get_sitscourse_template_parameters(): external_function_parameters {
@@ -267,6 +271,7 @@ class local_solsits_external extends external_api {
     /**
      * Get the sitscourse record for a given courseid
      *
+     * @deprecated Not used, no longer required.
      * @param array $courses
      * @return array
      */
@@ -309,6 +314,7 @@ class local_solsits_external extends external_api {
     /**
      * Returned data format for register sitscourses
      *
+     * @deprecated Not used, no longer required.
      * @return external_single_structure
      */
     public static function get_sitscourse_template_returns(): external_single_structure {

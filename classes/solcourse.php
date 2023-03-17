@@ -17,6 +17,7 @@
 /**
  * SOL Course record
  *
+ * @deprecated
  * @package   local_solsits
  * @author    Mark Sharp <mark.sharp@solent.ac.uk>
  * @copyright 2022 Solent University {@link https://www.solent.ac.uk}

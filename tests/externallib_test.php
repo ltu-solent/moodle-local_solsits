@@ -43,5 +43,41 @@ require_once($CFG->dirroot . '/local/solsits/externallib.php');
  * Test externallib functions
  */
 class externallib_test extends externallib_advanced_testcase {
+    /**
+     * Add assignments
+     * @covers \local_solsits_external::add_assignments
+     *
+     * @dataProvider add_assignments_provider
+     * @param string $sitsref
+     * @param string $title
+     * @param string $weighting Expressed as decimal
+     * @param string $assessmentcode
+     * @param int $duedate
+     * @param bool $grademarkexempt
+     * @param int $availablefrom
+     * @return void
+     */
+    public function test_add_assignments($sitsref, $title, $weighting, $assessmentcode, $duedate, $grademarkexempt,
+        $availablefrom) {
+        $this->resetAfterTest();
+    }
 
+    /**
+     * Provider from add_assignments
+     *
+     * @return array
+     */
+    public function add_assignments_provider() {
+        return [
+            'example1' => [
+                'sitsref' => 'PROJ1_ABC101_A_S1_2023/2024',
+                'title' => 'Project 1 (50%)',
+                'weighting' => '.5',
+                'assessmentcode' => 'PROJ1',
+                'duedate' => strtotime('+2 weeks 16:00'),
+                'grademarkexempt' => false,
+                'availablefrom' => 0
+            ]
+        ];
+    }
 }

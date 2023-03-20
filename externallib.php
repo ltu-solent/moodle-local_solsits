@@ -48,9 +48,6 @@ class local_solsits_external extends external_api {
                 new external_single_structure([
                     'courseid' => new external_value(PARAM_RAW, 'The course id to add the assignment to'),
                     'sitsref' => new external_value(PARAM_RAW, 'SITS internal reference for the assignment'),
-                    'sitting' => new external_value(PARAM_RAW, 'Sitting reference'),
-                    'sittingdesc' => new external_value(PARAM_RAW, 'Sitting type', VALUE_DEFAULT, 'FIRST_SITTING'),
-                    'externaldate' => new external_value(PARAM_INT, 'Timestamp of the board date', VALUE_DEFAULT, 0),
                     'title' => new external_value(PARAM_TEXT, 'Assignment title'),
                     'weighting' => new external_value(PARAM_FLOAT, 'Assignment weighting expressed as a decimal'),
                     'assessmentcode' => new external_value(PARAM_TEXT, 'Assessment code (PROJ1 etc)'),
@@ -130,9 +127,6 @@ class local_solsits_external extends external_api {
                 new external_single_structure([
                     'courseid' => new external_value(PARAM_RAW, 'The course id to add the assignment to'),
                     'sitsref' => new external_value(PARAM_RAW, 'SITS internal reference for the assignment'),
-                    'sitting' => new external_value(PARAM_RAW, 'Sitting reference'),
-                    'sittingdesc' => new external_value(PARAM_RAW, 'Sitting type', VALUE_DEFAULT, 'FIRST_SITTING'),
-                    'externaldate' => new external_value(PARAM_INT, 'Timestamp of the board date', VALUE_DEFAULT, 0),
                     'title' => new external_value(PARAM_TEXT, 'Assignment title'),
                     'weighting' => new external_value(PARAM_FLOAT, 'Assignment weighting expressed as a decimal'),
                     'assessmentcode' => new external_value(PARAM_TEXT, 'Assessment code (PROJ1 etc)'),

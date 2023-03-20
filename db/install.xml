@@ -33,12 +33,30 @@
                 <INDEX NAME="courseid" UNIQUE="false" FIELDS="courseid" />
             </INDEXES>
 		</TABLE>
+        <TABLE NAME="local_solsits_attempts" COMMENT="Extra assignment attempts required by student on particular assignment">
+            <FIELDS>
+                <FIELD NAME="id" SEQUENCE="true" TYPE="int" NOTNULL="true" UNSIGNED="true" LENGTH="10"/>
+                <FIELD NAME="said" SEQUENCE="false" TYPE="int" NOTNULL="true" UNSIGNED="true" LENGTH="10" COMMENT="id of local_solsits_assign" />
+                <FIELD NAME="userid" SEQUENCE="false" TYPE="int" NOTNULL="true" UNSIGNED="true" LENGTH="10"/>
+                <FIELD NAME="duedate" SEQUENCE="false" TYPE="int" NOTNULL="true" UNSIGNED="true" LENGTH="10"/>
+                <FIELD NAME="attempt" SEQUENCE="false" TYPE="int" NOTNULL="true" UNSIGNED="true" LENGTH="3" DEFAULT="1" COMMENT="Only need this for attempt 2 onwards"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+                <KEY NAME="said" TYPE="foreign" FIELDS="said" REFTABLE="local_solsits_assign" REFFIELDS="id" />
+                <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" />
+            </KEYS>
+            <INDEXES>
+                <INDEX NAME="saiduserid" UNIQUE="true" FIELDS="said,userid"/>
+            </INDEXES>
+        </TABLE>
         <TABLE NAME="local_solsits_assign_grades" COMMENT="Student grades to be sent to SITS">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" />
                 <FIELD NAME="solassignmentid" SEQUENCE="false" TYPE="int" LENGTH="10" UNSIGNED="true" NOTNULL="true" />
                 <FIELD NAME="graderid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true"  SEQUENCE="false"/>
                 <FIELD NAME="studentid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false"/>
+                <FIELD NAME="attempt" SEQUENCE="false" TYPE="int" NOTNULL="false" DEFAULT="1" UNSIGNED="true" LENGTH="3" COMMENT="Which attempt is this grade for?" />
                 <FIELD NAME="converted_grade" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false"/>
                 <FIELD NAME="response_code" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
                 <FIELD NAME="response" TYPE="text" NOTNULL="false" SEQUENCE="false"/>

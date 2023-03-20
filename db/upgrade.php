@@ -31,6 +31,7 @@
  */
 function xmldb_local_solsits_upgrade($oldversion) {
     global $DB, $USER;
+    $dbman = $DB->get_manager();
     if ($oldversion < 2022112119) {
         $fields = [
             'academic_year',
@@ -110,8 +111,26 @@ function xmldb_local_solsits_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2022112122, 'local', 'solsits');
     }
 
-    // Existing Courses must have a solcourse record with templateapplied=true
-    // otherwise enrolments will never happen.
-    // Find all courses - add them to solcourses.
+    if ($oldversion < 2022112124) {
+        $table = new xmldb_table('local_solsits_attempts');
+        if (!$dbman->table_exists('local_solsits_attempts')) {
+            $table->add_field('id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+            $table->add_field('said', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null);
+            $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null);
+            $table->add_field('duedate', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null);
+            $table->add_field('attempt', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '1');
+            $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+            $table->add_key('said', XMLDB_KEY_FOREIGN, ['said'], 'local_solsits_assign', ['id']);
+            $table->add_key('userid', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
+            $table->add_index('saiduserid', XMLDB_INDEX_UNIQUE, ['said', 'userid']);
+            $dbman->create_table($table);
+        }
+        $table = new xmldb_table('local_solsits_assign_grades');
+        $field = new xmldb_field('attempt', XMLDB_TYPE_INTEGER, '3', XMLDB_UNSIGNED, null, null, '1');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        upgrade_plugin_savepoint(true, 2022112124, 'local', 'solsits');
+    }
     return true;
 }

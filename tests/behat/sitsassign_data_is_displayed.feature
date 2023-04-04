@@ -44,9 +44,9 @@ Feature: Display SITS assignment data in the settings page, if available
 
   Scenario: I should not see Formative data
     Given I log in as "teacher1"
-      And I am on "Course1" course homepage
-      And I follow "Formative1"
-      And I follow "Settings"
-      When I expand all fieldsets
-      Then I should not see "SITS reference"
-      And "#fitem_id_sits_ref" "css_element" should not exist
+    And I am on "Course1" course homepage
+    And I follow "Formative1"
+    And I follow "Settings"
+    When I expand all fieldsets
+    Then I should not see "SITS reference"
+    And "#fitem_id_sits_ref" "css_element" should not exist

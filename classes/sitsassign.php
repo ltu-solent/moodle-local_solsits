@@ -140,7 +140,7 @@ class sitsassign extends persistent {
         $sql = "SELECT ssa.*
         FROM {local_solsits_assign} ssa
         JOIN {customfield_data} cfd ON cfd.instanceid = ssa.courseid AND cfd.fieldid = :fieldid
-        WHERE ssa.cmid = 0 AND cfd.value = 1";
+        WHERE ssa.cmid = 0 AND cfd.value = '1'";
 
         $records = $DB->get_records_sql($sql, $params, 0, $limit);
         return $records;

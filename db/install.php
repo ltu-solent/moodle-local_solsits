@@ -91,4 +91,3 @@ function xmldb_local_solsits_install() {
         }
     }
 }
-

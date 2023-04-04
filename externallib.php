@@ -46,7 +46,7 @@ class local_solsits_external extends external_api {
         return new external_function_parameters([
             'assignments' => new external_multiple_structure(
                 new external_single_structure([
-                    'courseid' => new external_value(PARAM_RAW, 'The course id to add the assignment to'),
+                    'courseid' => new external_value(PARAM_INT, 'The course id to add the assignment to'),
                     'sitsref' => new external_value(PARAM_RAW, 'SITS internal reference for the assignment'),
                     'title' => new external_value(PARAM_TEXT, 'Assignment title'),
                     'weighting' => new external_value(PARAM_FLOAT, 'Assignment weighting expressed as a decimal'),
@@ -74,7 +74,8 @@ class local_solsits_external extends external_api {
         $transaction = $DB->start_delegated_transaction();
         $inserted = [];
         foreach ($params['assignments'] as $assignment) {
-            if ($DB->record_exists('local_solsits', ['sitsref' => $assignment->sitsref])) {
+            $assignment = (object)$assignment;
+            if ($DB->record_exists('local_solsits_assign', ['sitsref' => $assignment->sitsref])) {
                 throw new invalid_parameter_exception(
                     get_string('error:sitsrefinuse', 'local_solsits', $assignment->sitsref)
                 );
@@ -89,14 +90,15 @@ class local_solsits_external extends external_api {
 
             // Check that the user has the permission to create the assignment with this method.
             // And all the core assign capabilities to add/update/delete.
-            require_capability('local/solassignments:manage', $context);
+            require_capability('local/solsits:manageassignments', $context);
 
-            // Send data to helper class to create the assignment.
-            // Then when you've got the cmid back, create the solassignment record and save that.
-            // Return the solassignmentid.
-            $assign = new sitsassign('', $assignment);
-            $coursemoduleid = $assign->add();
-            $inserted[] = $coursemoduleid;
+            // Save the assignment in the local_sits_assign table.
+            // A task will create the actual assignments later.
+            $assign = new sitsassign(0, $assignment);
+            $assign->save();
+            $assignment->id = $assign->get('id');
+            $assignment->cmid = $assign->get('cmid');
+            $inserted[] = $assignment;
         }
 
         $transaction->allow_commit();
@@ -111,7 +113,17 @@ class local_solsits_external extends external_api {
     public static function add_assignments_returns(): external_multiple_structure {
         return new external_multiple_structure(
             new external_single_structure([
-                new external_value(PARAM_INT, 'ID in the SOLSITS assignment table')
+                'id' => new external_value(PARAM_INT, 'ID in the sitsassign table'),
+                'courseid' => new external_value(PARAM_INT, 'The course id to add the assignment to'),
+                'cmid' => new external_value(PARAM_INT, 'The coursemodule id'),
+                'sitsref' => new external_value(PARAM_RAW, 'SITS internal reference for the assignment'),
+                'title' => new external_value(PARAM_TEXT, 'Assignment title'),
+                'weighting' => new external_value(PARAM_FLOAT, 'Assignment weighting expressed as a decimal'),
+                'assessmentcode' => new external_value(PARAM_TEXT, 'Assessment code (PROJ1 etc)'),
+                'duedate' => new external_value(PARAM_INT, 'Due date timestamp (usually 4pm)'),
+                'grademarkexempt' => new external_value(PARAM_BOOL, 'Is this grademark exempt', VALUE_DEFAULT, false),
+                'availablefrom' => new external_value(
+                        PARAM_INT, 'When the assignment is available to the student from', VALUE_OPTIONAL),
             ])
         );
     }
@@ -125,12 +137,12 @@ class local_solsits_external extends external_api {
         return new external_function_parameters([
             'assignments' => new external_multiple_structure(
                 new external_single_structure([
-                    'courseid' => new external_value(PARAM_RAW, 'The course id to add the assignment to'),
+                    'courseid' => new external_value(PARAM_RAW, 'The course id to add the assignment to', VALUE_OPTIONAL),
                     'sitsref' => new external_value(PARAM_RAW, 'SITS internal reference for the assignment'),
-                    'title' => new external_value(PARAM_TEXT, 'Assignment title'),
-                    'weighting' => new external_value(PARAM_FLOAT, 'Assignment weighting expressed as a decimal'),
-                    'assessmentcode' => new external_value(PARAM_TEXT, 'Assessment code (PROJ1 etc)'),
-                    'duedate' => new external_value(PARAM_INT, 'Due date timestamp (usually 4pm)'),
+                    'title' => new external_value(PARAM_TEXT, 'Assignment title', VALUE_OPTIONAL),
+                    'weighting' => new external_value(PARAM_FLOAT, 'Assignment weighting expressed as a decimal', VALUE_OPTIONAL),
+                    'assessmentcode' => new external_value(PARAM_TEXT, 'Assessment code (PROJ1 etc)', VALUE_OPTIONAL),
+                    'duedate' => new external_value(PARAM_INT, 'Due date timestamp (usually 4pm)', VALUE_OPTIONAL),
                     'grademarkexempt' => new external_value(
                         PARAM_BOOL, 'Is this grademark exempt', VALUE_DEFAULT, false),
                     'availablefrom' => new external_value(
@@ -149,6 +161,56 @@ class local_solsits_external extends external_api {
      */
     public static function update_assignments($assignments) {
         // Do updates.
+        // If there is no cmid, just update the record, and it will be updated when the assignment is created.
+        // If the cmid exists, then immediately recalculate dates and update the course module.
+        // If the weighting is different or the grademark exempt has changed, should this be a new assignment?
+        // What do we do if an assignment has been removed? If there are submissions do we still delete it?
+        // Do we change the title and hide it?
+        global $DB;
+        $params = self::validate_parameters(self::add_assignments_parameters(),
+                array('assignments' => $assignments));
+        $transaction = $DB->start_delegated_transaction();
+        $inserted = [];
+        foreach ($params['assignments'] as $assignment) {
+            $assignment = (object)$assignment;
+            if (!$DB->record_exists('local_solsits_assign', ['sitsref' => $assignment->sitsref])) {
+                throw new invalid_parameter_exception(
+                    get_string('error:sitsrefnotexist', 'local_solsits', $assignment->sitsref)
+                );
+            }
+            // We don't ever want to change the courseid, but we need it for context, so check that sitsref and courseid
+            // match.
+            $sitsassign = sitsassign::get_record(['sitsref' => $assignment->sitsref]);
+            if (isset($assignment->courseid) && $assignment->courseid != $sitsassign->get('courseid')) {
+                throw new invalid_parameter_exception(
+                    get_string('error:courseiddoesnotmatch', 'local_solsits')
+                );
+            } else {
+                $assignment->courseid = $sitsassign->get('courseid');
+            }
+
+            $context = context_course::instance($assignment->courseid);
+            self::validate_context($context);
+
+            // Check that the user has the permission to create the assignment with this method.
+            // And all the core assign capabilities to add/update/delete.
+            require_capability('local/solsits:manageassignments', $context);
+
+            // Save the assignment in the local_sits_assign table.
+            // A task will create the actual assignments later.
+            $assign = new sitsassign($sitsassign->get('id'), $assignment);
+            $assign->save();
+            if ($assign->get('cmid') > 0) {
+                // Recalulate dates and update Course module settings.
+                $assign->updatecm();
+            }
+            $assignment->id = $assign->get('id');
+            $assignment->cmid = $assign->get('cmid');
+            $inserted[] = $assignment;
+        }
+
+        $transaction->allow_commit();
+        return $inserted;
     }
 
     /**
@@ -159,7 +221,17 @@ class local_solsits_external extends external_api {
     public static function update_assignments_returns(): external_multiple_structure {
         return new external_multiple_structure(
             new external_single_structure([
-                new external_value(PARAM_INT, 'ID in the SOLSITS assignment table')
+                'id' => new external_value(PARAM_INT, 'ID in the sitsassign table'),
+                'courseid' => new external_value(PARAM_INT, 'The course id to add the assignment to'),
+                'cmid' => new external_value(PARAM_INT, 'The coursemodule id'),
+                'sitsref' => new external_value(PARAM_RAW, 'SITS internal reference for the assignment'),
+                'title' => new external_value(PARAM_TEXT, 'Assignment title'),
+                'weighting' => new external_value(PARAM_FLOAT, 'Assignment weighting expressed as a decimal'),
+                'assessmentcode' => new external_value(PARAM_TEXT, 'Assessment code (PROJ1 etc)'),
+                'duedate' => new external_value(PARAM_INT, 'Due date timestamp (usually 4pm)'),
+                'grademarkexempt' => new external_value(PARAM_BOOL, 'Is this grademark exempt', VALUE_DEFAULT, false),
+                'availablefrom' => new external_value(
+                        PARAM_INT, 'When the assignment is available to the student from', VALUE_OPTIONAL),
             ])
         );
     }

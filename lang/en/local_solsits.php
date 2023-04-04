@@ -30,10 +30,15 @@ $string['applytemplatetask'] = 'Apply template';
 $string['assessmentcode'] = 'Assessment code';
 $string['assignmentsettings'] = 'Assignment settings';
 $string['assignmentsettings_desc'] = 'Settings to help manage assignment creation';
+$string['assignmenttitle'] = 'Assignment title';
 $string['availablefrom'] = 'Available from';
 
 $string['checkcoursedeleted'] = 'Check: This template no longer exists';
+$string['cmid'] = 'Course module ID';
 $string['confirmdeletetemplate'] = 'Confirm deletion of "{$a}"';
+$string['courseidrequired'] = 'Courseid field required';
+$string['coursename'] = 'Course name';
+$string['createassignmenttask'] = 'Create assignment task';
 
 $string['defaultfilesubmissionfilesize'] = 'Default submission filesize';
 $string['defaultfilesubmissionfilesize_desc'] = 'Default filesize for file submissions';
@@ -47,10 +52,12 @@ $string['duplicatepagetypesession'] = 'A template already exists for this sessio
 $string['editsoltemplate'] = 'Edit Template';
 $string['enabled'] = 'Enabled';
 $string['error:courseedited'] = 'Course has been edited. Cannot apply template. {$a}';
+$string['error:courseiddoesnotmatch'] = 'Given courseid doesn\'t match the one on record';
 $string['error:coursenotexist'] = 'Course specified doesn\'t exist: {$a}';
 $string['error:coursevisible'] = 'Course visible. Cannot apply template. {$a}';
 $string['error:invalidpagetype'] = 'Invalid pagetype: {$a}';
 $string['error:sitsrefinuse'] = 'SITS Reference already in use: {$a}';
+$string['error:sitsrefnotexist'] = 'SITS reference doesn\'t exist: {$a}';
 $string['error:usersenrolledalready'] = 'Enrolments already exist. Cannot apply template. {$a}';
 $string['externaldate'] = 'External date';
 
@@ -67,18 +74,25 @@ $string['invalidsession'] = 'Invalid session';
 
 $string['lastmodified'] = 'Last modified';
 
+$string['manageassignments'] = 'Manage assignments';
 $string['managetemplates'] = 'Manage templates';
+$string['maxassignments'] = 'Max assignments';
+$string['maxassignments_desc'] = 'Maximum number of assignments to create in a single run.';
 $string['maxtemplates'] = 'Max templates';
 $string['maxtemplates_desc'] = 'Maximum number of courses to apply templates to in a single run.';
+$string['modifiedby'] = 'Modified by';
 
 $string['newsavedtemplate'] = 'New template saved';
 $string['newsoltemplate'] = 'New template';
+$string['nolongerexists'] = 'No longer exists';
 $string['notenabled'] = 'Not enabled';
 $string['notset'] = 'Not set';
 
 $string['pagetype'] = 'Page type';
 $string['pagetype_help'] = 'Is this template for a Course or a Module';
 $string['pluginname'] = 'SOL-SITS Integration';
+
+$string['recreate'] = 'Recreate Assignment activity';
 
 $string['selectasession'] = 'Select a session';
 $string['selectatemplate'] = 'Select a template';
@@ -103,9 +117,10 @@ $string['templatecourse'] = 'Template course';
 $string['templatename'] = 'Template name';
 $string['templates'] = 'Templates';
 $string['templates_desc'] = 'Module and Course templates assigned to sessions';
+$string['timecreated'] = 'Time created';
+$string['timemodified'] = 'Time modified';
 
 $string['updatedtemplate'] = '"{$a}" has been updated.';
-$string['modifiedby'] = 'Modified by';
 
 $string['weighting'] = 'Weighting';
 

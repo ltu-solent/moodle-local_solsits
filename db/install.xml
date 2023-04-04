@@ -11,7 +11,7 @@
                 <FIELD NAME="cmid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false"/>
                 <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false"/>
                 <FIELD NAME="sitting" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false"/>
-                <FIELD NAME="sittingdesc" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false"  />
+                <FIELD NAME="sittingdesc" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false" COMMENT="Usually FIRST, SECOND, THIRD" />
                 <FIELD NAME="externaldate" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false"  />
                 <FIELD NAME="status" TYPE="char" LENGTH="10" NOTNULL="true" SEQUENCE="false" />
                 <FIELD NAME="title" SEQUENCE="false" TYPE="char" LENGTH="100" NOTNULL="true" />

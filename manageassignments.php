@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * SOL-SITS tasks
+ * Manage templates page
  *
  * @package   local_solsits
  * @author    Mark Sharp <mark.sharp@solent.ac.uk>
@@ -23,24 +23,23 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+require_once('../../config.php');
+require_once($CFG->libdir . '/adminlib.php');
 
-$tasks = [
-    [
-        'classname' => '\local_solsits\task\applytemplate_task',
-        'blocking' => 0,
-        'minute' => '*',
-        'hour' => '*',
-        'day' => '*',
-        'month' => '*',
-        'dayofweek' => '*'
-    ], [
-        'classname' => '\local_solsits\task\create_assignment_task',
-        'blocking' => 0,
-        'minute' => '*',
-        'hour' => '*',
-        'day' => '*',
-        'month' => '*',
-        'dayofweek' => '*'
-    ]
-];
+admin_externalpage_setup('local_solsits/manageassignments', '', null, '/local/solsits/manageassignments.php');
+$context = context_system::instance();
+require_capability('local/solsits:manageassignments', $context);
+
+$PAGE->set_context($context);
+$PAGE->set_heading(get_string('manageassignments', 'local_solsits'));
+$PAGE->set_pagelayout('admin');
+$PAGE->set_title(get_string('manageassignments', 'local_solsits'));
+$PAGE->set_url($CFG->wwwroot.'/local/solsits/manageassignments.php');
+
+echo $OUTPUT->header();
+
+$table = new \local_solsits\tables\solassign_table('solassignments');
+
+$table->out(100, false);
+
+echo $OUTPUT->footer();

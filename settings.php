@@ -90,11 +90,24 @@ if ($hassiteconfig) {
     $default = 104857600;
     $settings->add(new admin_setting_configselect($name, $title, $description, $default, $options));
 
+    $name = 'local_solsits/maxassignments';
+    $title = new lang_string('maxassignments', 'local_solsits');
+    $description = new lang_string('maxassignments_desc', 'local_solsits');
+    $options = array_combine(range(1, 30), range(1, 30));
+    $settings->add(new admin_setting_configselect($name, $title, $description, 1, $options));
+
     $ADMIN->add('local_solsitscat', $settings);
 
     $name = 'local_solsits/managetemplates';
     $title = new lang_string('managetemplates', 'local_solsits');
     $url = new moodle_url('/local/solsits/managetemplates.php');
+    $externalpage = new admin_externalpage($name, $title, $url);
+
+    $ADMIN->add('local_solsitscat', $externalpage);
+
+    $name = 'local_solsits/manageassignments';
+    $title = new lang_string('manageassignments', 'local_solsits');
+    $url = new moodle_url('/local/solsits/manageassignments.php');
     $externalpage = new admin_externalpage($name, $title, $url);
 
     $ADMIN->add('local_solsitscat', $externalpage);

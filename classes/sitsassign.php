@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Helper functions
+ * Sol assignment
  *
  * @package   local_solsits
  * @author    Mark Sharp <mark.sharp@solent.ac.uk>
@@ -25,170 +25,125 @@
 
 namespace local_solsits;
 
-use assign;
-use context_module;
+use core\persistent;
 use core_date;
 use DateTime;
 use lang_string;
-use moodle_exception;
-use stdClass;
 
 /**
- * Sits assignment class
+ * The SITS assignment as it's coming from SITS
  */
-class sitsassign {
+class sitsassign extends persistent {
     /**
-     * Moodle assignment instance
+     * Table name for sits assignment.
+     */
+    const TABLE = 'local_solsits_assign';
+
+    /**
+     * Moodle assignment
      *
-     * @var assign
+     * @var stdClass
      */
     private $assign;
 
     /**
-     * SolAssignment persistent record
+     * Return the definition of the properties of this model.
      *
-     * @var solassignment
+     * @return array
      */
-    private $solassignment;
-
-    /**
-     * Data coming from SITS
-     *
-     * @var stdClass
-     */
-    private $sitsdata;
-
-    /**
-     * The formdata being submitted to create the Moodle assignment
-     *
-     * @var array
-     */
-    private $formdata;
-
-    /**
-     * SolSits config settings
-     *
-     * @var stdClass
-     */
-    private $config;
-
-    /**
-     * Class that manages SITS assignments
-     *
-     * @param string $sitsref
-     * @param stdClass $sitsdata
-     */
-    public function __construct($sitsref = '', stdClass $sitsdata = null) {
-        $this->config = get_config('local_solsits');
-        $this->sitsdata = $sitsdata;
-        if ($sitsref != '') {
-            $this->solassignment = solassignment::get_record(['sitsref' => $sitsref]);
-            if (!$this->solassignment) {
-                throw new moodle_exception('invalidrecord');
-            }
-            // If this fails there's a mismatch between solassignments and assign tables.
-            $context = context_module::instance($this->solassignment->cmid);
-            $this->assign = new assign($context, null, null);
-        }
-    }
-
-    /**
-     * Add a new SITS assignment to Moodle.
-     *
-     * @return void
-     */
-    public function add() {
-        // phpcs:disable
-        // Merge the default data and the sitsdata.
-        $this->formdata = clone $this->defaultsettings();
-        $moduleinfo = new stdClass();
-        // What happens if the course hasn't had its template applied yet?
-        // Section 1 won't exist, and the assignment will be deleted!
-        // When a template is applied, all the content is deleted, including any
-        // previously created assignment. This will throw an event. We could capture the delete event
-        // and do an action based on this. e.g. recreate the assignment (what happens if the template
-        // hasn't yet finished being applied?); send an email?
-        // We should watch for deleted course modules anyway, as we don't want lecturers deleting them,
-        // as they won't automatically reappear.
-        $moduleinfo->section = $this->config->targetsection;
-        // $assignid = $this->assign->add_instance($moduleinfo, true);
-        $this->calculatedates($moduleinfo);
-        $moduleinfo = add_moduleinfo($moduleinfo, $this->sitsdata->courseid, $this->formdata);
-        return $moduleinfo->cm->id;
-        // phpcs:enable
-    }
-
-    /**
-     * Update an existing Moodle assignment
-     *
-     * @return void
-     */
-    public function update() {
-        $this->assign->update_instance($this->formdata);
-        // phpcs:disable
-        // update_moduleinfo();
-        // phpcs:enable
-    }
-
-    /**
-     * Calculate the relative dates to the duedate
-     *
-     * @param stdClass $moduleinfo
-     * @return void
-     */
-    private function calculatedates(&$moduleinfo) {
-        if ($this->sitsdata->availablefrom == 0) {
-            $moduleinfo->allowsubmissionsfromdate = 0;
-        } else {
-            $time = new DateTime('now', core_date::get_user_timezone_object());
-            $time = DateTime::createFromFormat('U', $this->sitsdata->availablefrom);
-            $time->setTime(16, 0, 0);
-            $timezone = core_date::get_user_timezone($time);
-            $dst = dst_offset_on($this->sitsdata->availablefrom, $timezone);
-            $moduleinfo->allowsubmissionsfromdate = $time->getTimestamp() - $dst;
-        }
-    }
-
-    /**
-     * Default settings for a new assignment
-     *
-     * @return stdClass
-     */
-    private function defaultsettings() {
-
-        $assigncfg = get_config('assign');
-        // These settings need to be set. When creating an assign object
-        // the class assumes these "formdata" elements are present.
-        // These are fixed settings. Other settings will be variable settings.
-        $assignsettings = [
-            'alwaysshowdescription',
-            'submissiondrafts',
-            'requiresubmissionstatement',
-            'sendnotifications',
-            'sendlatenotifications',
-            'sendstudentnotifications',
-            'allowsubmissionsfromdate',
-            'teamsubmission',
-            'requireallteammemberssubmit',
-            'teamsubmissiongroupingid',
-            'blindmarking',
-            'hidegrader',
-            'attemptreopenmethod',
-            'maxattempts',
-            'preventsubmissionnotingroup',
-            'markingworkflow',
-            'markingallocation',
+    protected static function define_properties() {
+        return [
+            'sitsref' => [
+                'type' => PARAM_TEXT
+            ],
+            // Cmid can be 0 if the course has not been templated.
+            'cmid' => [
+                'type' => PARAM_INT,
+                'default' => 0
+            ],
+            'courseid' => [
+                'type' => PARAM_INT
+            ],
+            // Sitting reference number.
+            'sitting' => [
+                'type' => PARAM_INT,
+                'null' => NULL_ALLOWED,
+                'default' => 0
+            ],
+            // Usually FIRST, SECOND, THIRD.
+            'sittingdesc' => [
+                'type' => PARAM_TEXT,
+                'default' => 'FIRST'
+            ],
+            'externaldate' => [
+                'type' => PARAM_INT,
+                'default' => 0
+            ],
+            'status' => [
+                'type' => PARAM_TEXT,
+                'default' => '',
+                'null' => NULL_ALLOWED
+            ],
+            'title' => [
+                'type' => PARAM_TEXT
+            ],
+            'weighting' => [
+                'type' => PARAM_FLOAT,
+                'default' => 1
+            ],
+            'duedate' => [
+                'type' => PARAM_INT,
+                'default' => 0
+            ],
+            'grademarkexempt' => [
+                'type' => PARAM_BOOL,
+                'default' => 0
+            ],
+            'availablefrom' => [
+                'type' => PARAM_INT,
+                'default' => 0
+            ]
         ];
-        $settings = new stdClass();
-        foreach ($assignsettings as $asetting) {
-            $settings->{$asetting} = $assigncfg->{$asetting};
+    }
+
+    /**
+     * A course must exist for this record to be created
+     *
+     * @param int $courseid
+     * @return boolean|lang_string String on error.
+     */
+    protected function validate_courseid($courseid) {
+        if ($courseid == 0) {
+            return new lang_string('courseidrequired', 'local_solsits');
         }
-        $comments = get_config('assignfeedback_comments');
-        $doublemark = get_config('assignfeedback_doublemark');
-        $file = get_config('assignfeedback_file');
-        $misconduct = get_config('assignfeedback_misconduct');
-        $sample = get_config('assignfeedback_sample');
-        return $settings;
+        return true;
+    }
+
+    /**
+     * Gets a list of assignments that haven't been created yet, where the course template has been applied
+     * meaning these assignments can now be created.
+     *
+     * @param int $limit Max number of records to return
+     * @return array
+     */
+    public static function get_create_list($limit = 10) {
+        global $DB;
+
+        $sql = "SELECT cf.id, cf.shortname
+            FROM {customfield_field} cf
+            JOIN {customfield_category} cat ON cat.id = cf.categoryid AND cat.name = 'Student Records System'
+            WHERE cf.shortname = 'templateapplied'";
+        $templateappliedfield = $DB->get_record_sql($sql);
+        $params = [
+            'fieldid' => $templateappliedfield->id
+        ];
+        $sql = "SELECT ssa.*
+        FROM {local_solsits_assign} ssa
+        JOIN {customfield_data} cfd ON cfd.instanceid = ssa.courseid AND cfd.fieldid = :fieldid
+        WHERE ssa.cmid = 0 AND cfd.value = 1";
+
+        $records = $DB->get_records_sql($sql, $params, 0, $limit);
+        return $records;
     }
 
     /**
@@ -217,33 +172,68 @@ class sitsassign {
         $mform->addElement('static', 'sits_sittingdesc', new lang_string('sittingdescription', 'local_solsits'),
             $solassign->sittingdesc);
 
-        $externaldate = '';
-        if ($solassign->externaldate > 0) {
-            $externaldate = date('Y-m-d', $solassign->externaldate);
-        } else {
-            $externaldate = get_string('notset', 'local_solsits');
-        }
-        $mform->addElement('static', 'sits_externaldate', new lang_string('externaldate', 'local_solsits'), $externaldate);
-        $mform->addElement('static', 'sits_status', new lang_string('status', 'local_solsits'), $solassign->status);
-
         $weighting = (int)($solassign->weighting * 100);
         $mform->addElement('static', 'sits_weighting', new lang_string('weighting', 'local_solsits'), $weighting . '%');
 
-        $mform->addElement('static', 'sits_assessmentcode', new lang_string('assessmentcode', 'local_solsits'),
-            $solassign->assessmentcode);
-
-        $duedate = date('y-m-d', $solassign->duedate);
+        $duedate = date(get_string('strftimedatetimeaccurate', 'core_langconfig'), $solassign->duedate);
         $mform->addElement('static', 'sits_duedate', new lang_string('duedate', 'local_solsits'), $duedate);
 
-        $grademarkexempt = $solassign->grademarkexempt ? get_string('Yes') : get_string('No');
+        $grademarkexempt = $solassign->grademarkexempt ? get_string('yes') : get_string('no');
         $mform->addElement('static', 'sits_grademarkexempt', new lang_string('grademarkexempt', 'local_solsits'), $grademarkexempt);
 
         $availablefrom = '';
         if ($solassign->availablefrom > 0) {
-            $availablefrom = get_string('immediately', 'local_solsits');
+            $availablefrom = date(get_string('strftimedatetimeaccurate', 'core_langconfig'), $solassign->availablefrom);
         } else {
-            $availablefrom = date('Y-m-d', $solassign->availablefrom);
+            $availablefrom = get_string('immediately', 'local_solsits');
         }
         $mform->addElement('static', 'sits_availablefrom', new lang_string('availablefrom', 'local_solsits'), $availablefrom);
+    }
+
+    /**
+     * Calculate dates from the duedate
+     *
+     * @return void
+     */
+    private function calculatedates() {
+        $config = get_config('local_solsits');
+        if ($this->get('availablefrom') == 0) {
+            $this->assign->allowsubmissionsfromdate = 0;
+        } else {
+            $time = new DateTime('now', core_date::get_user_timezone_object());
+            $time = DateTime::createFromFormat('U', $this->get('availablefrom'));
+            $time->setTime(16, 0, 0);
+            $timezone = core_date::get_user_timezone($time);
+            $dst = dst_offset_on($this->get('availablefrom'), $timezone);
+            $this->assign->allowsubmissionsfromdate = $time->getTimestamp() - $dst;
+        }
+    }
+
+    /**
+     * Create the Moodle assignment from available data
+     *
+     * @return void
+     */
+    public function create_assignment() {
+        mtrace("Pretending to create: " . $this->get('sitsref'));
+        // Store Moodle assignment in $this->assign.
+    }
+
+    /**
+     * Update the Moodle assignment
+     *
+     * @return void
+     */
+    public function updatecm() {
+        $this->calculatedates();
+    }
+
+    /**
+     * Insert the Moodle assignment
+     *
+     * @return void
+     */
+    private function insertcm() {
+        $this->calculatedates();
     }
 }

@@ -1,0 +1,152 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Solassignment queue table
+ *
+ * @package   local_solsits
+ * @author    Mark Sharp <mark.sharp@solent.ac.uk>
+ * @copyright 2023 Solent University {@link https://www.solent.ac.uk}
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+namespace local_solsits\tables;
+
+use core_user;
+use Exception;
+use html_writer;
+use lang_string;
+use moodle_url;
+use table_sql;
+
+defined('MOODLE_INTERNAL') || die();
+require_once($CFG->libdir . '/tablelib.php');
+
+/**
+ * Table of assignments from SITS and references to course modules.
+ */
+class solassign_table extends table_sql {
+    /**
+     * Constructor
+     *
+     * @param string $uniqueid
+     */
+    public function __construct($uniqueid) {
+        parent::__construct($uniqueid);
+        $this->useridfield = 'modifiedby';
+        $columns = [
+            'id',
+            'sitsref',
+            'cmid',
+            'course',
+            'sitting',
+            'sittingdesc',
+            'title',
+            'weighting',
+            'duedate',
+            'grademarkexempt',
+            'availablefrom',
+            'timemodified',
+            'actions'
+        ];
+
+        $columnheadings = [
+            'id',
+            new lang_string('sitsreference', 'local_solsits'),
+            new lang_string('cmid', 'local_solsits'),
+            new lang_string('coursename', 'local_solsits'),
+            new lang_string('sittingreference', 'local_solsits'),
+            new lang_string('sittingdescription', 'local_solsits'),
+            new lang_string('assignmenttitle', 'local_solsits'),
+            new lang_string('weighting', 'local_solsits'),
+            new lang_string('duedate', 'local_solsits'),
+            new lang_string('grademarkexempt', 'local_solsits'),
+            new lang_string('availablefrom', 'local_solsits'),
+            new lang_string('timemodified', 'local_solsits'),
+            new lang_string('actions', 'local_solsits')
+        ];
+        $this->define_columns($columns);
+        $this->define_headers($columnheadings);
+        $this->no_sorting('actions');
+        $this->sortable(true, 'sitsref', SORT_ASC);
+        $this->define_baseurl(new moodle_url('/local/solsits/manageassignments.php'));
+        $where = '1=1';
+        $from = "{local_solsits_assign} ssa
+        JOIN {course} c ON c.id = ssa.courseid";
+        $this->set_sql('ssa.*, c.fullname', $from, $where);
+    }
+
+    /**
+     * Output actions column
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_actions($row) {
+        $html = '';
+
+        $params['action'] = 'delete';
+        $delete = new moodle_url('/local/solsits/editassign.php', $params);
+        $html .= " " . html_writer::link($delete, get_string('delete'));
+
+        $params['action'] = 'recreate';
+        $recreate = new moodle_url('/local/solsits/editassign.php', $params);
+        $html .= " | " . html_writer::link($recreate, get_string('recreate', 'local_solsits'));
+        return $html;
+    }
+
+    /**
+     * Coursemodule info
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_cmid($row) {
+        if ($row->cmid > 0) {
+            try {
+                [$course, $cm] = get_course_and_cm_from_cmid($row->cmid, 'assign');
+                $url = new moodle_url('/mod/assign/view.php', ['id' => $row->cmid]);
+                return html_writer::link($url, $cm->name);
+            } catch (Exception $ex) {
+                return get_string('nolongerexists', 'local_solsits');
+            }
+        } else {
+            return '-';
+        }
+    }
+
+    /**
+     * Course info
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_course($row) {
+        $url = new moodle_url('/course/view.php', ['id' => $row->courseid]);
+        return html_writer::link($url, $row->fullname);
+    }
+
+    /**
+     * Output timemodified column
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_timemodified($row) {
+        return userdate($row->timemodified, get_string('strftimedatetimeshort', 'core_langconfig'));
+    }
+}
+

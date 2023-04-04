@@ -264,9 +264,19 @@ class helper {
         if (!self::is_summative_assignment($cm->id)) {
             return $scales;
         }
-        // Filter out any non-Solent scales.
+        // Filter out any non-Solent scales, if any are set.
         $solsitsconfig = get_config('local_solsits');
-        $solscales = [$solsitsconfig->grademarkscale, $solsitsconfig->grademarkexemptscale];
+        $solscales = [];
+        if (isset($solsitsconfig->grademarkscale)) {
+            $solscales[] = $solsitsconfig->grademarkscale;
+        }
+        if (isset($solsitsconfig->grademarkexemptscale)) {
+            $solscales[] = $solsitsconfig->grademarkexemptscale;
+        }
+        // If no solscales are set, return the default set.
+        if (count($solscales) == 0) {
+            return $scales;
+        }
         $scales = array_filter($scales, function($scaleid) use ($solscales) {
             return in_array($scaleid, $solscales);
         }, ARRAY_FILTER_USE_KEY);
@@ -339,6 +349,17 @@ class helper {
      */
     public static function issolsits() {
         return true;
+    }
+
+    /**
+     * Given a course module id, is this a sits assignment?
+     *
+     * @param int $cmid
+     * @return boolean
+     */
+    public static function is_sits_assignment($cmid) {
+        global $DB;
+        return $DB->record_exists('local_solsits_assign', ['cmid' => $cmid]);
     }
 }
 

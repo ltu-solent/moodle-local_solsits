@@ -175,7 +175,7 @@ class sitsassign extends persistent {
         $weighting = (int)($solassign->weighting * 100);
         $mform->addElement('static', 'sits_weighting', new lang_string('weighting', 'local_solsits'), $weighting . '%');
 
-        $duedate = date(get_string('strftimedatetimeaccurate', 'core_langconfig'), $solassign->duedate);
+        $duedate = date('%d %B %Y, %I:%M:%S %p', $solassign->duedate);
         $mform->addElement('static', 'sits_duedate', new lang_string('duedate', 'local_solsits'), $duedate);
 
         $grademarkexempt = $solassign->grademarkexempt ? get_string('yes') : get_string('no');
@@ -183,7 +183,7 @@ class sitsassign extends persistent {
 
         $availablefrom = '';
         if ($solassign->availablefrom > 0) {
-            $availablefrom = date(get_string('strftimedatetimeaccurate', 'core_langconfig'), $solassign->availablefrom);
+            $availablefrom = date('%d %B %Y, %I:%M:%S %p', $solassign->availablefrom);
         } else {
             $availablefrom = get_string('immediately', 'local_solsits');
         }

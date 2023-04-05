@@ -28,7 +28,7 @@ Feature: Display SITS assignment data in the settings page, if available
     Given I log in as "teacher1"
     And I am on "Course1" course homepage
     And I follow "SITS1"
-    And I follow "Settings"
+    And I navigate to "Edit settings" in current page administration
     When I expand all fieldsets
     Then I should see "SITS reference"
     And I should see "SITS1" in the "#fitem_id_sits_ref" "css_element"
@@ -37,7 +37,7 @@ Feature: Display SITS assignment data in the settings page, if available
     Given I log in as "teacher1"
     And I am on "Course1" course homepage
     And I follow "Quercus1"
-    And I follow "Settings"
+    And I navigate to "Edit settings" in current page administration
     When I expand all fieldsets
     Then I should not see "SITS reference"
     And "#fitem_id_sits_ref" "css_element" should not exist
@@ -46,7 +46,7 @@ Feature: Display SITS assignment data in the settings page, if available
     Given I log in as "teacher1"
     And I am on "Course1" course homepage
     And I follow "Formative1"
-    And I follow "Settings"
+    And I navigate to "Edit settings" in current page administration
     When I expand all fieldsets
     Then I should not see "SITS reference"
     And "#fitem_id_sits_ref" "css_element" should not exist

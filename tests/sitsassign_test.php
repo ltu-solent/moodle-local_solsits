@@ -33,6 +33,7 @@ global $CFG;
 
 /**
  * Test sitsassign persistent class
+ * @group sol
  */
 class sitsassign_test extends advanced_testcase {
     /**

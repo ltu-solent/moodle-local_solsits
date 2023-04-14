@@ -34,6 +34,7 @@ global $CFG;
 
 /**
  * Test local_solsits helper functions.
+ * @group sol
  */
 class soltemplate_test extends advanced_testcase {
 

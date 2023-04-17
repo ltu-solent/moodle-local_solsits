@@ -72,6 +72,27 @@ if ($hassiteconfig) {
     $default = '';
     $settings->add(new admin_setting_configselect($name, $title, $description, $default, $scaleoptions));
 
+    $name = 'local_solsits/cutoffinterval';
+    $title = new lang_string('cutoffinterval', 'local_solsits');
+    $description = new lang_string('cutoffinterval_desc', 'local_solsits');
+    $default = 1;
+    $options = array_combine(range(1, 10), range(1, 10));
+    $settings->add(new admin_setting_configselect($name, $title, $description, $default, $options));
+
+    $name = 'local_solsits/cutoffintervalsecondplus';
+    $title = new lang_string('cutoffintervalsecondplus', 'local_solsits');
+    $description = new lang_string('cutoffintervalsecondplus_desc', 'local_solsits');
+    $default = 1;
+    $options = array_combine(range(1, 10), range(1, 10));
+    $settings->add(new admin_setting_configselect($name, $title, $description, $default, $options));
+
+    $name = 'local_solsits/gradingdueinterval';
+    $title = new lang_string('gradingdueinterval', 'local_solsits');
+    $description = new lang_string('gradingdueinterval_desc', 'local_solsits');
+    $default = 1;
+    $options = array_combine(range(1, 10), range(1, 10));
+    $settings->add(new admin_setting_configselect($name, $title, $description, $default, $options));
+
     $name = 'local_solsits/defaultfilesubmissions';
     $title = new lang_string('defaultfilesubmissions', 'local_solsits');
     $description = new lang_string('defaultfilesubmissions_desc', 'local_solsits');

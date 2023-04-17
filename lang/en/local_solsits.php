@@ -39,6 +39,10 @@ $string['confirmdeletetemplate'] = 'Confirm deletion of "{$a}"';
 $string['courseidrequired'] = 'Courseid field required';
 $string['coursename'] = 'Course name';
 $string['createassignmenttask'] = 'Create assignment task';
+$string['cutoffinterval'] = 'Cut off interval';
+$string['cutoffinterval_desc'] = 'Cut off date interval in weeks';
+$string['cutoffintervalsecondplus'] = 'Cut off second/third+ sittings';
+$string['cutoffintervalsecondplus_desc'] = 'Cut off date interval in weeks for second/third+ sittings';
 
 $string['defaultfilesubmissionfilesize'] = 'Default submission filesize';
 $string['defaultfilesubmissionfilesize_desc'] = 'Default filesize for file submissions';
@@ -67,6 +71,8 @@ $string['grademarkexemptscale'] = 'Grademark exempt scale';
 $string['grademarkexemptscale_desc'] = 'Standard 100 point scale';
 $string['grademarkscale'] = 'Grademark scale';
 $string['grademarkscale_desc'] = 'Solent Grade scale A1, A2, A3, B1 etc';
+$string['gradingdueinterval'] = 'Grading due interval';
+$string['gradingdueinterval_desc'] = 'Grading due date interval in weeks';
 
 $string['immediately'] = 'Immediately';
 $string['invalidpagetype'] = 'Invalid pagetype';

@@ -132,5 +132,20 @@ function xmldb_local_solsits_upgrade($oldversion) {
         }
         upgrade_plugin_savepoint(true, 2022112124, 'local', 'solsits');
     }
+
+    if ($oldversion < 2023040501) {
+        $quercusconfig = get_config('local_quercus_tasks');
+        if ($quercusconfig->cutoffinterval) {
+            set_config('cutoffinterval', $quercusconfig->cutoffinterval, 'local_solsits');
+        }
+        if ($quercusconfig->cutoffintervalsecondplus) {
+            set_config('cutoffintervalsecondplus', $quercusconfig->cutoffintervalsecondplus, 'local_solsits');
+        }
+        if ($quercusconfig->gradingdueinterval) {
+            set_config('gradingdueinterval', $quercusconfig->gradingdueinterval, 'local_solsits');
+        }
+        upgrade_plugin_savepoint(true, 2023040501, 'local', 'solsits');
+    }
+
     return true;
 }

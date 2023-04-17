@@ -56,6 +56,15 @@ function xmldb_local_solsits_install() {
     if (isset($quercusconfig->grademarkexemptscale)) {
         set_config('grademarkexemptscale', $quercusconfig->grademarkexemptscale, 'local_solsits');
     }
+    if (isset($quercusconfig->cutoffinterval)) {
+        set_config('cutoffinterval', $quercusconfig->cutoffinterval, 'local_solsits');
+    }
+    if (isset($quercusconfig->cutoffintervalsecondplus)) {
+        set_config('cutoffintervalsecondplus', $quercusconfig->cutoffintervalsecondplus, 'local_solsits');
+    }
+    if (isset($quercusconfig->gradingdueinterval)) {
+        set_config('gradingdueinterval', $quercusconfig->gradingdueinterval, 'local_solsits');
+    }
 
     $oldcapabilities = $DB->get_records('role_capabilities', ['capability' => 'local/quercus_tasks:releasegrades']);
     $context = context_system::instance();

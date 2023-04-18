@@ -158,6 +158,9 @@ class sitsassign_test extends advanced_testcase {
         $this->assertEquals($gradingduedate, $assignment->get_instance()->gradingduedate);
         if ($sitsassign['sittingdesc'] == 'FIRST_SITTING') {
             $cutoffdate = helper::set_time($duedate, '16:00', "+{$config->cutoffinterval} week");
+            if ($assign->is_exam()) {
+                $cutoffdate = $duedate;
+            }
             $this->assertEquals($cutoffdate, $assignment->get_instance()->cutoffdate);
             $this->assertEquals(1, $cm->visible);
             $this->assertEquals(2, $cm->completion);
@@ -248,6 +251,18 @@ class sitsassign_test extends advanced_testcase {
             'grademark_exempt' => [
                 'sitsassign' => [
                     'sitsref' => 'PROJECT1_ABC101_2023/24',
+                    'sittingdesc' => 'FIRST_SITTING',
+                    'title' => 'Project 1 (100%)',
+                    'weighting' => 1,
+                    'duedate' => strtotime('+1 week'),
+                    'grademarkexempt' => true,
+                    'availablefrom' => 0
+                ],
+                'coursedeleted' => false
+            ],
+            'exam_cutoffdate' => [
+                'sitsassign' => [
+                    'sitsref' => 'EXAM_ABC101_2023/24',
                     'sittingdesc' => 'FIRST_SITTING',
                     'title' => 'Project 1 (100%)',
                     'weighting' => 1,

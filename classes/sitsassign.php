@@ -25,10 +25,13 @@
 
 namespace local_solsits;
 
+use assign;
+use context_module;
 use core\persistent;
 use core_date;
 use DateTime;
 use lang_string;
+use stdClass;
 
 /**
  * The SITS assignment as it's coming from SITS
@@ -40,11 +43,18 @@ class sitsassign extends persistent {
     const TABLE = 'local_solsits_assign';
 
     /**
-     * Moodle assignment
+     * Moodle assignment formdata
      *
      * @var stdClass
      */
-    private $assign;
+    private $formdata;
+
+    /**
+     * Default assignment config settings
+     *
+     * @var object
+     */
+    private $defaultconfig;
 
     /**
      * Return the definition of the properties of this model.
@@ -140,7 +150,7 @@ class sitsassign extends persistent {
         $sql = "SELECT ssa.*
         FROM {local_solsits_assign} ssa
         JOIN {customfield_data} cfd ON cfd.instanceid = ssa.courseid AND cfd.fieldid = :fieldid
-        WHERE ssa.cmid = 0 AND cfd.value = '1'";
+        WHERE ssa.cmid = 0 AND cfd.value = '1' AND ssa.duedate > 0";
 
         $records = $DB->get_records_sql($sql, $params, 0, $limit);
         return $records;
@@ -197,16 +207,40 @@ class sitsassign extends persistent {
      */
     private function calculatedates() {
         $config = get_config('local_solsits');
+        // We're getting timestamps, so all this might be wrong.
+        // Also, we need to confirm this timestamp has the appropriate Daylight Saving Offset applied.
+        // Or we get UTC and apply it ourselves.
+        // Or we get UTC and let the Moodle server do all the grunt when displaying the time.
+        // What about course start end dates?
         if ($this->get('availablefrom') == 0) {
-            $this->assign->allowsubmissionsfromdate = 0;
+            $this->formdata->allowsubmissionsfromdate = 0;
         } else {
-            $time = new DateTime('now', core_date::get_user_timezone_object());
-            $time = DateTime::createFromFormat('U', $this->get('availablefrom'));
-            $time->setTime(16, 0, 0);
-            $timezone = core_date::get_user_timezone($time);
-            $dst = dst_offset_on($this->get('availablefrom'), $timezone);
-            $this->assign->allowsubmissionsfromdate = $time->getTimestamp() - $dst;
+            // Assuming UTC.
+            $this->formdata->allowsubmissionsfromdate = $this->get('availablefrom');
         }
+
+        // Due date.
+        $duedate = helper::set_time($this->get('duedate'));
+        $this->formdata->duedate = $duedate;
+
+        // Cut off date.
+        if (!$this->is_exam()) {
+            if ($this->get('sittingdesc') == 'FIRST_SITTING') {
+                $modifystring = '+' . $config->cutoffinterval . ' week';
+            } else {
+                $modifystring = '+' . $config->cutoffintervalsecondplus . ' week';
+            }
+            $dt = helper::set_time($this->get('duedate'), '16:00', $modifystring);
+            $this->formdata->cutoffdate = $dt;
+        } else {
+            // Cutoff date for exam must be the same as the duedate.
+            $this->formdata->cutoffdate = $duedate;
+        }
+
+        // Grading due date.
+        $modifystring = '+' . $config->gradingdueinterval . ' week';
+        $dt = helper::set_time($this->get('duedate'), '16:00', $modifystring);
+        $this->formdata->gradingduedate = $dt;
     }
 
     /**
@@ -215,8 +249,31 @@ class sitsassign extends persistent {
      * @return void
      */
     public function create_assignment() {
-        mtrace("Pretending to create: " . $this->get('sitsref'));
-        // Store Moodle assignment in $this->assign.
+        global $DB;
+        $config = get_config('local_solsits');
+        if ($this->get('duedate') == 0) {
+            mtrace("Due date has not been set (0), so no assignment has been created. {$this->get('sitsref')}");
+            return false;
+        }
+        if (!$DB->record_exists('course', ['id' => $this->get('courseid')])) {
+            mtrace("The courseid {$this->get('courseid')} no longer exists. {$this->get('sitsref')}");
+            return false;
+        }
+
+        $this->prepare_formdata();
+        $course = get_course($this->get('courseid'));
+        $modinfo = prepare_new_moduleinfo_data($course, 'assign', $config->targetsection);
+        $newassign = new assign($modinfo, null, $course);
+        $newmod = $newassign->add_instance($this->formdata, true);
+        $cm = $this->insert_cm($course, $newassign, $newmod);
+        if ($cm) {
+            $this->set('cmid', $cm->id);
+            $this->save();
+            return true;
+        } else {
+            mtrace('Failed to create Course module for ' . $course->shortname . ". {$this->get('sitsref')}");
+            return false;
+        }
     }
 
     /**
@@ -231,9 +288,133 @@ class sitsassign extends persistent {
     /**
      * Insert the Moodle assignment
      *
+     * @param stdClass $course Course object
+     * @param stdClass $newassign Assignment instance
+     * @param int $newmod Instance id
+     * @return stdClass|false Returns false on failure.
+     */
+    private function insert_cm($course, $newassign, $newmod) {
+        global $DB;
+        // Get module.
+        $modassign = $DB->get_record('modules', ['name' => 'assign'], '*', MUST_EXIST);
+
+        // Insert to course_modules table.
+        $module = new stdClass();
+        $module->id = null;
+        $module->course = $course->id;
+        $module->module = $modassign->id;
+        $module->modulename = $modassign->name;
+        $module->instance = $newmod;
+        $module->section = 1;
+        $module->idnumber = $this->get('sitsref');
+        $module->added = 0;
+        $module->score = 0;
+        $module->indent = 0;
+        if ($this->get('sittingdesc') == 'FIRST_SITTING') {
+            $module->visible = 1;
+            $module->completion = COMPLETION_CRITERIA_TYPE_DATE;
+        } else {
+            $module->visible = 0;
+            $module->completion = 0;
+        }
+        $module->visibleold = 0;
+        $module->groupmode = 0;
+        $module->groupingid = 0;
+        $module->completiongradeitemnumber = null;
+        $module->completionview = 0;
+        $module->completionexpected = $this->formdata->duedate;
+        $module->showdescription = 1;
+        $module->availability = null;
+        $module->deletioninprogress = 0;
+        $module->coursemodule = "";
+        $module->add = 'assign';
+
+        $newcmid = add_course_module($module);
+
+        // Get course module here.
+        $newcm = get_coursemodule_from_id('assign', $newcmid, $course->id, false, MUST_EXIST);
+
+        if (!$newcm) {
+            return false;
+        }
+
+        course_add_cm_to_section($course, $newcmid, 1);
+        $modcontext = $newassign->set_context(context_module::instance($newcm->id));
+
+        $eventdata = clone $newcm;
+        $eventdata->modname = $eventdata->modname;
+        $eventdata->id = $eventdata->id;
+        $event = \core\event\course_module_created::create_from_cm($eventdata, $modcontext);
+        $event->trigger();
+
+        rebuild_course_cache($course->id);
+
+        return $newcm;
+    }
+
+    /**
+     * Set assignment default settings used for form submission.
+     *
      * @return void
      */
-    private function insertcm() {
+    private function set_defaultconfig() {
+        if ($this->defaultconfig) {
+            // Already set.
+            return;
+        }
+        // This might be too much, but it does cover cases where new settings have been created.
+        $this->defaultconfig = get_config('assign');
+        $this->defaultconfig->assignfeedback_comments_enabled = get_config('assignfeedback_comments', 'default');
+        $this->defaultconfig->assignfeedback_comments_commentinline = get_config('assignfeedback_comments', 'inline');
+        $this->defaultconfig->assignfeedback_doublemark_enabled = get_config('assignfeedback_doublemark', 'default');
+        $this->defaultconfig->assignfeedback_file_enabled = get_config('assignfeedback_file', 'default');
+        $this->defaultconfig->assignfeedback_misconduct_enabled = get_config('assignfeedback_misconduct', 'default');
+        $this->defaultconfig->assignfeedback_sample_enabled = get_config('assignfeedback_sample', 'default');
+    }
+
+    /**
+     * Prepare formdata from default assign settings and SOL requirements.
+     *
+     * @return void
+     */
+    private function prepare_formdata() {
+        // Not all settings have a default setting override, so these need to be filled in as we're spoofing a
+        // form submission.
+        $this->set_defaultconfig();
+        $config = get_config('local_solsits');
+
+        $this->formdata = $this->defaultconfig;
+        if ($this->get('cmid') > 0) {
+            // Might need to get the assign id rather than the cmid.
+            $this->formdata->id = $this->get('cmid');
+        } else {
+            $this->formdata->id = null;
+        }
+        $this->formdata->course = $this->get('courseid');
+        $this->formdata->name = $this->get('title');
+        $this->formdata->intro = '';
+        $this->formdata->introformat = FORMAT_HTML;
+        $this->formdata->alwaysshowdescription = 1;
+        // Any submission plugins enabled? Default 0.
+        $this->formdata->nosubmissions = 0;
+        if ($this->get('grademarkexempt')) {
+            $this->formdata->grade = $config->grademarkexemptscale * -1;
+        } else {
+            $this->formdata->grade = $config->grademarkscale * -1;
+        }
+        $this->formdata->completionsubmit = 1;
+        $this->formdata->revealidenties = 0;
+        $this->formdata->coursemodule = '';
         $this->calculatedates();
+
+    }
+
+    /**
+     * This is an exam if EXAM appears anywhere in the sitsref
+     *
+     * @return boolean
+     */
+    private function is_exam() {
+        return (strpos($this->get('sitsref'), 'EXAM') !== false);
     }
 }

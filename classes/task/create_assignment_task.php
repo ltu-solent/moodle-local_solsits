@@ -51,7 +51,12 @@ class create_assignment_task extends scheduled_task {
         $assignments = sitsassign::get_create_list($config->maxassignments);
         foreach ($assignments as $assignment) {
             $ass = new sitsassign($assignment->id);
-            $ass->create_assignment();
+            $result = $ass->create_assignment();
+            if ($result == false) {
+                mtrace("An error has occurred");
+            } else {
+                mtrace("New assignment successfully created");
+            }
         }
     }
 }

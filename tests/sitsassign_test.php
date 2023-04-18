@@ -26,13 +26,17 @@
 namespace local_solsits;
 
 use advanced_testcase;
+use assign;
+use context_module;
 
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
+require_once($CFG->dirroot . '/mod/assign/locallib.php');
 /**
  * Test sitsassign persistent class
+ * @covers \local_solsits\sitsassign
  * @group sol
  */
 class sitsassign_test extends advanced_testcase {
@@ -65,7 +69,10 @@ class sitsassign_test extends advanced_testcase {
         $ssdg->create_sits_assign(['cmid' => $sitscm->id, 'courseid' => $tcourse->id]);
         // No cmid indicates the assignment hasn't been created in the course yet.
         $ssdg->create_sits_assign(['courseid' => $tcourse->id]);
+        // No set duedate should not be included.
+        $ssdg->create_sits_assign(['courseid' => $tcourse->id, 'duedate' => 0]);
         $ssdg->create_sits_assign(['courseid' => $ntcourse->id]);
+        $ssdg->create_sits_assign(['courseid' => $ntcourse->id, 'duedate' => 0]);
 
         $createlist = sitsassign::get_create_list();
         $this->assertCount(0, $createlist);
@@ -84,5 +91,196 @@ class sitsassign_test extends advanced_testcase {
         $this->assertCount(1, $createlist);
         $sitsassign = reset($createlist);
         $this->assertSame($tcourse->id, $sitsassign->courseid);
+    }
+
+    /**
+     * Test create assignment
+     *
+     * @param array $sitsassign Settings for sitsassign table
+     * @param bool $coursedeleted Create a course to get an id for sitsassign, then delete it.
+     * @dataProvider create_assignment_provider
+     * @return void
+     */
+    public function test_create_assignment($sitsassign, $coursedeleted = false) {
+        $this->resetAfterTest();
+        $this->set_settings();
+        $this->setTimezone('UTC');
+        $config = get_config('local_solsits');
+        // Perhaps change this is to a WS user with permissions to "Manage activities".
+        $this->setAdminUser();
+        $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
+        $course = $this->getDataGenerator()->create_course();
+        // Pretend to apply templates to one of the courses.
+        $handler = \core_customfield\handler::get_handler('core_course', 'course');
+        $customfields = $handler->get_instance_data($course->id, true);
+        $context = $handler->get_instance_context($course->id);
+        foreach ($customfields as $key => $customfield) {
+            if ($customfield->get_field()->get('shortname') == 'templateapplied') {
+                $customfield->set('value', 1);
+                $customfield->set('contextid', $context->id);
+                $customfield->save();
+            }
+        }
+        $sitsassign['courseid'] = $course->id;
+        // The duedate coming from SITS doesn't necessarily have the correct time site (1600), so we need to adjust for this.
+        $duedate = helper::set_time($sitsassign['duedate']);
+        $availablefrom = $sitsassign['availablefrom'] == 0 ? 0 : helper::set_time($sitsassign['availablefrom'], '');
+        $assign = $ssdg->create_sits_assign($sitsassign);
+
+        if ($coursedeleted) {
+            delete_course($course->id);
+            $this->expectOutputRegex('/\+\+ Deleted - Activity modules \+\+/');
+        }
+        $result = $assign->create_assignment();
+        if ($coursedeleted) {
+            $this->assertFalse($result);
+            $this->expectOutputString("The courseid {$assign->get('courseid')} no longer exists.  {$assign->get('sitsref')}");
+            // No more tests required.
+            return;
+        }
+        if ($sitsassign['duedate'] == 0) {
+            $this->assertFalse($result);
+            $this->expectOutputString("Due date has not been set (0), so no assignment has been created. " .
+                "{$assign->get('sitsref')}\n");
+            return;
+        }
+        $this->assertTrue($result);
+        $this->assertTrue($assign->get('cmid') > 0);
+        [$course2, $cm] = get_course_and_cm_from_cmid($assign->get('cmid'), 'assign');
+        $this->assertSame($assign->get('sitsref'), $cm->idnumber);
+        $this->assertSame($course->id, $course2->id);
+        // Check relative dates have worked out.
+        $context = context_module::instance($cm->id);
+        $assignment = new assign($context, $cm, $course);
+        $this->assertEquals($duedate, $assignment->get_instance()->duedate);
+        $this->assertEquals($availablefrom, $assignment->get_instance()->allowsubmissionsfromdate);
+        $gradingduedate = helper::set_time($duedate, '16:00', "+{$config->gradingdueinterval} week");
+        $this->assertEquals($gradingduedate, $assignment->get_instance()->gradingduedate);
+        if ($sitsassign['sittingdesc'] == 'FIRST_SITTING') {
+            $cutoffdate = helper::set_time($duedate, '16:00', "+{$config->cutoffinterval} week");
+            $this->assertEquals($cutoffdate, $assignment->get_instance()->cutoffdate);
+            $this->assertEquals(1, $cm->visible);
+            $this->assertEquals(2, $cm->completion);
+        } else {
+            $cutoffdate = helper::set_time($duedate, '16:00', "+{$config->cutoffintervalsecondplus} week");
+            $this->assertEquals($cutoffdate, $assignment->get_instance()->cutoffdate);
+            $this->assertEquals(0, $cm->visible);
+            $this->assertEquals(0, $cm->completion);
+        }
+        $this->assertEquals($duedate, $cm->completionexpected);
+        // Check it's in section 1.
+        $this->assertEquals($config->targetsection, $cm->sectionnum);
+        // Check which grade scale is being used.
+        if ($assign->get('grademarkexempt')) {
+            $this->assertEquals($assignment->get_instance()->grade, $config->grademarkexemptscale * -1);
+        } else {
+            $this->assertEquals($assignment->get_instance()->grade, $config->grademarkscale * -1);
+        }
+    }
+
+    /**
+     * Create assignment provider
+     *
+     * @return array
+     */
+    public function create_assignment_provider(): array {
+        return [
+            'valid_duedate' => [
+                'sitsassign' => [
+                    'sitsref' => 'PROJECT1_ABC101_2023/24',
+                    'sittingdesc' => 'FIRST_SITTING',
+                    'title' => 'Project 1 (100%)',
+                    'weighting' => 1,
+                    'duedate' => strtotime('+1 week'),
+                    'grademarkexempt' => false,
+                    'availablefrom' => 0
+                ],
+                'coursedeleted' => false
+            ],
+            'second_sitting' => [
+                'sitsassign' => [
+                    'sitsref' => 'PROJECT1_ABC101_2023/24',
+                    'sittingdesc' => 'SECOND_SITTING',
+                    'title' => 'Project 1 (100%)',
+                    'weighting' => 1,
+                    'duedate' => strtotime('+4 week'),
+                    'grademarkexempt' => false,
+                    'availablefrom' => 0
+                ],
+                'coursedeleted' => false
+            ],
+            'deleted_course' => [
+                'sitsassign' => [
+                    'sitsref' => 'PROJECT1_ABC101_2023/24',
+                    'sittingdesc' => 'FIRST_SITTING',
+                    'title' => 'Project 1 (100%)',
+                    'weighting' => 1,
+                    'duedate' => strtotime('+1 week'),
+                    'grademarkexempt' => false,
+                    'availablefrom' => 0
+                ],
+                'coursedeleted' => true
+            ],
+            'no_duedate' => [
+                'sitsassign' => [
+                    'sitsref' => 'PROJECT1_ABC101_2023/24',
+                    'sittingdesc' => 'FIRST_SITTING',
+                    'title' => 'Project 1 (100%)',
+                    'weighting' => 1,
+                    'duedate' => 0,
+                    'grademarkexempt' => false,
+                    'availablefrom' => 0
+                ],
+                'coursedeleted' => false
+            ],
+            'availablefrom' => [
+                'sitsassign' => [
+                    'sitsref' => 'PROJECT1_ABC101_2023/24',
+                    'sittingdesc' => 'FIRST_SITTING',
+                    'title' => 'Project 1 (100%)',
+                    'weighting' => 1,
+                    'duedate' => strtotime('+3 week'),
+                    'grademarkexempt' => false,
+                    'availablefrom' => strtotime('+1 week')
+                ],
+                'coursedeleted' => false
+            ],
+            'grademark_exempt' => [
+                'sitsassign' => [
+                    'sitsref' => 'PROJECT1_ABC101_2023/24',
+                    'sittingdesc' => 'FIRST_SITTING',
+                    'title' => 'Project 1 (100%)',
+                    'weighting' => 1,
+                    'duedate' => strtotime('+1 week'),
+                    'grademarkexempt' => true,
+                    'availablefrom' => 0
+                ],
+                'coursedeleted' => false
+            ],
+        ];
+    }
+
+    /**
+     * Settings required to create an assignment
+     *
+     * @return void
+     */
+    private function set_settings() {
+        // Create Solent Grademark scales.
+        $solentscale = $this->getDataGenerator()->create_scale([
+            'name' => 'Solent',
+            'scale' => 'N, S, F3, F2, F1, D3, D2, D1, C3, C2, C1, B3, B2, B1, A4, A3, A2, A1'
+        ]);
+        set_config('grademarkscale', $solentscale->id, 'local_solsits');
+        // Create Solent numeric scales.
+        $solentnumeric = $this->getDataGenerator()->create_scale([
+            'name' => 'Solent numeric',
+            'scale' => '0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ' .
+                    '21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, ' .
+                    '41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, ' .
+                    '61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, ' .
+                    '81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100'
+        ]);
+        set_config('grademarkexemptscale', $solentnumeric->id, 'local_solsits');
     }
 }

@@ -30,6 +30,7 @@ use context_system;
 use core_course\customfield\course_handler;
 use core_customfield\category;
 use core_customfield\field;
+use DateTime;
 use Exception;
 
 /**
@@ -360,6 +361,28 @@ class helper {
     public static function is_sits_assignment($cmid) {
         global $DB;
         return $DB->record_exists('local_solsits_assign', ['cmid' => $cmid]);
+    }
+
+    /**
+     * Takes a timestamp and modifies it returning a new timestamp
+     *
+     * @param int $timestamp
+     * @param string $timestring A time hh:mm - no seconds.
+     * @param string $modifystring A PHP modify string pattern
+     * @return int The altered timestamp
+     */
+    public static function set_time($timestamp, $timestring = '16:00', $modifystring = '') {
+        $dt = new DateTime();
+        $dt->setTimestamp($timestamp);
+        if ($modifystring) {
+            $dt->modify($modifystring);
+        }
+        if ($timestring) {
+            // Should only be 2 parts.
+            $timeparts = explode(':', $timestring);
+            $dt->setTime($timeparts[0], $timeparts[1]);
+        }
+        return $dt->getTimestamp();
     }
 }
 

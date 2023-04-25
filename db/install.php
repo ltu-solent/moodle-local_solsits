@@ -34,6 +34,7 @@ function xmldb_local_solsits_install() {
         'academic_year',
         'level_code',
         'location_code',
+        'location_name',
         'module_code',
         'module_occurrence',
         'org_2',

@@ -60,8 +60,7 @@ class local_solsits_generator extends component_generator_base {
             'sitsref' => "SITS{$i}",
             'cmid' => 0,
             'courseid' => 0,
-            'sitting' => 0, // We might not have sitting data.
-            'sittingdesc' => '', // We might not have sitting data.
+            'reattempt' => '', // Usually FIRST, SECOND...
             'title' => "ASSIGN{$i}",
             'weighting' => 1,
             'duedate' => strtotime('+1 week'),

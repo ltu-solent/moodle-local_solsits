@@ -74,7 +74,6 @@ class externallib_test extends externallib_advanced_testcase {
                 'sitsref' => 'PROJ1_ABC101_A_S1_2023/2024',
                 'title' => 'Project 1 (50%)',
                 'weighting' => '.5',
-                'assessmentcode' => 'PROJ1',
                 'duedate' => strtotime('+2 weeks 16:00'),
                 'grademarkexempt' => false,
                 'availablefrom' => 0

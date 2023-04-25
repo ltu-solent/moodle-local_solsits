@@ -111,28 +111,6 @@ function xmldb_local_solsits_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2022112122, 'local', 'solsits');
     }
 
-    if ($oldversion < 2022112124) {
-        $table = new xmldb_table('local_solsits_attempts');
-        if (!$dbman->table_exists('local_solsits_attempts')) {
-            $table->add_field('id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-            $table->add_field('said', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null);
-            $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null);
-            $table->add_field('duedate', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null);
-            $table->add_field('attempt', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '1');
-            $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
-            $table->add_key('said', XMLDB_KEY_FOREIGN, ['said'], 'local_solsits_assign', ['id']);
-            $table->add_key('userid', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
-            $table->add_index('saiduserid', XMLDB_INDEX_UNIQUE, ['said', 'userid']);
-            $dbman->create_table($table);
-        }
-        $table = new xmldb_table('local_solsits_assign_grades');
-        $field = new xmldb_field('attempt', XMLDB_TYPE_INTEGER, '3', XMLDB_UNSIGNED, null, null, '1');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-        upgrade_plugin_savepoint(true, 2022112124, 'local', 'solsits');
-    }
-
     if ($oldversion < 2023040501) {
         $quercusconfig = get_config('local_quercus_tasks');
         if ($quercusconfig->cutoffinterval) {
@@ -145,6 +123,49 @@ function xmldb_local_solsits_upgrade($oldversion) {
             set_config('gradingdueinterval', $quercusconfig->gradingdueinterval, 'local_solsits');
         }
         upgrade_plugin_savepoint(true, 2023040501, 'local', 'solsits');
+    }
+
+    if ($oldversion < 2023040502) {
+        $fields = [
+            'location_name'
+        ];
+        foreach ($fields as $field) {
+            \local_solsits\helper::create_sits_coursecustomfields($field);
+        }
+        $table = new xmldb_table('local_solsits_assign');
+        $field = new xmldb_field('sitting');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+        $field = new xmldb_field('externaldate');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+        $field = new xmldb_field('status');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+        $field = new xmldb_field('sittingdesc', XMLDB_TYPE_CHAR, 20, null, NULL_ALLOWED, false);
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'reattempt');
+        }
+
+        $table = new xmldb_table('local_solsits_attempts');
+        if ($dbman->table_exists($table)) {
+            $dbman->drop_table($table);
+        }
+        $table = new xmldb_table('local_solsits_courses');
+        if ($dbman->table_exists($table)) {
+            $dbman->drop_table($table);
+        }
+
+        $table = new xmldb_table('local_solsits_assign_grades');
+        $field = new xmldb_field('attempt');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        upgrade_plugin_savepoint(true, 2023040502, 'local', 'solsits');
     }
 
     return true;

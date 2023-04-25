@@ -118,6 +118,9 @@ class helper {
                 'name' => 'Academic level'
             ],
             'location_code' => [
+                'name' => 'Location code'
+            ],
+            'location_name' => [
                 'name' => 'Location'
             ],
             'module_code' => [

@@ -104,6 +104,7 @@ $string['selectasession'] = 'Select a session';
 $string['selectatemplate'] = 'Select a template';
 $string['session'] = 'Academic session';
 $string['sits'] = 'SITS';
+$string['sitsreattempt'] = 'Re-attempt';
 $string['sitsreference'] = 'SITS reference';
 $string['sittingdescription'] = 'Sitting description';
 $string['sittingreference'] = 'Sitting reference';

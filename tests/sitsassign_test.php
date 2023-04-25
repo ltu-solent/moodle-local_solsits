@@ -110,7 +110,7 @@ class sitsassign_test extends advanced_testcase {
         $this->setAdminUser();
         $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $course = $this->getDataGenerator()->create_course();
-        // Pretend to apply templates to one of the courses.
+        // Pretend to apply template to the course.
         $handler = \core_customfield\handler::get_handler('core_course', 'course');
         $customfields = $handler->get_instance_data($course->id, true);
         $context = $handler->get_instance_context($course->id);
@@ -131,7 +131,10 @@ class sitsassign_test extends advanced_testcase {
             delete_course($course->id);
             $this->expectOutputRegex('/\+\+ Deleted - Activity modules \+\+/');
         }
+
+        // Run actual create assignment method under test.
         $result = $assign->create_assignment();
+
         if ($coursedeleted) {
             $this->assertFalse($result);
             $this->expectOutputString("The courseid {$assign->get('courseid')} no longer exists.  {$assign->get('sitsref')}");
@@ -272,6 +275,281 @@ class sitsassign_test extends advanced_testcase {
                 ],
                 'coursedeleted' => false
             ],
+        ];
+    }
+
+    /**
+     * Update an existing assignment
+     *
+     * @dataProvider update_assignment_provider
+     * @return void
+     */
+    public function test_update_assignment($oldassign, $newassign, $coursedeleted) {
+        global $DB;
+        $this->resetAfterTest();
+        $this->set_settings();
+        $this->setTimezone('UTC');
+        $config = get_config('local_solsits');
+        // Perhaps change this is to a WS user with permissions to "Manage activities".
+        $this->setAdminUser();
+        $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
+        $course = $this->getDataGenerator()->create_course();
+        // Pretend to apply template to the course.
+        $handler = \core_customfield\handler::get_handler('core_course', 'course');
+        $customfields = $handler->get_instance_data($course->id, true);
+        $context = $handler->get_instance_context($course->id);
+        foreach ($customfields as $key => $customfield) {
+            if ($customfield->get_field()->get('shortname') == 'templateapplied') {
+                $customfield->set('value', 1);
+                $customfield->set('contextid', $context->id);
+                $customfield->save();
+            }
+        }
+        $oldassign['courseid'] = $course->id;
+        // The duedate coming from SITS doesn't necessarily have the correct time site (1600), so we need to adjust for this.
+        $oldduedate = helper::set_time($oldassign['duedate']);
+        $oldavailablefrom = $oldassign['availablefrom'] == 0 ? 0 : helper::set_time($oldassign['availablefrom'], '');
+        $newduedate = helper::set_time($newassign['duedate']);
+        $newavailablefrom = $newassign['availablefrom'] == 0 ? 0 : helper::set_time($newassign['availablefrom'], '');
+        $oldsitsassign = $ssdg->create_sits_assign($oldassign);
+
+        // Run create assignment method.
+        $result = $oldsitsassign->create_assignment();
+
+        // Delete the course after creating the assignment to leave a stranded record.
+        if ($coursedeleted) {
+            delete_course($course->id);
+            $this->expectOutputRegex('/\+\+ Deleted - Activity modules \+\+/');
+        }
+
+        // Get the assignment from sitsassign and update it with new data.
+        $newsitsassign = new sitsassign($oldsitsassign->get('id'), (object)$newassign);
+        $newsitsassign->save();
+
+        $result = $newsitsassign->update_assignment();
+
+        if ($coursedeleted) {
+            $this->assertFalse($result);
+            $this->expectOutputString("The courseid {$newsitsassign->get('courseid')} no longer exists. " .
+                "{$newsitsassign->get('sitsref')}");
+            // No more tests required.
+            return;
+        }
+        // If the old date is 0 then let scheduled task create it.
+        if ($newassign['duedate'] == 0 || $oldassign['duedate'] == 0) {
+            $this->assertFalse($result);
+            if ($oldassign['duedate'] == 0) {
+                $this->expectOutputString("Due date has not been set (0), so we can't update the assignment. " .
+                "{$newsitsassign->get('sitsref')}\nThe specified Course module ({$newsitsassign->get('cmid')}) hasn't " .
+                "yet been created.\n");
+            } else {
+                $this->expectOutputString("Due date has not been set (0), so we can't update the assignment. " .
+                "{$newsitsassign->get('sitsref')}\n");
+            }
+            return;
+        }
+
+        $this->assertTrue($result);
+        $this->assertTrue($newsitsassign->get('cmid') > 0);
+        [$course2, $cm] = get_course_and_cm_from_cmid($newsitsassign->get('cmid'), 'assign');
+        $this->assertSame($newsitsassign->get('sitsref'), $cm->idnumber);
+        $this->assertSame($course->id, $course2->id);
+
+        // Check relative dates have worked out.
+        $context = context_module::instance($cm->id);
+        $assignment = new assign($context, $cm, $course);
+        if ($oldduedate != $newduedate) {
+            $this->assertEquals($newduedate, $assignment->get_instance()->duedate);
+        } else {
+            $this->assertEquals($oldduedate, $assignment->get_instance()->duedate);
+        }
+        if ($oldavailablefrom != $newavailablefrom) {
+            $this->assertEquals($newavailablefrom, $assignment->get_instance()->allowsubmissionsfromdate);
+        } else {
+            $this->assertEquals($oldavailablefrom, $assignment->get_instance()->allowsubmissionsfromdate);
+        }
+
+        $gradingduedate = helper::set_time($newduedate, '16:00', "+{$config->gradingdueinterval} week");
+        $this->assertEquals($gradingduedate, $assignment->get_instance()->gradingduedate);
+        if ($newassign['sittingdesc'] == 'FIRST_SITTING') {
+            $cutoffdate = helper::set_time($newduedate, '16:00', "+{$config->cutoffinterval} week");
+            // Does an exam have a completion due setting?
+            if ($newsitsassign->is_exam()) {
+                $cutoffdate = $newduedate;
+            }
+            $this->assertEquals($cutoffdate, $assignment->get_instance()->cutoffdate);
+            $this->assertEquals(1, $cm->visible);
+            $this->assertEquals(2, $cm->completion);
+        } else {
+            $cutoffdate = helper::set_time($newduedate, '16:00', "+{$config->cutoffintervalsecondplus} week");
+            $this->assertEquals($cutoffdate, $assignment->get_instance()->cutoffdate);
+            $this->assertEquals(0, $cm->visible);
+            $this->assertEquals(0, $cm->completion);
+        }
+        $uncachedcm = $DB->get_record('course_modules', ['id' => $newsitsassign->get('cmid')]);
+        $this->assertEquals($newduedate, $uncachedcm->completionexpected);
+        $this->assertEquals($newduedate, $cm->completionexpected);
+
+        // Check it's in section 1.
+        $this->assertEquals($config->targetsection, $cm->sectionnum);
+        // Check which grade scale is being used.
+        if ($newsitsassign->get('grademarkexempt')) {
+            $this->assertEquals($assignment->get_instance()->grade, $config->grademarkexemptscale * -1);
+        } else {
+            $this->assertEquals($assignment->get_instance()->grade, $config->grademarkscale * -1);
+        }
+    }
+
+    public function update_assignment_provider(): array {
+        return [
+            'new_duedate' => [
+                'oldassign' => [
+                    'sitsref' => 'PROJECT1_ABC101_2023/24',
+                    'sittingdesc' => 'FIRST_SITTING',
+                    'title' => 'Project 1 (100%)',
+                    'weighting' => 1,
+                    'duedate' => strtotime('+1 week'),
+                    'grademarkexempt' => false,
+                    'availablefrom' => 0
+                ],
+                'newassign' => [
+                    'sitsref' => 'PROJECT1_ABC101_2023/24',
+                    'sittingdesc' => 'FIRST_SITTING',
+                    'title' => 'Project 1 (100%)',
+                    'weighting' => 1,
+                    'duedate' => strtotime('+2 week'),
+                    'grademarkexempt' => false,
+                    'availablefrom' => 0
+                ],
+                'coursedeleted' => false
+            ],
+            'deleted_course_after_old_assign' => [
+                'oldassign' => [
+                    'sitsref' => 'PROJECT1_ABC101_2023/24',
+                    'sittingdesc' => 'FIRST_SITTING',
+                    'title' => 'Project 1 (100%)',
+                    'weighting' => 1,
+                    'duedate' => strtotime('+1 week'),
+                    'grademarkexempt' => false,
+                    'availablefrom' => 0
+                ],
+                'newassign' => [
+                    'sitsref' => 'PROJECT1_ABC101_2023/24',
+                    'sittingdesc' => 'FIRST_SITTING',
+                    'title' => 'Project 1 (100%)',
+                    'weighting' => 1,
+                    'duedate' => strtotime('+2 week'),
+                    'grademarkexempt' => false,
+                    'availablefrom' => 0
+                ],
+                'coursedeleted' => true
+            ],
+            // In this scenario, the scheduled task will create the assignment.
+            'no_duedate-valid_duedate' => [
+                'oldassign' => [
+                    'sitsref' => 'PROJECT1_ABC101_2023/24',
+                    'sittingdesc' => 'FIRST_SITTING',
+                    'title' => 'Project 1 (100%)',
+                    'weighting' => 1,
+                    'duedate' => 0,
+                    'grademarkexempt' => false,
+                    'availablefrom' => 0
+                ],
+                'newassign' => [
+                    'sitsref' => 'PROJECT1_ABC101_2023/24',
+                    'sittingdesc' => 'FIRST_SITTING',
+                    'title' => 'Project 1 (100%)',
+                    'weighting' => 1,
+                    'duedate' => strtotime('+1 week'),
+                    'grademarkexempt' => false,
+                    'availablefrom' => 0
+                ],
+                'coursedeleted' => false
+            ],
+            'availablefrom_past-availablefrom_future' => [
+                'oldassign' => [
+                    'sitsref' => 'PROJECT1_ABC101_2023/24',
+                    'sittingdesc' => 'FIRST_SITTING',
+                    'title' => 'Project 1 (100%)',
+                    'weighting' => 1,
+                    'duedate' => strtotime('+3 week'),
+                    'grademarkexempt' => false,
+                    'availablefrom' => strtotime('-1 week')
+                ],
+                'newassign' => [
+                    'sitsref' => 'PROJECT1_ABC101_2023/24',
+                    'sittingdesc' => 'FIRST_SITTING',
+                    'title' => 'Project 1 (100%)',
+                    'weighting' => 1,
+                    'duedate' => strtotime('+3 week'),
+                    'grademarkexempt' => false,
+                    'availablefrom' => strtotime('+1 week')
+                ],
+                'coursedeleted' => false
+            ],
+            'grademark_exempt-no_grademarkexempt' => [
+                'oldassign' => [
+                    'sitsref' => 'PROJECT1_ABC101_2023/24',
+                    'sittingdesc' => 'FIRST_SITTING',
+                    'title' => 'Project 1 (100%)',
+                    'weighting' => 1,
+                    'duedate' => strtotime('+1 week'),
+                    'grademarkexempt' => true,
+                    'availablefrom' => 0
+                ],
+                'newassign' => [
+                    'sitsref' => 'PROJECT1_ABC101_2023/24',
+                    'sittingdesc' => 'FIRST_SITTING',
+                    'title' => 'Project 1 (100%)',
+                    'weighting' => 1,
+                    'duedate' => strtotime('+1 week'),
+                    'grademarkexempt' => false,
+                    'availablefrom' => 0
+                ],
+                'coursedeleted' => false
+            ],
+            'exam_cutoffdate-new_duedate' => [
+                'oldassign' => [
+                    'sitsref' => 'EXAM_ABC101_2023/24',
+                    'sittingdesc' => 'FIRST_SITTING',
+                    'title' => 'Project 1 (100%)',
+                    'weighting' => 1,
+                    'duedate' => strtotime('+1 week'),
+                    'grademarkexempt' => true,
+                    'availablefrom' => 0
+                ],
+                'newassign' => [
+                    'sitsref' => 'EXAM_ABC101_2023/24',
+                    'sittingdesc' => 'FIRST_SITTING',
+                    'title' => 'Project 1 (100%)',
+                    'weighting' => 1,
+                    'duedate' => strtotime('+2 week'),
+                    'grademarkexempt' => true,
+                    'availablefrom' => 0
+                ],
+                'coursedeleted' => false
+            ],
+            'new_weighting' => [
+                'oldassign' => [
+                    'sitsref' => 'PROJECT1_ABC101_2023/24',
+                    'sittingdesc' => 'FIRST_SITTING',
+                    'title' => 'Project 1 (100%)',
+                    'weighting' => 1,
+                    'duedate' => strtotime('+1 week'),
+                    'grademarkexempt' => false,
+                    'availablefrom' => 0
+                ],
+                'newassign' => [
+                    'sitsref' => 'PROJECT1_ABC101_2023/24',
+                    'sittingdesc' => 'FIRST_SITTING',
+                    'title' => 'Project 1 (50%)',
+                    'weighting' => .5,
+                    'duedate' => strtotime('+1 week'),
+                    'grademarkexempt' => false,
+                    'availablefrom' => 0
+                ],
+                'coursedeleted' => false
+            ]
         ];
     }
 

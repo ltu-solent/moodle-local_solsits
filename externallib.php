@@ -23,10 +23,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_solsits\helper;
 use local_solsits\sitsassign;
-use local_solsits\solcourse;
-use local_solsits\soltemplate;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -55,7 +52,6 @@ class local_solsits_external extends external_api {
                     'grademarkexempt' => new external_value(PARAM_BOOL, 'Is this grademark exempt', VALUE_DEFAULT, false),
                     'availablefrom' => new external_value(
                         PARAM_INT, 'When the assignment is available to the student from', VALUE_OPTIONAL),
-                    // Do we want all the other dates? Or do we continue to process them ourselves?
                 ])
             )
         ]);
@@ -147,7 +143,6 @@ class local_solsits_external extends external_api {
                         PARAM_BOOL, 'Is this grademark exempt', VALUE_DEFAULT, false),
                     'availablefrom' => new external_value(
                         PARAM_INT, 'When the assignment is available to the student from', VALUE_OPTIONAL),
-                    // Do we want all the other dates? Or do we continue to process them ourselves?
                 ])
             )
         ]);
@@ -201,8 +196,8 @@ class local_solsits_external extends external_api {
             $assign = new sitsassign($sitsassign->get('id'), $assignment);
             $assign->save();
             if ($assign->get('cmid') > 0) {
-                // Recalulate dates and update Course module settings.
-                $assign->updatecm();
+                // Recalulate dates and update Course module settings, only if it has already been created.
+                $assign->update_assignment();
             }
             $assignment->id = $assign->get('id');
             $assignment->cmid = $assign->get('cmid');
@@ -243,79 +238,27 @@ class local_solsits_external extends external_api {
      * @return external_function_parameters
      */
     public static function register_sitscourses_parameters(): external_function_parameters {
-        return new external_function_parameters([
-            'courses' => new external_multiple_structure(
-                new external_single_structure([
-                    'courseid' => new external_value(PARAM_INT, 'Course id'),
-                    'pagetype' => new external_value(PARAM_ALPHA, 'course or module', VALUE_DEFAULT, 'module'),
-                    'session' => new external_value(PARAM_RAW, 'Session e.g. 2022/23 - check formating as this will be validated')
-                ])
-            )
-        ]);
+        return new external_function_parameters([]);
     }
 
     /**
      * Register SITS courses and modules in Moodle
      *
      * @deprecated Not used, no longer required.
-     * @param array $courses
-     * @return array Details of registered courses
+     * @return null
      */
-    public static function register_sitscourses($courses) {
-        global $DB, $USER;
-        $params = self::validate_parameters(self::register_sitscourses_parameters(),
-                array('courses' => $courses));
-        $systemcontext = context_system::instance();
-        require_capability('local/solsits:registersitscourse', $systemcontext);
-        $transaction = $DB->start_delegated_transaction();
-        $inserted = [];
-        $validpagetypes = helper::get_pagetypes_menu();
-        foreach ($params['courses'] as $course) {
-            $courseexists = $DB->record_exists('course', ['id' => $course['courseid']]);
-            if (!$courseexists) {
-                throw new invalid_parameter_exception(
-                    get_string('error:coursenotexist', 'local_solsits', $course['courseid'])
-                );
-            }
-            if (!in_array($course['pagetype'], $validpagetypes)) {
-                throw new invalid_parameter_exception(
-                    get_string('error:invalidpagetype', 'local_solsits', $course['pagetype'])
-                );
-            }
-
-            $existing = solcourse::get_record(['courseid' => $course['courseid']]);
-            if (!$existing) {
-                $sitscourse = new solcourse(0, (object)$course);
-                $sitscourse->save();
-                $inserted[] = (array)$sitscourse->to_record();
-            } else {
-                // If it already exists, don't throw an error, just return the record.
-                $inserted[] = (array)$existing->to_record();
-            }
-        }
-        $transaction->allow_commit();
-        return $inserted;
+    public static function register_sitscourses() {
+        return;
     }
 
     /**
      * Returned data format for register sitscourses
      *
      * @deprecated Not used, no longer required.
-     * @return external_multiple_structure
+     * @return null
      */
-    public static function register_sitscourses_returns(): external_multiple_structure {
-        return new external_multiple_structure(
-            new external_single_structure([
-                'id' => new external_value(PARAM_INT),
-                'courseid' => new external_value(PARAM_INT),
-                'templateapplied' => new external_value(PARAM_BOOL),
-                'pagetype' => new external_value(PARAM_ALPHA),
-                'session' => new external_value(PARAM_RAW),
-                'usermodified' => new external_value(PARAM_INT),
-                'timecreated' => new external_value(PARAM_INT),
-                'timemodified' => new external_value(PARAM_INT)
-            ])
-        );
+    public static function register_sitscourses_returns() {
+        return null;
     }
 
     /**
@@ -325,79 +268,26 @@ class local_solsits_external extends external_api {
      * @return external_function_parameters
      */
     public static function get_sitscourse_template_parameters(): external_function_parameters {
-        return new external_function_parameters([
-            'sitscourses' => new external_multiple_structure(
-                new external_single_structure([
-                    'courseid' => new external_value(PARAM_INT, 'Course id')
-                ])
-            )
-        ]);
+        return new external_function_parameters([]);
     }
 
     /**
      * Get the sitscourse record for a given courseid
      *
      * @deprecated Not used, no longer required.
-     * @param array $courses
-     * @return array
+     * @return null
      */
-    public static function get_sitscourse_template($courses) {
-        global $DB;
-        $params = self::validate_parameters(self::get_sitscourse_template_parameters(),
-                array('sitscourses' => $courses));
-        $systemcontext = context_system::instance();
-        $return = [
-            'sitscourses' => [],
-            'warnings' => []
-        ];
-        require_capability('local/solsits:registersitscourse', $systemcontext);
-        foreach ($courses as $course) {
-            $existing = solcourse::get_record(['courseid' => $course['courseid']]);
-            if (!$existing) {
-                $return['warnings'][] = array(
-                    'item' => 'sitscourse',
-                    'itemid' => $course['courseid'],
-                    'warningcode' => '1',
-                    'message' => 'Sitscourse record doesn\'t exist for ' . $course['courseid']
-                );
-                continue;
-            }
-            $mcourse = $DB->get_record('course', ['id' => $course['courseid']]);
-            if (!$mcourse) {
-                $return['warnings'][] = array(
-                    'item' => 'course',
-                    'itemid' => $course['courseid'],
-                    'warningcode' => '2',
-                    'message' => 'Moodle course record doesn\'t exist for ' . $course['courseid']
-                );
-                continue;
-            }
-            $return['sitscourses'][] = (array)$existing->to_record();
-        }
-        return $return;
+    public static function get_sitscourse_template() {
+        return null;
     }
 
     /**
      * Returned data format for register sitscourses
      *
      * @deprecated Not used, no longer required.
-     * @return external_single_structure
+     * @return null
      */
-    public static function get_sitscourse_template_returns(): external_single_structure {
-        return new external_single_structure([
-            'sitscourses' => new external_multiple_structure(
-                new external_single_structure([
-                    'id' => new external_value(PARAM_INT),
-                    'courseid' => new external_value(PARAM_INT),
-                    'templateapplied' => new external_value(PARAM_BOOL),
-                    'pagetype' => new external_value(PARAM_ALPHA),
-                    'session' => new external_value(PARAM_RAW),
-                    'usermodified' => new external_value(PARAM_INT),
-                    'timecreated' => new external_value(PARAM_INT),
-                    'timemodified' => new external_value(PARAM_INT)
-                ], 'sitscourse record')
-            ),
-            'warnings' => new external_warnings()
-        ]);
+    public static function get_sitscourse_template_returns() {
+        return null;
     }
 }

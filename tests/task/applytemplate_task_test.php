@@ -37,6 +37,7 @@ use local_solsits\soltemplate;
 
 /**
  * Apply template test class
+ * @group sol
  */
 class applytemplate_task_test extends advanced_testcase {
     use task_trait;

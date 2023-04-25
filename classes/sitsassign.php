@@ -74,25 +74,10 @@ class sitsassign extends persistent {
             'courseid' => [
                 'type' => PARAM_INT
             ],
-            // Sitting reference number.
-            'sitting' => [
-                'type' => PARAM_INT,
-                'null' => NULL_ALLOWED,
-                'default' => 0
-            ],
             // Usually FIRST, SECOND, THIRD.
-            'sittingdesc' => [
+            'reattempt' => [
                 'type' => PARAM_TEXT,
-                'default' => 'FIRST'
-            ],
-            'externaldate' => [
-                'type' => PARAM_INT,
-                'default' => 0
-            ],
-            'status' => [
-                'type' => PARAM_TEXT,
-                'default' => '',
-                'null' => NULL_ALLOWED
+                'default' => ''
             ],
             'title' => [
                 'type' => PARAM_TEXT
@@ -101,6 +86,7 @@ class sitsassign extends persistent {
                 'type' => PARAM_FLOAT,
                 'default' => 1
             ],
+            // Although we need a duedate to create an assignment, we allow 0 to store the record.
             'duedate' => [
                 'type' => PARAM_INT,
                 'default' => 0
@@ -178,9 +164,8 @@ class sitsassign extends persistent {
         $mform->addElement('header', 'sits_section', new lang_string('sits', 'local_solsits'));
 
         $mform->addElement('static', 'sits_ref', new lang_string('sitsreference', 'local_solsits'), $solassign->sitsref);
-        $mform->addElement('static', 'sits_sitting', new lang_string('sittingreference', 'local_solsits'), $solassign->sitting);
-        $mform->addElement('static', 'sits_sittingdesc', new lang_string('sittingdescription', 'local_solsits'),
-            $solassign->sittingdesc);
+        $mform->addElement('static', 'sits_reattempt', new lang_string('sitsreattempt', 'local_solsits'),
+            $solassign->reattempt);
 
         $weighting = (int)($solassign->weighting * 100);
         $mform->addElement('static', 'sits_weighting', new lang_string('weighting', 'local_solsits'), $weighting . '%');
@@ -277,19 +262,53 @@ class sitsassign extends persistent {
     }
 
     /**
-     * Update the Moodle assignment
+     * Update an already existing assignment with new data
      *
-     * @return void
+     * @return bool false in an error occurs
      */
-    public function updatecm() {
-        $this->calculatedates();
+    public function update_assignment() {
+        global $DB;
+        if ($this->get('duedate') == 0) {
+            // It should only get here is the cmid has been set, which means that previously the assignment
+            // was created.
+            mtrace("Due date has not been set (0), so we can't update the assignment. {$this->get('sitsref')}");
+            return false;
+        }
+        if (!$DB->record_exists('course', ['id' => $this->get('courseid')])) {
+            // This should be checked before getting here.
+            mtrace("The courseid {$this->get('courseid')} no longer exists. {$this->get('sitsref')}");
+            return false;
+        }
+        if (!$DB->record_exists('course_modules', ['id' => $this->get('cmid')])) {
+            if ($this->get('cmid') == 0) {
+                mtrace("The specified Course module ({$this->get('cmid')}) hasn't yet been created. "
+                . "{$this->get('sitsref')}");
+            } else {
+                mtrace("The specified Course module ({$this->get('cmid')}) no longer exists, it needs to be recreated. "
+                . "{$this->get('sitsref')}");
+            }
+            return false;
+        }
+        // Don't think I need to prepare formdata as this might try to change some settings we can't change once
+        // an assignment has been created.
+        // But include it for now because it does set up some values we need.
+        $this->prepare_formdata();
+        [$course, $cm] = get_course_and_cm_from_cmid($this->get('cmid'), 'assign');
+        $cmcontext = $cm->context;
+        $assignment = new assign($cmcontext, null, null);
+        // This should also update the calendar. So all done.
+        $this->formdata->instance = $cm->instance;
+
+        $this->formdata->completionexpected = $this->get('duedate');
+
+        return $assignment->update_instance($this->formdata);
     }
 
     /**
      * Insert the Moodle assignment
      *
      * @param stdClass $course Course object
-     * @param stdClass $newassign Assignment instance
+     * @param assign $newassign Assignment instance
      * @param int $newmod Instance id
      * @return stdClass|false Returns false on failure.
      */
@@ -414,7 +433,7 @@ class sitsassign extends persistent {
      *
      * @return boolean
      */
-    private function is_exam() {
+    public function is_exam() {
         return (strpos($this->get('sitsref'), 'EXAM') !== false);
     }
 }

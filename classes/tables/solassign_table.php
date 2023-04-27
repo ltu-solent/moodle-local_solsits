@@ -43,20 +43,22 @@ class solassign_table extends table_sql {
      * Constructor
      *
      * @param string $uniqueid
+     * @param array $filters Filters to apply to the query.
      */
-    public function __construct($uniqueid) {
+    public function __construct($uniqueid, $filters) {
+        global $DB;
         parent::__construct($uniqueid);
         $this->useridfield = 'modifiedby';
         $columns = [
             'id',
+            'course',
+            'title',
             'sitsref',
             'cmid',
-            'course',
-            'sitting',
-            'sittingdesc',
-            'title',
+            'reattempt',
             'weighting',
             'duedate',
+            'visible',
             'grademarkexempt',
             'availablefrom',
             'timemodified',
@@ -65,14 +67,14 @@ class solassign_table extends table_sql {
 
         $columnheadings = [
             'id',
+            new lang_string('coursename', 'local_solsits'),
+            new lang_string('assignmenttitle', 'local_solsits'),
             new lang_string('sitsreference', 'local_solsits'),
             new lang_string('cmid', 'local_solsits'),
-            new lang_string('coursename', 'local_solsits'),
-            new lang_string('sittingreference', 'local_solsits'),
-            new lang_string('sittingdescription', 'local_solsits'),
-            new lang_string('assignmenttitle', 'local_solsits'),
+            new lang_string('reattempt', 'local_solsits'),
             new lang_string('weighting', 'local_solsits'),
             new lang_string('duedate', 'local_solsits'),
+            new lang_string('visibility', 'local_solsits'),
             new lang_string('grademarkexempt', 'local_solsits'),
             new lang_string('availablefrom', 'local_solsits'),
             new lang_string('timemodified', 'local_solsits'),
@@ -83,10 +85,32 @@ class solassign_table extends table_sql {
         $this->no_sorting('actions');
         $this->sortable(true, 'sitsref', SORT_ASC);
         $this->define_baseurl(new moodle_url('/local/solsits/manageassignments.php'));
-        $where = '1=1';
+        $wherestring = '1=1';
+        // Do left joins in case the course or activities have been deleted.
         $from = "{local_solsits_assign} ssa
-        JOIN {course} c ON c.id = ssa.courseid";
-        $this->set_sql('ssa.*, c.fullname', $from, $where);
+        LEFT JOIN {course} c ON c.id = ssa.courseid
+        LEFT JOIN {course_modules} cm ON cm.id = ssa.cmid";
+        $params = [];
+        $wheres = [];
+        if ($filters['currentcourses']) {
+            $now = time();
+            $where = "(c.startdate < :startdate AND (c.enddate > :enddate OR c.enddate = 0))";
+            $params['startdate'] = $now;
+            $params['enddate'] = $now;
+            $wheres[] = $where;
+        }
+        if ($filters['selectedcourses']) {
+            [$insql, $inparams] = $DB->get_in_or_equal($filters['selectedcourses'], SQL_PARAMS_NAMED);
+            $wheres[] = "c.id $insql";
+            $params += $inparams;
+        }
+        if ($filters['showerrorsonly']) {
+            $wheres[] = "(cm.id IS NULL OR ssa.duedate = 0 OR ((cm.visible = 0 OR c.visible = 0) AND ssa.reattempt = ''))";
+        }
+        if (!empty($wheres)) {
+            $wherestring = join(' AND ', $wheres);
+        }
+        $this->set_sql('ssa.*, c.fullname, c.idnumber course_idnumber, cm.visible cmvisible, c.visible cvisible', $from, $wherestring, $params);
     }
 
     /**
@@ -106,6 +130,19 @@ class solassign_table extends table_sql {
         $recreate = new moodle_url('/local/solsits/editassign.php', $params);
         $html .= " | " . html_writer::link($recreate, get_string('recreate', 'local_solsits'));
         return $html;
+    }
+
+    /**
+     * Output available from date column
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_availablefrom($row) {
+        if ($row->availablefrom > 0) {
+            return userdate($row->availablefrom);
+        }
+        return get_string('immediately', 'local_solsits');
     }
 
     /**
@@ -136,7 +173,30 @@ class solassign_table extends table_sql {
      */
     public function col_course($row) {
         $url = new moodle_url('/course/view.php', ['id' => $row->courseid]);
-        return html_writer::link($url, $row->fullname);
+        return html_writer::link($url, $row->fullname) . '<br><small>' . $row->course_idnumber . '</small>';
+    }
+
+    /**
+     * Output assignment duedate column
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_duedate($row) {
+        if ($row->duedate > 0) {
+            return userdate($row->duedate);
+        }
+        return '-';
+    }
+
+    /**
+     * Output grademark exempt column
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_grademarkexempt($row) {
+        return ($row->grademarkexempt) ? get_string('yes') : get_string('no');
     }
 
     /**
@@ -147,6 +207,45 @@ class solassign_table extends table_sql {
      */
     public function col_timemodified($row) {
         return userdate($row->timemodified, get_string('strftimedatetimeshort', 'core_langconfig'));
+    }
+
+    /**
+     * Output assignment title column. Links title if activity exists.
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_title($row) {
+        if (!$row->cmid) {
+            return $row->title;
+        }
+        return html_writer::link(new moodle_url('/mod/assign/view.php', ['id' => $row->cmid]), $row->title);
+    }
+
+    /**
+     * Output visible column. Combines course and course module visibility.
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_visible($row) {
+        // Perhaps do an eye and eye-slash.
+        $visibility = ($row->cmvisible + $row->cvisible);
+        if ($visibility < 2) {
+            return get_string('notvisible', 'local_solsits');
+        }
+        return get_string('visible', 'local_solsits');
+    }
+
+    /**
+     * Output weighting column
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_weighting($row) {
+        $weighting = (int)($row->weighting * 100);
+        return $weighting . '%';
     }
 }
 

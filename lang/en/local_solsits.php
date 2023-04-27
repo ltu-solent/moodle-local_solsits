@@ -39,6 +39,7 @@ $string['confirmdeletetemplate'] = 'Confirm deletion of "{$a}"';
 $string['courseidrequired'] = 'Courseid field required';
 $string['coursename'] = 'Course name';
 $string['createassignmenttask'] = 'Create assignment task';
+$string['currentcourses'] = 'Display only current courses';
 $string['cutoffinterval'] = 'Cut off interval';
 $string['cutoffinterval_desc'] = 'Cut off date interval in weeks';
 $string['cutoffintervalsecondplus'] = 'Cut off second/third+ sittings';
@@ -64,6 +65,8 @@ $string['error:sitsrefinuse'] = 'SITS Reference already in use: {$a}';
 $string['error:sitsrefnotexist'] = 'SITS reference doesn\'t exist: {$a}';
 $string['error:usersenrolledalready'] = 'Enrolments already exist. Cannot apply template. {$a}';
 $string['externaldate'] = 'External date';
+
+$string['filterassignments'] = 'Filter assignments';
 
 $string['generalsettings'] = 'General settings';
 $string['grademarkexempt'] = 'Grademark exempt';
@@ -91,18 +94,24 @@ $string['modifiedby'] = 'Modified by';
 $string['newsavedtemplate'] = 'New template saved';
 $string['newsoltemplate'] = 'New template';
 $string['nolongerexists'] = 'No longer exists';
+$string['noselection'] = 'No selection';
 $string['notenabled'] = 'Not enabled';
 $string['notset'] = 'Not set';
+$string['notvisible'] = 'Not visible';
 
 $string['pagetype'] = 'Page type';
 $string['pagetype_help'] = 'Is this template for a Course or a Module';
 $string['pluginname'] = 'SOL-SITS Integration';
 
+$string['reattempt'] = 'Re-attempt';
 $string['recreate'] = 'Recreate Assignment activity';
 
 $string['selectasession'] = 'Select a session';
 $string['selectatemplate'] = 'Select a template';
+$string['selectcourses'] = 'Select courses';
 $string['session'] = 'Academic session';
+$string['showerrorsonly'] = 'Show errors only';
+$string['showerrorsonly_help'] = 'The following errors are identified:<ol><li>Broken or no Assignment link</li><li>No duedate</li></ol>';
 $string['sits'] = 'SITS';
 $string['sitsreattempt'] = 'Re-attempt';
 $string['sitsreference'] = 'SITS reference';
@@ -128,6 +137,9 @@ $string['timecreated'] = 'Time created';
 $string['timemodified'] = 'Time modified';
 
 $string['updatedtemplate'] = '"{$a}" has been updated.';
+
+$string['visibility'] = 'Visibility';
+$string['visible'] = 'Visible';
 
 $string['weighting'] = 'Weighting';
 

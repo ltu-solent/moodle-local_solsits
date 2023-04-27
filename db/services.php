@@ -57,5 +57,13 @@ $functions = [
         'description' => 'Check that a Moodle course has come from SITS has had its template appplied',
         'capabilities' => 'local/solsits:registersitscourse',
         'type' => 'read'
+    ],
+    'local_solsits_search_courses' => [
+        'classname' => 'local_solsits_external',
+        'methodname' => 'search_courses',
+        'classpath' => 'local/solsits/externallib.php',
+        'description' => 'Search courses',
+        'type' => 'read',
+        'ajax'  => true
     ]
 ];

@@ -67,6 +67,8 @@ $string['error:sitsrefnotexist'] = 'SITS reference doesn\'t exist: {$a}';
 $string['error:usersenrolledalready'] = 'Enrolments already exist. Cannot apply template. {$a}';
 $string['externaldate'] = 'External date';
 
+$string['filterassignments'] = 'Filter assignments';
+
 $string['generalsettings'] = 'General settings';
 $string['grademark'] = 'Grademark';
 $string['grademarkexempt'] = 'Grademark exempt';
@@ -94,8 +96,10 @@ $string['modifiedby'] = 'Modified by';
 $string['newsavedtemplate'] = 'New template saved';
 $string['newsoltemplate'] = 'New template';
 $string['nolongerexists'] = 'No longer exists';
+$string['noselection'] = 'No selection';
 $string['notenabled'] = 'Not enabled';
 $string['notset'] = 'Not set';
+$string['notvisible'] = 'Not visible';
 
 $string['pagetype'] = 'Page type';
 $string['pagetype_help'] = 'Is this template for a Course or a Module';
@@ -150,5 +154,7 @@ $string['timemodified'] = 'Time modified';
 
 $string['updatedtemplate'] = '"{$a}" has been updated.';
 
-$string['weighting'] = 'Weighting';
+$string['visibility'] = 'Visibility';
+$string['visible'] = 'Visible';
 
+$string['weighting'] = 'Weighting';

@@ -290,4 +290,73 @@ class local_solsits_external extends external_api {
     public static function get_sitscourse_template_returns() {
         return null;
     }
+
+    /**
+     * Search courses parameters
+     *
+     * @return external_function_parameters
+     */
+    public static function search_courses_parameters(): external_function_parameters {
+        return new external_function_parameters([
+            'query' => new external_value(PARAM_TEXT, 'Search string'),
+            'currentcourses' => new external_value(PARAM_BOOL, 'Only include current courses in results')
+        ]);
+    }
+
+    /**
+     * Search courses
+     *
+     * @param string $query
+     * @param bool $currentcourses
+     * @return array
+     */
+    public static function search_courses($query, $currentcourses): array {
+        global $DB;
+        $params = self::validate_parameters(self::search_courses_parameters(),
+            [
+                'currentcourses' => $currentcourses,
+                'query' => $query
+            ]
+        );
+
+        $select = "SELECT id courseid, CONCAT(shortname, ': ', fullname) label FROM {course} ";
+        $wheres = [];
+        $qparams = [];
+        if ($params['currentcourses']) {
+            $now = time();
+            $where = "(startdate < :startdate AND (enddate > :enddate OR enddate = 0))";
+            $qparams['startdate'] = $now;
+            $qparams['enddate'] = $now;
+            $wheres[] = $where;
+        }
+        if ($params['query']) {
+            $likeshortname = $DB->sql_like("shortname", ':shortname', false, false);
+            $likefullname = $DB->sql_like("fullname", ':fullname', false, false);
+            $qparams['shortname'] = '%' . $DB->sql_like_escape($params['query']) . '%';
+            $qparams['fullname'] = '%' . $DB->sql_like_escape($params['query']) . '%';
+            $wheres[] = " ($likeshortname OR $likefullname) ";
+        }
+
+        $where = " WHERE 1=1 ";
+        if (!empty($wheres)) {
+            $where = " WHERE " . join(' AND ', $wheres);
+        }
+
+        $courses = $DB->get_records_sql($select . $where, $qparams, 0, 100);
+        return $courses;
+    }
+
+    /**
+     * Defines the returned structure of the array.
+     *
+     * @return external_multiple_structure
+     */
+    public static function search_courses_returns(): external_multiple_structure {
+        return new external_multiple_structure(
+            new external_single_structure([
+                'courseid' => new external_value(PARAM_INT, 'courseid'),
+                'label' => new external_value(PARAM_RAW, 'User friendly label - Shortname')
+            ])
+        );
+    }
 }

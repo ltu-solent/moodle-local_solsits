@@ -74,17 +74,17 @@ class sitsassign extends persistent {
             'courseid' => [
                 'type' => PARAM_INT
             ],
-            // Usually FIRST, SECOND, THIRD.
+            // Usually 0,1,2,3. Reattempt 0 is the first attempt.
             'reattempt' => [
-                'type' => PARAM_TEXT,
-                'default' => ''
+                'type' => PARAM_INT,
+                'default' => 0
             ],
             'title' => [
                 'type' => PARAM_TEXT
             ],
             'weighting' => [
-                'type' => PARAM_FLOAT,
-                'default' => 1
+                'type' => PARAM_INT,
+                'default' => 100
             ],
             // Although we need a duedate to create an assignment, we allow 0 to store the record.
             'duedate' => [
@@ -95,9 +95,22 @@ class sitsassign extends persistent {
                 'type' => PARAM_BOOL,
                 'default' => 0
             ],
+            'scale' => [
+                'type' => PARAM_ALPHANUMEXT,
+                'default' => ''
+            ],
             'availablefrom' => [
                 'type' => PARAM_INT,
                 'default' => 0
+            ],
+            'assessmentcode' => [
+                'type' => PARAM_TEXT
+            ],
+            'assessmentname' => [
+                'type' => PARAM_TEXT
+            ],
+            'sequence' => [
+                'type' => PARAM_ALPHANUMEXT
             ]
         ];
     }
@@ -164,11 +177,14 @@ class sitsassign extends persistent {
         $mform->addElement('header', 'sits_section', new lang_string('sits', 'local_solsits'));
 
         $mform->addElement('static', 'sits_ref', new lang_string('sitsreference', 'local_solsits'), $solassign->sitsref);
+        $mform->addElement('static', 'sits_assessmentcode',
+            new lang_string('assessmentcode', 'local_solsits', $solassign->assessmentcode));
+        $mform->addElement('static', 'sits_sequence', new lang_string('sequence', 'local_solsits'), $solassign->sequence);
+        $reattempt = get_string('reattempt' . $solassign->reattempt, 'local_solsits');
         $mform->addElement('static', 'sits_reattempt', new lang_string('sitsreattempt', 'local_solsits'),
-            $solassign->reattempt);
+            $reattempt);
 
-        $weighting = (int)($solassign->weighting * 100);
-        $mform->addElement('static', 'sits_weighting', new lang_string('weighting', 'local_solsits'), $weighting . '%');
+        $mform->addElement('static', 'sits_weighting', new lang_string('weighting', 'local_solsits'), $solassign->weighting . '%');
 
         $duedate = date('%d %B %Y, %I:%M:%S %p', $solassign->duedate);
         $mform->addElement('static', 'sits_duedate', new lang_string('duedate', 'local_solsits'), $duedate);
@@ -210,7 +226,7 @@ class sitsassign extends persistent {
 
         // Cut off date.
         if (!$this->is_exam()) {
-            if ($this->get('sittingdesc') == 'FIRST_SITTING') {
+            if ($this->get('reattempt') == 0) {
                 $modifystring = '+' . $config->cutoffinterval . ' week';
             } else {
                 $modifystring = '+' . $config->cutoffintervalsecondplus . ' week';
@@ -329,7 +345,7 @@ class sitsassign extends persistent {
         $module->added = 0;
         $module->score = 0;
         $module->indent = 0;
-        if ($this->get('sittingdesc') == 'FIRST_SITTING') {
+        if ($this->get('reattempt') == 0) {
             $module->visible = 1;
             $module->completion = COMPLETION_CRITERIA_TYPE_DATE;
         } else {

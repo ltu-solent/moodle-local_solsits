@@ -37,8 +37,22 @@ $PAGE->set_title(get_string('manageassignments', 'local_solsits'));
 $PAGE->set_url($CFG->wwwroot.'/local/solsits/manageassignments.php');
 
 echo $OUTPUT->header();
+$params = [
+    'selectedcourses' => [],
+    'currentcourses' => true,
+    'showerrorsonly' => false
+];
 
-$table = new \local_solsits\tables\solassign_table('solassignments');
+$filterform = new \local_solsits\forms\solassign_filter_form(null);
+if ($filterdata = $filterform->get_data()) {
+    $params['currentcourses'] = $filterdata->currentcourses;
+    $params['selectedcourses'] = $filterdata->selectedcourses;
+    $params['showerrorsonly'] = $filterdata->showerrorsonly;
+}
+
+$filterform->display();
+
+$table = new \local_solsits\tables\solassign_table('solassignments', $params);
 
 $table->out(100, false);
 

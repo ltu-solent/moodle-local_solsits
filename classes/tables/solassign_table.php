@@ -44,7 +44,8 @@ class solassign_table extends table_sql {
      *
      * @param string $uniqueid
      */
-    public function __construct($uniqueid) {
+    public function __construct($uniqueid, $filters) {
+        global $DB;
         parent::__construct($uniqueid);
         $this->useridfield = 'modifiedby';
         $columns = [
@@ -85,8 +86,32 @@ class solassign_table extends table_sql {
         $this->define_baseurl(new moodle_url('/local/solsits/manageassignments.php'));
         $where = '1=1';
         $from = "{local_solsits_assign} ssa
-        JOIN {course} c ON c.id = ssa.courseid";
-        $this->set_sql('ssa.*, c.fullname', $from, $where);
+        LEFT JOIN {course} c ON c.id = ssa.courseid
+        LEFT JOIN {course_modules} cm ON cm.id = ssa.cmid";
+        $params = [];
+        $wheres = [];
+        if ($filters['currentcourses']) {
+            $now = time();
+            $where = "(c.startdate < :startdate AND (c.enddate > :enddate OR c.enddate = 0))";
+            $params['startdate'] = $now;
+            $params['enddate'] = $now;
+            $wheres[] = $where;
+        }
+        if ($filters['selectedcourses']) {
+            [$insql, $inparams] = $DB->get_in_or_equal($filters['selectedcourses'], SQL_PARAMS_NAMED);
+            $wheres[] = "c.id $insql";
+            $params += $inparams;
+        }
+        if ($filters['showerrorsonly']) {
+            // Only show as an error if this is a hidden first attempt (don't count reattempts), or if
+            // the course module has been deleted, or the due date has not been set.
+            $wheres[] = "(cm.id IS NULL OR ssa.duedate = 0 OR ((cm.visible = 0 OR c.visible = 0) AND ssa.reattempt = 0))";
+        }
+        if (!empty($wheres)) {
+            $wherestring = join(' AND ', $wheres);
+        }
+        $this->set_sql('ssa.*, c.fullname, c.idnumber course_idnumber, cm.visible cmvisible, c.visible cvisible',
+            $from, $wherestring, $params);
     }
 
     /**
@@ -147,6 +172,44 @@ class solassign_table extends table_sql {
      */
     public function col_timemodified($row) {
         return userdate($row->timemodified, get_string('strftimedatetimeshort', 'core_langconfig'));
+    }
+
+    /**
+     * Output assignment title column. Links title if activity exists.
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_title($row) {
+        if (!$row->cmid) {
+            return $row->title;
+        }
+        return html_writer::link(new moodle_url('/mod/assign/view.php', ['id' => $row->cmid]), $row->title);
+    }
+
+    /**
+     * Output visible column. Combines course and course module visibility.
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_visible($row) {
+        // Perhaps do an eye and eye-slash.
+        $visibility = ($row->cmvisible + $row->cvisible);
+        if ($visibility < 2) {
+            return get_string('notvisible', 'local_solsits');
+        }
+        return get_string('visible', 'local_solsits');
+    }
+
+    /**
+     * Output weighting column
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_weighting($row) {
+        return $row->weighting . '%';
     }
 }
 

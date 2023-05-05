@@ -52,13 +52,12 @@ class externallib_test extends externallib_advanced_testcase {
      * @param string $sitsref
      * @param string $title
      * @param string $weighting Expressed as decimal
-     * @param string $assessmentcode
      * @param int $duedate
      * @param bool $grademarkexempt
      * @param int $availablefrom
      * @return void
      */
-    public function test_add_assignments($sitsref, $title, $weighting, $assessmentcode, $duedate, $grademarkexempt,
+    public function test_add_assignments($sitsref, $title, $weighting, $duedate, $grademarkexempt,
         $availablefrom) {
         $this->resetAfterTest();
     }

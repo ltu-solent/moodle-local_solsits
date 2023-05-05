@@ -168,5 +168,50 @@ function xmldb_local_solsits_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2023040502, 'local', 'solsits');
     }
 
+    if ($oldversion < 2023040504) {
+        $table = new xmldb_table('local_solsits_assign');
+        $field = new xmldb_field('reattempt');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        $field = new xmldb_field('reattempt', XMLDB_TYPE_INTEGER, 2, XMLDB_UNSIGNED, null, false, 0, 'courseid');
+        $dbman->add_field($table, $field);
+
+        $field = new xmldb_field('weighting', XMLDB_TYPE_INTEGER, 3, XMLDB_UNSIGNED, null, false, 100);
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->change_field_type($table, $field);
+        }
+
+        $field = new xmldb_field('assessmentcode', XMLDB_TYPE_CHAR, 255, null, null, false, null, 'availablefrom');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('sequence', XMLDB_TYPE_CHAR, 50, null, null, false, null, 'assessmentcode');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('scale', XMLDB_TYPE_CHAR, 50, null, false, false, '', 'grademarkexempt');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $table = new xmldb_table('local_solsits_assign_grades');
+        $key = new xmldb_key('sitsassign', XMLDB_KEY_FOREIGN, ['solassignmentid'], 'local_sits_assign', ['id']);
+        $dbman->add_key($table, $key);
+
+        upgrade_plugin_savepoint(true, 2023040504, 'local', 'solsits');
+    }
+
+    if ($oldversion < 2023040505) {
+        $table = new xmldb_table('local_solsits_assign');
+        $field = new xmldb_field('assessmentname', XMLDB_TYPE_CHAR, 100, null, null, false, '', 'assessmentcode');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+    }
+
     return true;
 }

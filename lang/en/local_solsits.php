@@ -103,8 +103,6 @@ $string['passfail'] = 'Pass/Fail';
 $string['passfailscale'] = 'Pass/Fail scale';
 $string['pluginname'] = 'SOL-SITS Integration';
 
-<<<<<<< ours
-=======
 $string['reattempt'] = 'Re-attempt';
 $string['reattempt0'] = '';
 $string['reattempt1'] = 'First reattempt';
@@ -113,15 +111,11 @@ $string['reattempt3'] = 'Third reattempt';
 $string['reattempt4'] = 'Fourth reattempt';
 $string['reattempt5'] = 'Fifth reattempt';
 $string['reattempt6'] = 'Sixth reattempt';
->>>>>>> theirs
 $string['recreate'] = 'Recreate Assignment activity';
 
 $string['scale'] = 'Scale';
 $string['selectasession'] = 'Select a session';
 $string['selectatemplate'] = 'Select a template';
-<<<<<<< ours
-$string['session'] = 'Academic session';
-=======
 $string['selectcourses'] = 'Select courses';
 $string['sequence'] = 'Sequence';
 $string['session'] = 'Academic session';
@@ -130,7 +124,6 @@ $string['showerrorsonly_help'] = 'The following errors are identified:<ol><li>Br
     <li>No duedate</li>
     <li>Invisible course or activity</li>
     </ol>';
->>>>>>> theirs
 $string['sits'] = 'SITS';
 $string['sitsreattempt'] = 'Re-attempt';
 $string['sitsreference'] = 'SITS reference';

@@ -111,7 +111,7 @@ function xmldb_local_solsits_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2022112122, 'local', 'solsits');
     }
 
-    if ($oldversion < 2023040501) {
+    if ($oldversion < 2022112129) {
         $quercusconfig = get_config('local_quercus_tasks');
         if ($quercusconfig->cutoffinterval) {
             set_config('cutoffinterval', $quercusconfig->cutoffinterval, 'local_solsits');
@@ -122,10 +122,7 @@ function xmldb_local_solsits_upgrade($oldversion) {
         if ($quercusconfig->gradingdueinterval) {
             set_config('gradingdueinterval', $quercusconfig->gradingdueinterval, 'local_solsits');
         }
-        upgrade_plugin_savepoint(true, 2023040501, 'local', 'solsits');
-    }
 
-    if ($oldversion < 2023040502) {
         $fields = [
             'location_name'
         ];
@@ -165,10 +162,6 @@ function xmldb_local_solsits_upgrade($oldversion) {
             $dbman->drop_field($table, $field);
         }
 
-        upgrade_plugin_savepoint(true, 2023040502, 'local', 'solsits');
-    }
-
-    if ($oldversion < 2023040504) {
         $table = new xmldb_table('local_solsits_assign');
         $field = new xmldb_field('reattempt');
         if ($dbman->field_exists($table, $field)) {
@@ -202,15 +195,12 @@ function xmldb_local_solsits_upgrade($oldversion) {
         $key = new xmldb_key('sitsassign', XMLDB_KEY_FOREIGN, ['solassignmentid'], 'local_sits_assign', ['id']);
         $dbman->add_key($table, $key);
 
-        upgrade_plugin_savepoint(true, 2023040504, 'local', 'solsits');
-    }
-
-    if ($oldversion < 2023040505) {
         $table = new xmldb_table('local_solsits_assign');
         $field = new xmldb_field('assessmentname', XMLDB_TYPE_CHAR, 100, null, null, false, '', 'assessmentcode');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
+        upgrade_plugin_savepoint(true, 2022112129, 'local', 'solsits');
     }
 
     return true;

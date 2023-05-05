@@ -10,12 +10,16 @@
                 <FIELD NAME="sitsref" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" />
                 <FIELD NAME="cmid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false"/>
                 <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false"/>
-                <FIELD NAME="reattempt" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false" COMMENT="Usually FIRST, SECOND, THIRD" />
+                <FIELD NAME="reattempt" TYPE="int" LENGTH="2" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="0 for initial, 1, 2 for reattempt" DEFAULT="0" />
                 <FIELD NAME="title" SEQUENCE="false" TYPE="char" LENGTH="100" NOTNULL="true" />
-                <FIELD NAME="weighting" SEQUENCE="false" TYPE="float" NOTNULL="true" DEFAULT="1" UNSIGNED="true" />
+                <FIELD NAME="weighting" SEQUENCE="false" TYPE="int" NOTNULL="true" LENGTH="3" UNSIGNED="true" DEFAULT="100" />
                 <FIELD NAME="duedate" SEQUENCE="false" TYPE="int" NOTNULL="true" UNSIGNED="true" LENGTH="10" />
                 <FIELD NAME="grademarkexempt" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="0" />
+                <FIELD NAME="scale" SEQUENCE="false" TYPE="char" NOTNULL="false" LENGTH="50" DEFAULT="" />
                 <FIELD NAME="availablefrom" SEQUENCE="false" TYPE="int" NOTNULL="true" LENGTH="10" UNSIGNED="true" DEFAULT="0" />
+                <FIELD NAME="assessmentcode" SEQUENCE="false" TYPE="char" NOTNULL="true" LENGTH="255" />
+                <FIELD NAME="assessmentname" SEQUENCE="false" TYPE="char" NOTNULL="true" LENGTH="100" DEFAULT="" />
+                <FIELD NAME="sequence" SEQUENCE="false" TYPE="char" NOTNULL="true" LENGTH="50" />
                 <FIELD NAME="usermodified" LENGTH="10" SEQUENCE="false" TYPE="int" NOTNULL="true" UNSIGNED="true" />
                 <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" />
                 <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" />
@@ -47,6 +51,7 @@
                 <KEY NAME="primary" TYPE="primary" FIELDS="id" />
                 <KEY NAME="graderid" TYPE="foreign" FIELDS="graderid" REFTABLE="user" REFFIELDS="id" COMMENT="The user who released the grades." PREVIOUS="primary"/>
 			    <KEY NAME="studentid" TYPE="foreign" FIELDS="studentid" REFTABLE="user" REFFIELDS="id" COMMENT="The student." PREVIOUS="primary"/>
+                <KEY NAME="sitsassign" TYPE="foreign" FIELDS="solassignmentid" REFTABLE="local_solsits_assign" REFFIELDS="id" COMMENT="sitsassign record" />
             </KEYS>
         </TABLE>
         <TABLE NAME="local_solsits_templates" COMMENT="Templates course/module templates">

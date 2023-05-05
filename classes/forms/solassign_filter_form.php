@@ -43,8 +43,7 @@ class solassign_filter_form extends moodleform {
      */
     public function definition() {
         $mform = $this->_form;
-        $customdata = $this->_customdata;
-        print_r($customdata);
+
         $mform->addElement('header', 'filterassignmentshdr', new lang_string('filterassignments', 'local_solsits'));
         $mform->setExpanded('filterassignmentshdr', false);
         $options = [
@@ -64,6 +63,7 @@ class solassign_filter_form extends moodleform {
         $mform->setDefault('selectedcourses', []);
 
         $mform->addElement('advcheckbox', 'currentcourses', new lang_string('currentcourses', 'local_solsits'));
+        $mform->addHelpButton('currentcourses', 'currentcourses', 'local_solsits');
         $mform->setDefault('currentcourses', true);
 
         $mform->addElement('advcheckbox', 'showerrorsonly', new lang_string('showerrorsonly', 'local_solsits'));

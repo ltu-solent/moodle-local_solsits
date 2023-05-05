@@ -26,9 +26,6 @@
 require_once('../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
-// $selectcourses = optional_param_array('selectcourses', null, PARAM_INT);
-// $currentcourses = optional_param('currentcourses', true, PARAM_BOOL);
-
 admin_externalpage_setup('local_solsits/manageassignments', '', null, '/local/solsits/manageassignments.php');
 $context = context_system::instance();
 require_capability('local/solsits:manageassignments', $context);
@@ -42,7 +39,8 @@ $PAGE->set_url($CFG->wwwroot.'/local/solsits/manageassignments.php');
 echo $OUTPUT->header();
 $params = [
     'selectedcourses' => [],
-    'currentcourses' => true
+    'currentcourses' => true,
+    'showerrorsonly' => false
 ];
 
 $filterform = new \local_solsits\forms\solassign_filter_form(null);

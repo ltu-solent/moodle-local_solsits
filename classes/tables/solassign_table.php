@@ -105,12 +105,15 @@ class solassign_table extends table_sql {
             $params += $inparams;
         }
         if ($filters['showerrorsonly']) {
-            $wheres[] = "(cm.id IS NULL OR ssa.duedate = 0 OR ((cm.visible = 0 OR c.visible = 0) AND ssa.reattempt = ''))";
+            // Only show as an error if this is a hidden first attempt (don't count reattempts), or if
+            // the course module has been deleted, or the due date has not been set.
+            $wheres[] = "(cm.id IS NULL OR ssa.duedate = 0 OR ((cm.visible = 0 OR c.visible = 0) AND ssa.reattempt = 0))";
         }
         if (!empty($wheres)) {
             $wherestring = join(' AND ', $wheres);
         }
-        $this->set_sql('ssa.*, c.fullname, c.idnumber course_idnumber, cm.visible cmvisible, c.visible cvisible', $from, $wherestring, $params);
+        $this->set_sql('ssa.*, c.fullname, c.idnumber course_idnumber, cm.visible cmvisible, c.visible cvisible',
+            $from, $wherestring, $params);
     }
 
     /**
@@ -244,8 +247,7 @@ class solassign_table extends table_sql {
      * @return string HTML for row's column value
      */
     public function col_weighting($row) {
-        $weighting = (int)($row->weighting * 100);
-        return $weighting . '%';
+        return $row->weighting . '%';
     }
 }
 

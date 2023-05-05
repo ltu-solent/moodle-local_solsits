@@ -159,7 +159,7 @@ class sitsassign_test extends advanced_testcase {
         $this->assertEquals($availablefrom, $assignment->get_instance()->allowsubmissionsfromdate);
         $gradingduedate = helper::set_time($duedate, '16:00', "+{$config->gradingdueinterval} week");
         $this->assertEquals($gradingduedate, $assignment->get_instance()->gradingduedate);
-        if ($sitsassign['sittingdesc'] == 'FIRST_SITTING') {
+        if ($sitsassign['reattempt'] == 0) {
             $cutoffdate = helper::set_time($duedate, '16:00', "+{$config->cutoffinterval} week");
             if ($assign->is_exam()) {
                 $cutoffdate = $duedate;
@@ -194,21 +194,21 @@ class sitsassign_test extends advanced_testcase {
             'valid_duedate' => [
                 'sitsassign' => [
                     'sitsref' => 'PROJECT1_ABC101_2023/24',
-                    'sittingdesc' => 'FIRST_SITTING',
+                    'reattempt' => 0,
                     'title' => 'Project 1 (100%)',
-                    'weighting' => 1,
+                    'weighting' => 100,
                     'duedate' => strtotime('+1 week'),
                     'grademarkexempt' => false,
                     'availablefrom' => 0
                 ],
                 'coursedeleted' => false
             ],
-            'second_sitting' => [
+            'first_reattempt' => [
                 'sitsassign' => [
                     'sitsref' => 'PROJECT1_ABC101_2023/24',
-                    'sittingdesc' => 'SECOND_SITTING',
+                    'reattempt' => 1,
                     'title' => 'Project 1 (100%)',
-                    'weighting' => 1,
+                    'weighting' => 100,
                     'duedate' => strtotime('+4 week'),
                     'grademarkexempt' => false,
                     'availablefrom' => 0
@@ -218,9 +218,9 @@ class sitsassign_test extends advanced_testcase {
             'deleted_course' => [
                 'sitsassign' => [
                     'sitsref' => 'PROJECT1_ABC101_2023/24',
-                    'sittingdesc' => 'FIRST_SITTING',
+                    'reattempt' => 0,
                     'title' => 'Project 1 (100%)',
-                    'weighting' => 1,
+                    'weighting' => 100,
                     'duedate' => strtotime('+1 week'),
                     'grademarkexempt' => false,
                     'availablefrom' => 0
@@ -230,9 +230,9 @@ class sitsassign_test extends advanced_testcase {
             'no_duedate' => [
                 'sitsassign' => [
                     'sitsref' => 'PROJECT1_ABC101_2023/24',
-                    'sittingdesc' => 'FIRST_SITTING',
+                    'reattempt' => 0,
                     'title' => 'Project 1 (100%)',
-                    'weighting' => 1,
+                    'weighting' => 100,
                     'duedate' => 0,
                     'grademarkexempt' => false,
                     'availablefrom' => 0
@@ -242,9 +242,9 @@ class sitsassign_test extends advanced_testcase {
             'availablefrom' => [
                 'sitsassign' => [
                     'sitsref' => 'PROJECT1_ABC101_2023/24',
-                    'sittingdesc' => 'FIRST_SITTING',
+                    'reattempt' => 0,
                     'title' => 'Project 1 (100%)',
-                    'weighting' => 1,
+                    'weighting' => 100,
                     'duedate' => strtotime('+3 week'),
                     'grademarkexempt' => false,
                     'availablefrom' => strtotime('+1 week')
@@ -254,9 +254,9 @@ class sitsassign_test extends advanced_testcase {
             'grademark_exempt' => [
                 'sitsassign' => [
                     'sitsref' => 'PROJECT1_ABC101_2023/24',
-                    'sittingdesc' => 'FIRST_SITTING',
+                    'reattempt' => 0,
                     'title' => 'Project 1 (100%)',
-                    'weighting' => 1,
+                    'weighting' => 100,
                     'duedate' => strtotime('+1 week'),
                     'grademarkexempt' => true,
                     'availablefrom' => 0
@@ -266,9 +266,9 @@ class sitsassign_test extends advanced_testcase {
             'exam_cutoffdate' => [
                 'sitsassign' => [
                     'sitsref' => 'EXAM_ABC101_2023/24',
-                    'sittingdesc' => 'FIRST_SITTING',
+                    'reattempt' => 0,
                     'title' => 'Project 1 (100%)',
-                    'weighting' => 1,
+                    'weighting' => 100,
                     'duedate' => strtotime('+1 week'),
                     'grademarkexempt' => true,
                     'availablefrom' => 0
@@ -282,6 +282,9 @@ class sitsassign_test extends advanced_testcase {
      * Update an existing assignment
      *
      * @dataProvider update_assignment_provider
+     * @param array $oldassign
+     * @param array $newassign
+     * @param bool $coursedeleted
      * @return void
      */
     public function test_update_assignment($oldassign, $newassign, $coursedeleted) {
@@ -341,7 +344,7 @@ class sitsassign_test extends advanced_testcase {
             if ($oldassign['duedate'] == 0) {
                 $this->expectOutputString("Due date has not been set (0), so we can't update the assignment. " .
                 "{$newsitsassign->get('sitsref')}\nThe specified Course module ({$newsitsassign->get('cmid')}) hasn't " .
-                "yet been created.\n");
+                "yet been created. {$newsitsassign->get('sitsref')}\n");
             } else {
                 $this->expectOutputString("Due date has not been set (0), so we can't update the assignment. " .
                 "{$newsitsassign->get('sitsref')}\n");
@@ -371,7 +374,7 @@ class sitsassign_test extends advanced_testcase {
 
         $gradingduedate = helper::set_time($newduedate, '16:00', "+{$config->gradingdueinterval} week");
         $this->assertEquals($gradingduedate, $assignment->get_instance()->gradingduedate);
-        if ($newassign['sittingdesc'] == 'FIRST_SITTING') {
+        if ($newassign['reattempt'] == 0) {
             $cutoffdate = helper::set_time($newduedate, '16:00', "+{$config->cutoffinterval} week");
             // Does an exam have a completion due setting?
             if ($newsitsassign->is_exam()) {
@@ -400,23 +403,28 @@ class sitsassign_test extends advanced_testcase {
         }
     }
 
+    /**
+     * Update assignment provider
+     *
+     * @return array
+     */
     public function update_assignment_provider(): array {
         return [
             'new_duedate' => [
                 'oldassign' => [
                     'sitsref' => 'PROJECT1_ABC101_2023/24',
-                    'sittingdesc' => 'FIRST_SITTING',
+                    'reattempt' => 0,
                     'title' => 'Project 1 (100%)',
-                    'weighting' => 1,
+                    'weighting' => 100,
                     'duedate' => strtotime('+1 week'),
                     'grademarkexempt' => false,
                     'availablefrom' => 0
                 ],
                 'newassign' => [
                     'sitsref' => 'PROJECT1_ABC101_2023/24',
-                    'sittingdesc' => 'FIRST_SITTING',
+                    'reattempt' => 0,
                     'title' => 'Project 1 (100%)',
-                    'weighting' => 1,
+                    'weighting' => 100,
                     'duedate' => strtotime('+2 week'),
                     'grademarkexempt' => false,
                     'availablefrom' => 0
@@ -426,18 +434,18 @@ class sitsassign_test extends advanced_testcase {
             'deleted_course_after_old_assign' => [
                 'oldassign' => [
                     'sitsref' => 'PROJECT1_ABC101_2023/24',
-                    'sittingdesc' => 'FIRST_SITTING',
+                    'reattempt' => 0,
                     'title' => 'Project 1 (100%)',
-                    'weighting' => 1,
+                    'weighting' => 100,
                     'duedate' => strtotime('+1 week'),
                     'grademarkexempt' => false,
                     'availablefrom' => 0
                 ],
                 'newassign' => [
                     'sitsref' => 'PROJECT1_ABC101_2023/24',
-                    'sittingdesc' => 'FIRST_SITTING',
+                    'reattempt' => 0,
                     'title' => 'Project 1 (100%)',
-                    'weighting' => 1,
+                    'weighting' => 100,
                     'duedate' => strtotime('+2 week'),
                     'grademarkexempt' => false,
                     'availablefrom' => 0
@@ -448,18 +456,18 @@ class sitsassign_test extends advanced_testcase {
             'no_duedate-valid_duedate' => [
                 'oldassign' => [
                     'sitsref' => 'PROJECT1_ABC101_2023/24',
-                    'sittingdesc' => 'FIRST_SITTING',
+                    'reattempt' => 0,
                     'title' => 'Project 1 (100%)',
-                    'weighting' => 1,
+                    'weighting' => 100,
                     'duedate' => 0,
                     'grademarkexempt' => false,
                     'availablefrom' => 0
                 ],
                 'newassign' => [
                     'sitsref' => 'PROJECT1_ABC101_2023/24',
-                    'sittingdesc' => 'FIRST_SITTING',
+                    'reattempt' => 0,
                     'title' => 'Project 1 (100%)',
-                    'weighting' => 1,
+                    'weighting' => 100,
                     'duedate' => strtotime('+1 week'),
                     'grademarkexempt' => false,
                     'availablefrom' => 0
@@ -469,18 +477,18 @@ class sitsassign_test extends advanced_testcase {
             'availablefrom_past-availablefrom_future' => [
                 'oldassign' => [
                     'sitsref' => 'PROJECT1_ABC101_2023/24',
-                    'sittingdesc' => 'FIRST_SITTING',
+                    'reattempt' => 0,
                     'title' => 'Project 1 (100%)',
-                    'weighting' => 1,
+                    'weighting' => 100,
                     'duedate' => strtotime('+3 week'),
                     'grademarkexempt' => false,
                     'availablefrom' => strtotime('-1 week')
                 ],
                 'newassign' => [
                     'sitsref' => 'PROJECT1_ABC101_2023/24',
-                    'sittingdesc' => 'FIRST_SITTING',
+                    'reattempt' => 0,
                     'title' => 'Project 1 (100%)',
-                    'weighting' => 1,
+                    'weighting' => 100,
                     'duedate' => strtotime('+3 week'),
                     'grademarkexempt' => false,
                     'availablefrom' => strtotime('+1 week')
@@ -490,18 +498,18 @@ class sitsassign_test extends advanced_testcase {
             'grademark_exempt-no_grademarkexempt' => [
                 'oldassign' => [
                     'sitsref' => 'PROJECT1_ABC101_2023/24',
-                    'sittingdesc' => 'FIRST_SITTING',
+                    'reattempt' => 0,
                     'title' => 'Project 1 (100%)',
-                    'weighting' => 1,
+                    'weighting' => 100,
                     'duedate' => strtotime('+1 week'),
                     'grademarkexempt' => true,
                     'availablefrom' => 0
                 ],
                 'newassign' => [
                     'sitsref' => 'PROJECT1_ABC101_2023/24',
-                    'sittingdesc' => 'FIRST_SITTING',
+                    'reattempt' => 0,
                     'title' => 'Project 1 (100%)',
-                    'weighting' => 1,
+                    'weighting' => 100,
                     'duedate' => strtotime('+1 week'),
                     'grademarkexempt' => false,
                     'availablefrom' => 0
@@ -511,18 +519,18 @@ class sitsassign_test extends advanced_testcase {
             'exam_cutoffdate-new_duedate' => [
                 'oldassign' => [
                     'sitsref' => 'EXAM_ABC101_2023/24',
-                    'sittingdesc' => 'FIRST_SITTING',
+                    'reattempt' => 0,
                     'title' => 'Project 1 (100%)',
-                    'weighting' => 1,
+                    'weighting' => 100,
                     'duedate' => strtotime('+1 week'),
                     'grademarkexempt' => true,
                     'availablefrom' => 0
                 ],
                 'newassign' => [
                     'sitsref' => 'EXAM_ABC101_2023/24',
-                    'sittingdesc' => 'FIRST_SITTING',
+                    'reattempt' => 0,
                     'title' => 'Project 1 (100%)',
-                    'weighting' => 1,
+                    'weighting' => 100,
                     'duedate' => strtotime('+2 week'),
                     'grademarkexempt' => true,
                     'availablefrom' => 0
@@ -532,18 +540,18 @@ class sitsassign_test extends advanced_testcase {
             'new_weighting' => [
                 'oldassign' => [
                     'sitsref' => 'PROJECT1_ABC101_2023/24',
-                    'sittingdesc' => 'FIRST_SITTING',
+                    'reattempt' => 0,
                     'title' => 'Project 1 (100%)',
-                    'weighting' => 1,
+                    'weighting' => 100,
                     'duedate' => strtotime('+1 week'),
                     'grademarkexempt' => false,
                     'availablefrom' => 0
                 ],
                 'newassign' => [
                     'sitsref' => 'PROJECT1_ABC101_2023/24',
-                    'sittingdesc' => 'FIRST_SITTING',
+                    'reattempt' => 0,
                     'title' => 'Project 1 (50%)',
-                    'weighting' => .5,
+                    'weighting' => 50,
                     'duedate' => strtotime('+1 week'),
                     'grademarkexempt' => false,
                     'availablefrom' => 0

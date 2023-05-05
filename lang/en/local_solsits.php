@@ -40,6 +40,7 @@ $string['courseidrequired'] = 'Courseid field required';
 $string['coursename'] = 'Course name';
 $string['createassignmenttask'] = 'Create assignment task';
 $string['currentcourses'] = 'Display only current courses';
+$string['currentcourses_help'] = 'Current courses are courses or modules that are currently running or have no end date';
 $string['cutoffinterval'] = 'Cut off interval';
 $string['cutoffinterval_desc'] = 'Cut off date interval in weeks';
 $string['cutoffintervalsecondplus'] = 'Cut off second/third+ sittings';
@@ -69,6 +70,7 @@ $string['externaldate'] = 'External date';
 $string['filterassignments'] = 'Filter assignments';
 
 $string['generalsettings'] = 'General settings';
+$string['grademark'] = 'Grademark';
 $string['grademarkexempt'] = 'Grademark exempt';
 $string['grademarkexemptscale'] = 'Grademark exempt scale';
 $string['grademarkexemptscale_desc'] = 'Standard 100 point scale';
@@ -101,17 +103,31 @@ $string['notvisible'] = 'Not visible';
 
 $string['pagetype'] = 'Page type';
 $string['pagetype_help'] = 'Is this template for a Course or a Module';
+$string['passfail'] = 'Pass/Fail';
+$string['passfailscale'] = 'Pass/Fail scale';
 $string['pluginname'] = 'SOL-SITS Integration';
 
 $string['reattempt'] = 'Re-attempt';
+$string['reattempt0'] = '';
+$string['reattempt1'] = 'First reattempt';
+$string['reattempt2'] = 'Second reattempt';
+$string['reattempt3'] = 'Third reattempt';
+$string['reattempt4'] = 'Fourth reattempt';
+$string['reattempt5'] = 'Fifth reattempt';
+$string['reattempt6'] = 'Sixth reattempt';
 $string['recreate'] = 'Recreate Assignment activity';
 
+$string['scale'] = 'Scale';
 $string['selectasession'] = 'Select a session';
 $string['selectatemplate'] = 'Select a template';
 $string['selectcourses'] = 'Select courses';
+$string['sequence'] = 'Sequence';
 $string['session'] = 'Academic session';
 $string['showerrorsonly'] = 'Show errors only';
-$string['showerrorsonly_help'] = 'The following errors are identified:<ol><li>Broken or no Assignment link</li><li>No duedate</li></ol>';
+$string['showerrorsonly_help'] = 'The following errors are identified:<ol><li>Broken or no Assignment link</li>
+    <li>No duedate</li>
+    <li>Invisible course or activity</li>
+    </ol>';
 $string['sits'] = 'SITS';
 $string['sitsreattempt'] = 'Re-attempt';
 $string['sitsreference'] = 'SITS reference';

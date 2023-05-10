@@ -46,10 +46,14 @@ class local_solsits_external extends external_api {
                     'courseid' => new external_value(PARAM_INT, 'The course id to add the assignment to'),
                     'sitsref' => new external_value(PARAM_RAW, 'SITS internal reference for the assignment'),
                     'title' => new external_value(PARAM_TEXT, 'Assignment title'),
-                    'weighting' => new external_value(PARAM_FLOAT, 'Assignment weighting expressed as a decimal'),
+                    'reattempt' => new external_value(PARAM_INT, 'Reattempt sequence', VALUE_OPTIONAL, 0),
+                    'weighting' => new external_value(PARAM_INT, 'Assignment weighting expressed as an integer'),
                     'assessmentcode' => new external_value(PARAM_TEXT, 'Assessment code (PROJ1 etc)'),
+                    'assessmentname' => new external_value(PARAM_TEXT, 'Assessment name'),
+                    'sequence' => new external_value(PARAM_ALPHANUM, 'Sequence of assessment, padded index'),
                     'duedate' => new external_value(PARAM_INT, 'Due date timestamp (usually 4pm)'),
                     'grademarkexempt' => new external_value(PARAM_BOOL, 'Is this grademark exempt', VALUE_DEFAULT, false),
+                    'scale' => new external_value(PARAM_ALPHANUMEXT, 'Shortname of scale to be used', VALUE_OPTIONAL),
                     'availablefrom' => new external_value(
                         PARAM_INT, 'When the assignment is available to the student from', VALUE_OPTIONAL),
                 ])
@@ -114,10 +118,14 @@ class local_solsits_external extends external_api {
                 'cmid' => new external_value(PARAM_INT, 'The coursemodule id'),
                 'sitsref' => new external_value(PARAM_RAW, 'SITS internal reference for the assignment'),
                 'title' => new external_value(PARAM_TEXT, 'Assignment title'),
-                'weighting' => new external_value(PARAM_FLOAT, 'Assignment weighting expressed as a decimal'),
+                'reattempt' => new external_value(PARAM_INT, 'Reattempt sequence', VALUE_OPTIONAL, 0),
+                'weighting' => new external_value(PARAM_INT, 'Assignment weighting expressed as an integer'),
                 'assessmentcode' => new external_value(PARAM_TEXT, 'Assessment code (PROJ1 etc)'),
+                'assessmentname' => new external_value(PARAM_TEXT, 'Assessment name'),
+                'sequence' => new external_value(PARAM_ALPHANUM, 'Sequence of assessment, padded index'),
                 'duedate' => new external_value(PARAM_INT, 'Due date timestamp (usually 4pm)'),
                 'grademarkexempt' => new external_value(PARAM_BOOL, 'Is this grademark exempt', VALUE_DEFAULT, false),
+                'scale' => new external_value(PARAM_ALPHANUMEXT, 'Shortname of scale to be used', VALUE_OPTIONAL),
                 'availablefrom' => new external_value(
                         PARAM_INT, 'When the assignment is available to the student from', VALUE_OPTIONAL),
             ])
@@ -133,14 +141,17 @@ class local_solsits_external extends external_api {
         return new external_function_parameters([
             'assignments' => new external_multiple_structure(
                 new external_single_structure([
-                    'courseid' => new external_value(PARAM_RAW, 'The course id to add the assignment to', VALUE_OPTIONAL),
+                    'courseid' => new external_value(PARAM_INT, 'The course id to add the assignment to'),
                     'sitsref' => new external_value(PARAM_RAW, 'SITS internal reference for the assignment'),
-                    'title' => new external_value(PARAM_TEXT, 'Assignment title', VALUE_OPTIONAL),
-                    'weighting' => new external_value(PARAM_FLOAT, 'Assignment weighting expressed as a decimal', VALUE_OPTIONAL),
-                    'assessmentcode' => new external_value(PARAM_TEXT, 'Assessment code (PROJ1 etc)', VALUE_OPTIONAL),
-                    'duedate' => new external_value(PARAM_INT, 'Due date timestamp (usually 4pm)', VALUE_OPTIONAL),
-                    'grademarkexempt' => new external_value(
-                        PARAM_BOOL, 'Is this grademark exempt', VALUE_DEFAULT, false),
+                    'title' => new external_value(PARAM_TEXT, 'Assignment title'),
+                    'reattempt' => new external_value(PARAM_INT, 'Reattempt sequence', VALUE_OPTIONAL, 0),
+                    'weighting' => new external_value(PARAM_INT, 'Assignment weighting expressed as an integer'),
+                    'assessmentcode' => new external_value(PARAM_TEXT, 'Assessment code (PROJ1 etc)'),
+                    'assessmentname' => new external_value(PARAM_TEXT, 'Assessment name'),
+                    'sequence' => new external_value(PARAM_ALPHANUM, 'Sequence of assessment, padded index'),
+                    'duedate' => new external_value(PARAM_INT, 'Due date timestamp (usually 4pm)'),
+                    'grademarkexempt' => new external_value(PARAM_BOOL, 'Is this grademark exempt', VALUE_DEFAULT, false),
+                    'scale' => new external_value(PARAM_ALPHANUMEXT, 'Shortname of scale to be used', VALUE_OPTIONAL),
                     'availablefrom' => new external_value(
                         PARAM_INT, 'When the assignment is available to the student from', VALUE_OPTIONAL),
                 ])
@@ -221,10 +232,14 @@ class local_solsits_external extends external_api {
                 'cmid' => new external_value(PARAM_INT, 'The coursemodule id'),
                 'sitsref' => new external_value(PARAM_RAW, 'SITS internal reference for the assignment'),
                 'title' => new external_value(PARAM_TEXT, 'Assignment title'),
-                'weighting' => new external_value(PARAM_FLOAT, 'Assignment weighting expressed as a decimal'),
+                'reattempt' => new external_value(PARAM_INT, 'Reattempt sequence', VALUE_OPTIONAL, 0),
+                'weighting' => new external_value(PARAM_INT, 'Assignment weighting expressed as an integer'),
                 'assessmentcode' => new external_value(PARAM_TEXT, 'Assessment code (PROJ1 etc)'),
+                'assessmentname' => new external_value(PARAM_TEXT, 'Assessment name'),
+                'sequence' => new external_value(PARAM_ALPHANUM, 'Sequence of assessment, padded index'),
                 'duedate' => new external_value(PARAM_INT, 'Due date timestamp (usually 4pm)'),
                 'grademarkexempt' => new external_value(PARAM_BOOL, 'Is this grademark exempt', VALUE_DEFAULT, false),
+                'scale' => new external_value(PARAM_ALPHANUMEXT, 'Shortname of scale to be used', VALUE_OPTIONAL),
                 'availablefrom' => new external_value(
                         PARAM_INT, 'When the assignment is available to the student from', VALUE_OPTIONAL),
             ])

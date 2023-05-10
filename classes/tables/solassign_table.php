@@ -84,7 +84,8 @@ class solassign_table extends table_sql {
         $this->no_sorting('actions');
         $this->sortable(true, 'sitsref', SORT_ASC);
         $this->define_baseurl(new moodle_url('/local/solsits/manageassignments.php'));
-        $where = '1=1';
+        $wherestring = '1=1';
+        // Do left joins in case the course or activities have been deleted.
         $from = "{local_solsits_assign} ssa
         LEFT JOIN {course} c ON c.id = ssa.courseid
         LEFT JOIN {course_modules} cm ON cm.id = ssa.cmid";

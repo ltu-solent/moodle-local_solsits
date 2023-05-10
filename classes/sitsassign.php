@@ -33,6 +33,11 @@ use DateTime;
 use lang_string;
 use stdClass;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot . '/course/modlib.php');
+require_once($CFG->dirroot . '/mod/assign/locallib.php');
+
 /**
  * The SITS assignment as it's coming from SITS
  */
@@ -176,6 +181,8 @@ class sitsassign extends persistent {
         }
         $mform->addElement('header', 'sits_section', new lang_string('sits', 'local_solsits'));
 
+        $mform->addElement('html', new lang_string('sitsdatadesc', 'local_solsits'));
+
         $mform->addElement('static', 'sits_ref', new lang_string('sitsreference', 'local_solsits'), $solassign->sitsref);
         $mform->addElement('static', 'sits_assessmentcode',
             new lang_string('assessmentcode', 'local_solsits', $solassign->assessmentcode));
@@ -186,7 +193,7 @@ class sitsassign extends persistent {
 
         $mform->addElement('static', 'sits_weighting', new lang_string('weighting', 'local_solsits'), $solassign->weighting . '%');
 
-        $duedate = date(get_string('strftimedatetimeaccurate', 'core_langconfig'), $solassign->duedate);
+        $duedate = userdate($solassign->duedate, get_string('strftimedatetimeaccurate', 'core_langconfig'));
         $mform->addElement('static', 'sits_duedate', new lang_string('duedate', 'local_solsits'), $duedate);
 
         $grademarkexempt = $solassign->grademarkexempt ? get_string('yes') : get_string('no');
@@ -263,8 +270,8 @@ class sitsassign extends persistent {
 
         $this->prepare_formdata();
         $course = get_course($this->get('courseid'));
-        $modinfo = prepare_new_moduleinfo_data($course, 'assign', $config->targetsection);
-        $newassign = new assign($modinfo, null, $course);
+        $modinfo = \prepare_new_moduleinfo_data($course, 'assign', $config->targetsection);
+        $newassign = new \assign($modinfo, null, $course);
         $newmod = $newassign->add_instance($this->formdata, true);
         $cm = $this->insert_cm($course, $newassign, $newmod);
         if ($cm) {

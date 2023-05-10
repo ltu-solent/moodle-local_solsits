@@ -131,6 +131,7 @@ $string['showerrorsonly_help'] = 'The following errors are identified:<ol><li>Br
 $string['sits'] = 'SITS';
 $string['sitsreattempt'] = 'Re-attempt';
 $string['sitsreference'] = 'SITS reference';
+$string['sitsdatadesc'] = '<div class="alert alert-info">These are the data received from SITS and are used for diagnostic purposes only.</div>';
 $string['sittingdescription'] = 'Sitting description';
 $string['sittingreference'] = 'Sitting reference';
 $string['solassignments:manage'] = 'Manage SITS Assignments';

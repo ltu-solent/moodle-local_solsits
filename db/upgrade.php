@@ -207,7 +207,7 @@ function xmldb_local_solsits_upgrade($oldversion) {
 
     if ($oldversion < 2023040505) {
         $table = new xmldb_table('local_solsits_assign');
-        $field = new xmldb_field('assessmentname', XMLDB_TYPE_CHAR, 100, null, null, false, '', 'assessmentcode');
+        $field = new xmldb_field('assessmentname', XMLDB_TYPE_CHAR, 100, null, null, false, null, 'assessmentcode');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }

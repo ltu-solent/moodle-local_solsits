@@ -18,7 +18,7 @@
                 <FIELD NAME="scale" SEQUENCE="false" TYPE="char" NOTNULL="false" LENGTH="50" DEFAULT="" />
                 <FIELD NAME="availablefrom" SEQUENCE="false" TYPE="int" NOTNULL="true" LENGTH="10" UNSIGNED="true" DEFAULT="0" />
                 <FIELD NAME="assessmentcode" SEQUENCE="false" TYPE="char" NOTNULL="true" LENGTH="255" />
-                <FIELD NAME="assessmentname" SEQUENCE="false" TYPE="char" NOTNULL="true" LENGTH="100" DEFAULT="" />
+                <FIELD NAME="assessmentname" SEQUENCE="false" TYPE="char" NOTNULL="true" LENGTH="100" />
                 <FIELD NAME="sequence" SEQUENCE="false" TYPE="char" NOTNULL="true" LENGTH="50" />
                 <FIELD NAME="usermodified" LENGTH="10" SEQUENCE="false" TYPE="int" NOTNULL="true" UNSIGNED="true" />
                 <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" />

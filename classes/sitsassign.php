@@ -35,6 +35,7 @@ use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->dirroot . '/course/lib.php');
 require_once($CFG->dirroot . '/course/modlib.php');
 require_once($CFG->dirroot . '/mod/assign/locallib.php');
 
@@ -321,10 +322,11 @@ class sitsassign extends persistent {
         $assignment = new assign($cmcontext, null, null);
         // This should also update the calendar. So all done.
         $this->formdata->instance = $cm->instance;
+        $this->formdata->coursemodule = $cm->id;
 
-        $this->formdata->completionexpected = $this->get('duedate');
-
-        return $assignment->update_instance($this->formdata);
+        $this->formdata->completionexpected = $this->formdata->duedate;
+        $updated = $assignment->update_instance($this->formdata);
+        return $updated;
     }
 
     /**

@@ -293,6 +293,7 @@ class sitsassign_test extends advanced_testcase {
         $this->set_settings();
         $this->setTimezone('UTC');
         $config = get_config('local_solsits');
+        set_config('enablecompletion', COMPLETION_ENABLED);
         // Perhaps change this is to a WS user with permissions to "Manage activities".
         $this->setAdminUser();
         $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
@@ -338,17 +339,10 @@ class sitsassign_test extends advanced_testcase {
             // No more tests required.
             return;
         }
-        // If the old date is 0 then let scheduled task create it.
+        // If the old date is 0 then the record will be updated, but the scheduled task will create the activity later.
         if ($newassign['duedate'] == 0 || $oldassign['duedate'] == 0) {
             $this->assertFalse($result);
-            if ($oldassign['duedate'] == 0) {
-                $this->expectOutputString("Due date has not been set (0), so we can't update the assignment. " .
-                "{$newsitsassign->get('sitsref')}\nThe specified Course module ({$newsitsassign->get('cmid')}) hasn't " .
-                "yet been created. {$newsitsassign->get('sitsref')}\n");
-            } else {
-                $this->expectOutputString("Due date has not been set (0), so we can't update the assignment. " .
-                "{$newsitsassign->get('sitsref')}\n");
-            }
+            $this->expectOutputRegex("/Due date has not been set \(0\), so no assignment has been created/");
             return;
         }
 
@@ -389,9 +383,19 @@ class sitsassign_test extends advanced_testcase {
             $this->assertEquals(0, $cm->visible);
             $this->assertEquals(0, $cm->completion);
         }
-        $uncachedcm = $DB->get_record('course_modules', ['id' => $newsitsassign->get('cmid')]);
-        $this->assertEquals($newduedate, $uncachedcm->completionexpected);
-        $this->assertEquals($newduedate, $cm->completionexpected);
+
+        $events = $DB->get_records('event', ['courseid' => $course2->id, 'instance' => $cm->instance]);
+        foreach ($events as $event) {
+            if ($event->eventtype == \core_completion\api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED) {
+                $this->assertEquals($newduedate, $event->timestart);
+                $this->assertEquals(get_string('completionexpectedfor', 'completion', (object)['instancename' => $newassign['title']]),
+                        $event->name);
+            }
+            if ($event->eventtype == ASSIGN_EVENT_TYPE_DUE) {
+                $this->assertEquals($newduedate, $event->timestart);
+                $this->assertEquals(get_string('calendardue', 'assign', $newassign['title']), $event->name);
+            }
+        }
 
         // Check it's in section 1.
         $this->assertEquals($config->targetsection, $cm->sectionnum);

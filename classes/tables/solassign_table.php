@@ -250,4 +250,3 @@ class solassign_table extends table_sql {
         return $row->weighting . '%';
     }
 }
-

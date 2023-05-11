@@ -69,7 +69,6 @@ class soltemplate_test extends advanced_testcase {
                     if (in_array($key, ['module', 'course'])) {
                         $params['customfield_pagetype'] = $key;
                         $params['customfield_academic_year'] = $session;
-                        $params['customfield_templateapplied'] = 0;
                         $params['visible'] = 0;
                     }
                     $courses[$session][$key][] = $this->getDataGenerator()->create_course($params);

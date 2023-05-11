@@ -154,8 +154,12 @@ class soltemplate extends persistent {
             $params['sessionvalue'] = $session;
         }
         if ($templateapplied !== null) {
-            $where[] = 'cfdt.value = :templateappliedvalue';
-            $params['templateappliedvalue'] = $templateapplied;
+            if ($templateapplied == 0) {
+                $where[] = "(cfdt.value = '0' OR cfdt.value IS NULL)";
+            } else {
+                $where[] = 'cfdt.value = :templateappliedvalue';
+                $params['templateappliedvalue'] = $templateapplied;
+            }
         }
         $where = count($where) > 0 ? ' WHERE ' . implode(' AND ', $where) : '';
         $sql = "SELECT c.id, c.visible, c.shortname,
@@ -163,7 +167,7 @@ class soltemplate extends persistent {
         FROM {course} c
         JOIN {customfield_data} cfdpt ON cfdpt.instanceid = c.id AND cfdpt.fieldid = :pagetypeid
             AND cfdpt.value IN ('module', 'course')
-        JOIN {customfield_data} cfdt ON cfdt.instanceid = c.id AND cfdt.fieldid = :templateappliedid
+        LEFT JOIN {customfield_data} cfdt ON cfdt.instanceid = c.id AND cfdt.fieldid = :templateappliedid
         JOIN {customfield_data} cfday ON cfday.instanceid = c.id AND cfday.fieldid = :academic_yearid
         {$where}";
 

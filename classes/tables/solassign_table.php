@@ -43,6 +43,7 @@ class solassign_table extends table_sql {
      * Constructor
      *
      * @param string $uniqueid
+     * @param array $filters Filters to apply to the query.
      */
     public function __construct($uniqueid, $filters) {
         global $DB;
@@ -50,14 +51,14 @@ class solassign_table extends table_sql {
         $this->useridfield = 'modifiedby';
         $columns = [
             'id',
+            'course',
+            'title',
             'sitsref',
             'cmid',
-            'course',
-            'sitting',
-            'sittingdesc',
-            'title',
+            'reattempt',
             'weighting',
             'duedate',
+            'visible',
             'grademarkexempt',
             'availablefrom',
             'timemodified',
@@ -66,14 +67,14 @@ class solassign_table extends table_sql {
 
         $columnheadings = [
             'id',
+            new lang_string('coursename', 'local_solsits'),
+            new lang_string('assignmenttitle', 'local_solsits'),
             new lang_string('sitsreference', 'local_solsits'),
             new lang_string('cmid', 'local_solsits'),
-            new lang_string('coursename', 'local_solsits'),
-            new lang_string('sittingreference', 'local_solsits'),
-            new lang_string('sittingdescription', 'local_solsits'),
-            new lang_string('assignmenttitle', 'local_solsits'),
+            new lang_string('reattempt', 'local_solsits'),
             new lang_string('weighting', 'local_solsits'),
             new lang_string('duedate', 'local_solsits'),
+            new lang_string('visibility', 'local_solsits'),
             new lang_string('grademarkexempt', 'local_solsits'),
             new lang_string('availablefrom', 'local_solsits'),
             new lang_string('timemodified', 'local_solsits'),
@@ -135,6 +136,19 @@ class solassign_table extends table_sql {
     }
 
     /**
+     * Output available from date column
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_availablefrom($row) {
+        if ($row->availablefrom > 0) {
+            return userdate($row->availablefrom);
+        }
+        return get_string('immediately', 'local_solsits');
+    }
+
+    /**
      * Coursemodule info
      *
      * @param stdClass $row
@@ -162,7 +176,30 @@ class solassign_table extends table_sql {
      */
     public function col_course($row) {
         $url = new moodle_url('/course/view.php', ['id' => $row->courseid]);
-        return html_writer::link($url, $row->fullname);
+        return html_writer::link($url, $row->fullname) . '<br><small>' . $row->course_idnumber . '</small>';
+    }
+
+    /**
+     * Output assignment duedate column
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_duedate($row) {
+        if ($row->duedate > 0) {
+            return userdate($row->duedate);
+        }
+        return '-';
+    }
+
+    /**
+     * Output grademark exempt column
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_grademarkexempt($row) {
+        return ($row->grademarkexempt) ? get_string('yes') : get_string('no');
     }
 
     /**
@@ -213,4 +250,3 @@ class solassign_table extends table_sql {
         return $row->weighting . '%';
     }
 }
-

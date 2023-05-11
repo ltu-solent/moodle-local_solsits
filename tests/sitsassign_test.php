@@ -388,8 +388,9 @@ class sitsassign_test extends advanced_testcase {
         foreach ($events as $event) {
             if ($event->eventtype == \core_completion\api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED) {
                 $this->assertEquals($newduedate, $event->timestart);
-                $this->assertEquals(get_string('completionexpectedfor', 'completion', (object)['instancename' => $newassign['title']]),
-                        $event->name);
+                $this->assertEquals(
+                    get_string('completionexpectedfor', 'completion', (object)['instancename' => $newassign['title']]),
+                    $event->name);
             }
             if ($event->eventtype == ASSIGN_EVENT_TYPE_DUE) {
                 $this->assertEquals($newduedate, $event->timestart);

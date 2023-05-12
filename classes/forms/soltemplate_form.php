@@ -69,6 +69,7 @@ class soltemplate_form extends persistent_form {
         $mform->addRule('courseid', get_string('required'), 'required', null, 'client');
 
         $mform->addElement('advcheckbox', 'enabled', new lang_string('enabled', 'local_solsits'));
+        $mform->addElement('hidden', 'id');
 
         $this->add_action_buttons();
     }
@@ -91,7 +92,7 @@ class soltemplate_form extends persistent_form {
             ]
         );
         if ($existing) {
-            if ($data->id = 0) {
+            if ($data->id == 0) {
                 $errors['pagetype'] = get_string('duplicatepagetypesession', 'local_solsits');
                 $errors['session'] = $errors['pagetype'];
             } else {

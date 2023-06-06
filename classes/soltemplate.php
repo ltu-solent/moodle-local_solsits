@@ -129,6 +129,27 @@ class soltemplate extends persistent {
      */
     public static function get_templateapplied_records($pagetype = '', $session = '', $templateapplied = 0) {
         global $DB;
+
+        [$select, $from, $where, $params] = static::get_templateapplied_sql($pagetype, $session, $templateapplied);
+        $sql = "SELECT $select FROM $from ";
+        if ($where) {
+            $sql = $sql . " WHERE " . $where;
+        }
+
+        $records = $DB->get_records_sql($sql, $params);
+        return $records;
+    }
+
+    /**
+     * Get templateapplied sql. Designed to be reused in table_sql
+     *
+     * @param string $pagetype
+     * @param string $session
+     * @param integer $templateapplied
+     * @return array [$select, $from, $where, $params]
+     */
+    public static function get_templateapplied_sql($pagetype = '', $session = '', $templateapplied = 0) {
+        global $DB;
         // Search the customfields for any records that match these variables.
         // Pages that don't have the pagetype, session and templateapplied field set are not interesting to us.
         // Get the pagetype, academic_year and templateapplied field ids
@@ -144,34 +165,37 @@ class soltemplate extends persistent {
         foreach ($fields as $field) {
             $params[$field->shortname . 'id'] = $field->id;
         }
-        $where = [];
+        $wheres = [];
         if ($pagetype) {
-            $where[] = 'cfdpt.value = :pagetypevalue';
+            $wheres[] = 'cfdpt.value = :pagetypevalue';
             $params['pagetypevalue'] = $pagetype;
         }
         if ($session) {
-            $where[] = 'cfday.value = :sessionvalue';
+            $wheres[] = 'cfday.value = :sessionvalue';
             $params['sessionvalue'] = $session;
         }
         if ($templateapplied !== null) {
             if ($templateapplied == 0) {
-                $where[] = "(cfdt.value = '0' OR cfdt.value IS NULL)";
+                $wheres[] = "(cfdt.value = '0' OR cfdt.value IS NULL)";
             } else {
-                $where[] = 'cfdt.value = :templateappliedvalue';
+                $wheres[] = 'cfdt.value = :templateappliedvalue';
                 $params['templateappliedvalue'] = $templateapplied;
             }
         }
-        $where = count($where) > 0 ? ' WHERE ' . implode(' AND ', $where) : '';
-        $sql = "SELECT c.id, c.visible, c.shortname,
-            cfdpt.value pagetype, cfdt.value templateapplied, cfday.value academic_year
-        FROM {course} c
+
+        $select = "c.id, c.visible, c.shortname, c.fullname, c.startdate, c.enddate,
+        cfdpt.value pagetype, cfdt.value templateapplied, cfday.value academic_year ";
+
+        $from = "{course} c
         JOIN {customfield_data} cfdpt ON cfdpt.instanceid = c.id AND cfdpt.fieldid = :pagetypeid
             AND cfdpt.value IN ('module', 'course')
         LEFT JOIN {customfield_data} cfdt ON cfdt.instanceid = c.id AND cfdt.fieldid = :templateappliedid
-        JOIN {customfield_data} cfday ON cfday.instanceid = c.id AND cfday.fieldid = :academic_yearid
-        {$where}";
+        JOIN {customfield_data} cfday ON cfday.instanceid = c.id AND cfday.fieldid = :academic_yearid ";
 
-        $records = $DB->get_records_sql($sql, $params);
-        return $records;
+        $where = '';
+        if (count($wheres) > 0) {
+            $where = implode(' AND ', $wheres);
+        }
+        return [$select, $from, $where, $params];
     }
 }

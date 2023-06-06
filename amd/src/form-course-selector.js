@@ -42,14 +42,18 @@ define(['core/ajax', 'jquery'], function(ajax, $) {
         transport: function(selector, query, success, failure) {
             let currentcourses = document.querySelector('#id_currentcourses');
             var promises = null;
-
+            if (!currentcourses) {
+                currentcourses = false;
+            } else {
+                currentcourses = currentcourses.checked;
+            }
             if (typeof query === "undefined") {
                 query = '';
             }
 
             var searchargs = {
                 query: query,
-                currentcourses: currentcourses.checked
+                currentcourses: currentcourses
             };
 
             var calls = [{

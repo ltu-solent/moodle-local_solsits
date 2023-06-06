@@ -26,6 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['actions'] = 'Actions';
+$string['allocatedtemplate'] = 'Allocated template';
 $string['applytemplatetask'] = 'Apply template';
 $string['assessmentcode'] = 'Assessment code';
 $string['assignmentsettings'] = 'Assignment settings';
@@ -57,6 +58,7 @@ $string['duplicatepagetypesession'] = 'A template already exists for this sessio
 
 $string['editsoltemplate'] = 'Edit Template';
 $string['enabled'] = 'Enabled';
+$string['enddate'] = 'End date';
 $string['error:courseedited'] = 'Course has been edited. Cannot apply template. {$a}';
 $string['error:courseiddoesnotmatch'] = 'Given courseid doesn\'t match the one on record';
 $string['error:coursenotexist'] = 'Course specified doesn\'t exist: {$a}';
@@ -67,6 +69,7 @@ $string['error:sitsrefnotexist'] = 'SITS reference doesn\'t exist: {$a}';
 $string['error:usersenrolledalready'] = 'Enrolments already exist. Cannot apply template. {$a}';
 $string['externaldate'] = 'External date';
 
+$string['filter'] = 'Filter';
 $string['filterassignments'] = 'Filter assignments';
 
 $string['generalsettings'] = 'General settings';
@@ -80,6 +83,7 @@ $string['gradingdueinterval'] = 'Grading due interval';
 $string['gradingdueinterval_desc'] = 'Grading due date interval in weeks';
 
 $string['immediately'] = 'Immediately';
+$string['info'] = 'Info';
 $string['invalidpagetype'] = 'Invalid pagetype';
 $string['invalidsession'] = 'Invalid session';
 
@@ -97,6 +101,7 @@ $string['newsavedtemplate'] = 'New template saved';
 $string['newsoltemplate'] = 'New template';
 $string['nolongerexists'] = 'No longer exists';
 $string['noselection'] = 'No selection';
+$string['notemplate'] = 'No template';
 $string['notenabled'] = 'Not enabled';
 $string['notset'] = 'Not set';
 $string['notvisible'] = 'Not visible';
@@ -118,11 +123,13 @@ $string['reattempt6'] = 'Sixth reattempt';
 $string['recreate'] = 'Recreate Assignment activity';
 
 $string['scale'] = 'Scale';
+$string['selectapagetype'] = 'Select a pagetype';
 $string['selectasession'] = 'Select a session';
 $string['selectatemplate'] = 'Select a template';
 $string['selectcourses'] = 'Select courses';
 $string['sequence'] = 'Sequence';
 $string['session'] = 'Academic session';
+$string['shortname'] = 'Shortname';
 $string['showerrorsonly'] = 'Show errors only';
 $string['showerrorsonly_help'] = 'The following errors are identified:<ol><li>Broken or no Assignment link</li>
     <li>No duedate</li>
@@ -139,6 +146,7 @@ $string['solsits:manageassignments'] = 'Manage SITS assignments';
 $string['solsits:managetemplates'] = 'Manage Templates';
 $string['solsits:registersitscourse'] = 'Register SITS course';
 $string['solsits:releasegrades'] = 'Release grades';
+$string['startdate'] = 'Start date';
 $string['status'] = 'Status';
 
 $string['targetsection'] = 'Assignment section';
@@ -148,6 +156,20 @@ $string['templatecat'] = 'Template category';
 $string['templatecat_desc'] = 'The source of all template files';
 $string['templatecourse'] = 'Template course';
 $string['templatename'] = 'Template name';
+$string['templatequeue'] = 'Template queue';
+$string['templatequeuehelp'] = '<p>This will display all the modules or courses that have not yet had a template applied.
+    The info column will provide a reason why the template has not been applied. If there is no reason, then it is just
+    waiting its turn.</p>
+    <p>The following reasons will <em>prevent</em> the template being applied:</p>
+    <ul>
+        <li>The template has not been created yet (Matches Pagetype and Session)</li>
+        <li>The Template has not been enabled</li>
+        <li>The course or module is already visible (it is hidden when created)</li>
+        <li>The course or module already has content (Other than a forum)</li>
+        <li>The course or module already has users enrolled</li>
+    </ul>
+    <p>The "Allocated template" column will tell you which template will be used, when it can be applied.
+    If this says "No template", then one doesn\'t exist.</p>';
 $string['templates'] = 'Templates';
 $string['templates_desc'] = 'Module and Course templates assigned to sessions';
 $string['timecreated'] = 'Time created';

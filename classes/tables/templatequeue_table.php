@@ -1,0 +1,195 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Template queue table
+ *
+ * @package   local_solsits
+ * @author    Mark Sharp <mark.sharp@solent.ac.uk>
+ * @copyright 2023 Solent University {@link https://www.solent.ac.uk}
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+namespace local_solsits\tables;
+
+use html_writer;
+use lang_string;
+use local_solsits\soltemplate;
+use moodle_url;
+use table_sql;
+
+defined('MOODLE_INTERNAL') || die();
+
+require_once("$CFG->libdir/tablelib.php");
+
+/**
+ * Table to list courses that haven't yet had the template applied.
+ */
+class templatequeue_table extends table_sql {
+    /**
+     * Set up the page and sql
+     *
+     * @param string $uniqueid
+     * @param array $filters
+     */
+    public function __construct($uniqueid, $filters) {
+        global $DB;
+        parent::__construct($uniqueid);
+        $columns = [
+            'id',
+            'coursename',
+            'shortname',
+            'startdate',
+            'enddate',
+            'visibility',
+            'pagetype',
+            'session',
+            'allocatedtemplate',
+            'info'
+        ];
+
+        $columnheadings = [
+            'id',
+            new lang_string('coursename', 'local_solsits'),
+            new lang_string('shortname', 'local_solsits'),
+            new lang_string('startdate', 'local_solsits'),
+            new lang_string('enddate', 'local_solsits'),
+            new lang_string('visibility', 'local_solsits'),
+            new lang_string('pagetype', 'local_solsits'),
+            new lang_string('session', 'local_solsits'),
+            new lang_string('allocatedtemplate', 'local_solsits'),
+            new lang_string('info', 'local_solsits')
+        ];
+        $this->define_columns($columns);
+        $this->define_headers($columnheadings);
+        $this->collapsible(false);
+        $this->define_baseurl(new moodle_url("/local/solsits/templatequeue.php"));
+
+        [$select, $from, $where, $params] = soltemplate::get_templateapplied_sql($filters['pagetype'], $filters['session']);
+        if ($filters['selectedcourses']) {
+            [$insql, $inparams] = $DB->get_in_or_equal($filters['selectedcourses'], SQL_PARAMS_NAMED);
+            if ($where != '') {
+                $where .= " AND c.id $insql ";
+            } else {
+                $where = "c.id $insql";
+            }
+            $params += $inparams;
+        }
+        $this->set_sql($select, $from, $where, $params);
+    }
+
+    /**
+     * Link to allocated template, if it exists
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_allocatedtemplate($row) {
+        global $DB;
+        $templatecourses = soltemplate::get_records(['pagetype' => $row->pagetype, 'session' => $row->academic_year]);
+        $templatecourse = reset($templatecourses);
+        $link = get_string('notemplate', 'local_solsits');
+        if ($templatecourse) {
+            $template = $DB->get_record('course', ['id' => $templatecourse->get('courseid')]);
+            $link = html_writer::link(
+                new moodle_url('/course/view.php', ['id' => $template->id]),
+                $template->fullname
+            );
+        }
+        return $link;
+    }
+
+    /**
+     * Link to the course
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_coursename($row) {
+        $link = html_writer::link(
+            new moodle_url('/course/view.php', ['id' => $row->id]),
+            $row->fullname
+        );
+        return $link;
+    }
+
+    /**
+     * Output course enddate column
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_enddate($row) {
+        if ($row->enddate) {
+            return userdate($row->enddate);
+        }
+        return '';
+    }
+
+    /**
+     * Output info column, specifying reasons why a template might not be able to be applied.
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_info($row) {
+        global $DB;
+        $infos = [];
+        if ($row->visible) {
+            $infos[] = get_string('error:coursevisible', 'local_solsits', '');
+        }
+        $activities = $DB->get_records('course_modules', ['course' => $row->id]);
+        if (count($activities) > 1) {
+            // Course is always created with a forum.
+            $infos[] = get_string('error:courseedited', 'local_solsits', '');
+        }
+        $enrolledusers = enrol_get_course_users($row->id);
+        if (count($enrolledusers) > 0) {
+            $infos[] = get_string('error:usersenrolledalready', 'local_solsits', '');
+        }
+        return html_writer::alist($infos);
+    }
+
+    /**
+     * Output academic year column
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_session($row) {
+        return $row->academic_year;
+    }
+
+    /**
+     * Output course startdate column
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_startdate($row) {
+        return userdate($row->startdate);
+    }
+
+    /**
+     * Output course startdate column
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_visibility($row) {
+        return $row->visible ? get_string('visible', 'local_solsits') : get_string('notvisible', 'local_solsits');
+    }
+}

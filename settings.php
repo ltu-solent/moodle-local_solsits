@@ -132,4 +132,11 @@ if ($hassiteconfig) {
     $externalpage = new admin_externalpage($name, $title, $url);
 
     $ADMIN->add('local_solsitscat', $externalpage);
+
+    $name = 'local_solsits/templatequeue';
+    $title = new lang_string('templatequeue', 'local_solsits');
+    $url = new moodle_url('/local/solsits/templatequeue.php');
+    $externalpage = new admin_externalpage($name, $title, $url);
+
+    $ADMIN->add('local_solsitscat', $externalpage);
 }

@@ -76,7 +76,6 @@ Feature: Display SITS assignment data in the settings page, if available
     And I should see "2 June 2023, 9:00:00 AM" in the "#fitem_id_sits_availablefrom" "css_element"
     And I should see "2 June 2023, 4:00:00 PM" in the "#fitem_id_sits_duedate" "css_element"
 
-
   Scenario: I should not see Quercus data
     Given I log in as "teacher1"
     And I am on "Course1" course homepage

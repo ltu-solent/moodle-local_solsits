@@ -25,6 +25,10 @@
 
 namespace local_solsits\task;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot . '/mod/assign/externallib.php');
+
 use context_course;
 use core\task\scheduled_task;
 use local_solsits\helper;

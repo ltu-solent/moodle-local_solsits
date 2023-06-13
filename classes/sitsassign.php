@@ -185,10 +185,12 @@ class sitsassign extends persistent {
         $mform->addElement('html', new lang_string('sitsdatadesc', 'local_solsits'));
 
         $mform->addElement('static', 'sits_ref', new lang_string('sitsreference', 'local_solsits'), $solassign->sitsref);
+        $mform->addElement('static', 'sits_assessmentname',
+            new lang_string('assessmentname', 'local_solsits'), $solassign->assessmentname);
         $mform->addElement('static', 'sits_assessmentcode',
-            new lang_string('assessmentcode', 'local_solsits', $solassign->assessmentcode));
+            new lang_string('assessmentcode', 'local_solsits'), $solassign->assessmentcode);
         $mform->addElement('static', 'sits_sequence', new lang_string('sequence', 'local_solsits'), $solassign->sequence);
-        $reattempt = get_string('reattempt' . $solassign->reattempt, 'local_solsits');
+        $reattempt = get_string('reattempt' . (string)$solassign->reattempt, 'local_solsits');
         $mform->addElement('static', 'sits_reattempt', new lang_string('sitsreattempt', 'local_solsits'),
             $reattempt);
 
@@ -326,6 +328,7 @@ class sitsassign extends persistent {
 
         $this->formdata->completionexpected = $this->formdata->duedate;
         $updated = $assignment->update_instance($this->formdata);
+        rebuild_course_cache($course->id);
         return $updated;
     }
 
@@ -460,5 +463,25 @@ class sitsassign extends persistent {
      */
     public function is_exam() {
         return (strpos($this->get('sitsref'), 'EXAM') !== false);
+    }
+
+    /**
+     * Add new grade to solsits_assign_grades table for later processing and records.
+     *
+     * @param stdClass $grade
+     * @return bool Success/Failure
+     */
+    public function enqueue_grade($grade) {
+        global $DB;
+        // There should only be one grade for this user on this assignment.
+        $exists = $DB->record_exists('local_solsits_assign_grades', [
+            'solassignmentid' => $grade->solassignmentid,
+            'studentid' => $grade->studentid
+        ]);
+        if (!$exists) {
+            $DB->insert_record('local_solsits_assign_grades', $grade);
+            return true;
+        }
+        return false;
     }
 }

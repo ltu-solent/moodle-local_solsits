@@ -387,5 +387,90 @@ class helper {
         }
         return $dt->getTimestamp();
     }
+
+    /**
+     * Convert grades into SITS form.
+     *
+     * @param int $scaleid
+     * @param ?int $grade
+     * @return int
+     */
+    public static function convert_grade($scaleid, $grade) {
+        $config = get_config('local_solsits');
+        $converted = $grade;
+        if ($scaleid == $config->grademarkscale) { // Solent gradescale.
+            $converted = -1;
+            switch ($grade) {
+                case 18:
+                    $converted = 100; // A1.
+                    break;
+                case 17:
+                    $converted = 92; // A2.
+                    break;
+                case 16:
+                    $converted = 83; // A3.
+                    break;
+                case 15:
+                    $converted = 74; // A4.
+                    break;
+                case 14:
+                    $converted = 68; // B1.
+                    break;
+                case 13:
+                    $converted = 65; // B2.
+                    break;
+                case 12:
+                    $converted = 62; // B3.
+                    break;
+                case 11:
+                    $converted = 58; // C1.
+                    break;
+                case 10:
+                    $converted = 55; // C2.
+                    break;
+                case 9:
+                    $converted = 52; // C3.
+                    break;
+                case 8:
+                    $converted = 48; // D1.
+                    break;
+                case 7:
+                    $converted = 45; // D2.
+                    break;
+                case 6:
+                    $converted = 42; // D3.
+                    break;
+                case 5:
+                    $converted = 35; // F1.
+                    break;
+                case 4:
+                    $converted = 20; // F2.
+                    break;
+                case 3:
+                    $converted = 15; // F3.
+                    break;
+                case 2:
+                    $converted = 1; // S.
+                    break;
+                case 1:
+                    $converted = 0; // N.
+                    break;
+                default:
+                    $converted = -1;
+                    break;
+            }
+        } else if ($scaleid == $config->grademarkexemptscale) {
+            if ($grade == null || $grade == 0 || $grade == -1) {
+                $converted = 0;
+            } else {
+                // Different languages use different separators (i.e. , .) in float numbers.
+                // unformat_float normalises this.
+                // Grades are stored as floats.
+                // The converted grade is 1 point lower than the index.
+                $converted = (int)unformat_float($grade) - 1;
+            }
+        }
+        return $converted;
+    }
 }
 

@@ -29,6 +29,7 @@ $string['actions'] = 'Actions';
 $string['allocatedtemplate'] = 'Allocated template';
 $string['applytemplatetask'] = 'Apply template';
 $string['assessmentcode'] = 'Assessment code';
+$string['assessmentname'] = 'Assessment name';
 $string['assignmentsettings'] = 'Assignment settings';
 $string['assignmentsettings_desc'] = 'Settings to help manage assignment creation';
 $string['assignmenttitle'] = 'Assignment title';
@@ -67,18 +68,24 @@ $string['error:invalidpagetype'] = 'Invalid pagetype: {$a}';
 $string['error:sitsrefinuse'] = 'SITS Reference already in use: {$a}';
 $string['error:sitsrefnotexist'] = 'SITS reference doesn\'t exist: {$a}';
 $string['error:usersenrolledalready'] = 'Enrolments already exist. Cannot apply template. {$a}';
+$string['exportgradestask'] = 'Export grades to SITS';
 $string['externaldate'] = 'External date';
 
 $string['filter'] = 'Filter';
 $string['filterassignments'] = 'Filter assignments';
 
 $string['generalsettings'] = 'General settings';
+$string['getnewgradestask'] = 'Get newly released grades';
+$string['graderidnotexists'] = 'Graderid user does not exist';
+$string['gradernotset'] = 'Graderid not set';
 $string['grademark'] = 'Grademark';
 $string['grademarkexempt'] = 'Grademark exempt';
 $string['grademarkexemptscale'] = 'Grademark exempt scale';
 $string['grademarkexemptscale_desc'] = 'Standard 100 point scale';
 $string['grademarkscale'] = 'Grademark scale';
 $string['grademarkscale_desc'] = 'Solent Grade scale A1, A2, A3, B1 etc';
+$string['gradenotqueued'] = 'Not Queued - Course: {$a->course}, Assignment code: {$a->sitsref}, Grader id: {$a->graderid}, Grade: {$a->grade}, Student idnumber: {$a->studentidnumber}';
+$string['gradequeued'] = 'Queued - Course: {$a->course}, Assignment code: {$a->sitsref}, Grader id: {$a->graderid}, Grade: {$a->grade}, Student idnumber: {$a->studentidnumber}';
 $string['gradingdueinterval'] = 'Grading due interval';
 $string['gradingdueinterval_desc'] = 'Grading due date interval in weeks';
 
@@ -86,6 +93,7 @@ $string['immediately'] = 'Immediately';
 $string['info'] = 'Info';
 $string['invalidpagetype'] = 'Invalid pagetype';
 $string['invalidsession'] = 'Invalid session';
+$string['invalidstudent'] = 'Student IDNumber invalid of {$a->idnumber} for {$a->firstname} {$a->lastname}';
 
 $string['lastmodified'] = 'Last modified';
 
@@ -113,7 +121,7 @@ $string['passfailscale'] = 'Pass/Fail scale';
 $string['pluginname'] = 'SOL-SITS Integration';
 
 $string['reattempt'] = 'Re-attempt';
-$string['reattempt0'] = '';
+$string['reattempt0'] = 'First attempt';
 $string['reattempt1'] = 'First reattempt';
 $string['reattempt2'] = 'Second reattempt';
 $string['reattempt3'] = 'Third reattempt';
@@ -141,6 +149,8 @@ $string['sitsreference'] = 'SITS reference';
 $string['sitsdatadesc'] = '<div class="alert alert-info">These are the data received from SITS and are used for diagnostic purposes only.</div>';
 $string['sittingdescription'] = 'Sitting description';
 $string['sittingreference'] = 'Sitting reference';
+$string['solassignmentidnotexists'] = 'SOL assignment ID does not exist';
+$string['solassignmentidnotset'] = 'SOL assignment ID not set';
 $string['solassignments:manage'] = 'Manage SITS Assignments';
 $string['solsits:manageassignments'] = 'Manage SITS assignments';
 $string['solsits:managetemplates'] = 'Manage Templates';
@@ -148,6 +158,8 @@ $string['solsits:registersitscourse'] = 'Register SITS course';
 $string['solsits:releasegrades'] = 'Release grades';
 $string['startdate'] = 'Start date';
 $string['status'] = 'Status';
+$string['studentidnotexists'] = 'Studentid user does not exist';
+$string['studentidnotset'] = 'Studentid not set';
 
 $string['targetsection'] = 'Assignment section';
 $string['targetsection_desc'] = 'Which section No. should assignments be created in?';

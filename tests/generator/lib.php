@@ -79,4 +79,42 @@ class local_solsits_generator extends component_generator_base {
         $assignment->create();
         return $assignment;
     }
+
+    /**
+     * Create an entry in the local_solsits_assign_grades table
+     *
+     * @param array $record
+     * @return object The created record.
+     */
+    public function create_assign_grade(array $record) {
+        global $DB;
+        if (!isset($record['solassignmentid'])) {
+            throw new moodle_exception('solassignmentidnotset', 'local_solsits');
+        }
+        if (!$DB->record_exists('local_solsits_assign', ['id' => $record['solassignmentid']])) {
+            throw new moodle_exception('solassignmentidnotexists', 'local_solsits');
+        }
+        if (!isset($record['graderid'])) {
+            throw new moodle_exception('gradernotset', 'local_solsits');
+        }
+        if (!$DB->record_exists('user', ['id' => $record['graderid']])) {
+            throw new moodle_exception('graderidnotexists', 'local_solsits');
+        }
+        if (!isset($record['studentid'])) {
+            throw new moodle_exception('studentidnotset', 'local_solsits');
+        }
+        if (!$DB->record_exists('user', ['id' => $record['studentid']])) {
+            throw new moodle_exception('studentidnotexists', 'local_solsits');
+        }
+        $record = (object)array_merge([
+            'converted_grade' => 0,
+            'response_code' => '',
+            'response' => '',
+            'timecreated' => time(),
+            'timemodified' => time()
+        ], (array)$record);
+        $insertid = $DB->insert_record('local_solsits_assign_grades', $record);
+        $record->id = $insertid;
+        return $record;
+    }
 }

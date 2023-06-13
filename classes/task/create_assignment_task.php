@@ -49,13 +49,17 @@ class create_assignment_task extends scheduled_task {
         $config = get_config('local_solsits');
         // Get list of assignments to be created.
         $assignments = sitsassign::get_create_list($config->maxassignments);
+        if (count($assignments) == 0) {
+            mtrace("No assignments found to process.");
+            return;
+        }
         foreach ($assignments as $assignment) {
             $ass = new sitsassign($assignment->id);
             $result = $ass->create_assignment();
             if ($result == false) {
                 mtrace("An error has occurred");
             } else {
-                mtrace("New assignment successfully created");
+                mtrace("New assignment successfully created: {$ass->get('sitsref')}");
             }
         }
     }

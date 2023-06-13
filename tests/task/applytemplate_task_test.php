@@ -30,9 +30,11 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
 require_once($CFG->dirroot . '/webservice/tests/helpers.php');
+require_once($CFG->dirroot . '/local/solsits/tests/generator.php');
 require_once($CFG->dirroot . '/local/solsits/tests/task/task_trait.php');
 
 use advanced_testcase;
+use local_solsits\generator;
 use local_solsits\soltemplate;
 
 /**
@@ -41,6 +43,7 @@ use local_solsits\soltemplate;
  */
 class applytemplate_task_test extends advanced_testcase {
     use task_trait;
+    use generator;
 
     /**
      * Test applytemplate scheduled task

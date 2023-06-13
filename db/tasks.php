@@ -42,5 +42,21 @@ $tasks = [
         'day' => '*',
         'month' => '*',
         'dayofweek' => '*'
+    ], [
+        'classname' => '\local_solsits\task\get_new_grades_task',
+        'blocking' => 0,
+        'minute' => '*',
+        'hour' => '*',
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '*'
+    ], [
+        'classname' => '\local_solsits\task\export_grades_task',
+        'blocking' => 0,
+        'minute' => '*',
+        'hour' => '*',
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '*'
     ]
 ];

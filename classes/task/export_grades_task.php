@@ -15,30 +15,37 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Helper functions for tasks
+ * Get newly released grades from grade items for sits assignments
  *
  * @package   local_solsits
  * @author    Mark Sharp <mark.sharp@solent.ac.uk>
- * @copyright 2022 Solent University {@link https://www.solent.ac.uk}
+ * @copyright 2023 Solent University {@link https://www.solent.ac.uk}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace local_solsits\task;
 
+use core\task\scheduled_task;
+
 /**
- * Helper trait for task processing.
+ * Get newly released grades. Used in conjunction with export_grades.
  */
-trait task_trait {
+class export_grades_task extends scheduled_task {
+    /**
+     * Name of the task
+     *
+     * @return string
+     */
+    public function get_name(): string {
+        return get_string('exportgradestask', 'local_solsits');
+    }
 
     /**
-     * Helper to execute a particular task.
+     * {@inheritDoc}
      *
-     * @param string $task The task.
+     * @return void
      */
-    private function execute_task($task) {
-        // Run the scheduled task - we want to check the output, so don't use ob_start.
-        $task = \core\task\manager::get_scheduled_task($task);
-        $task->execute();
+    public function execute() {
+        global $DB;
     }
 }
-

@@ -105,12 +105,13 @@ class get_new_grades_task extends scheduled_task {
         $sitsassign = sitsassign::get_record(['cmid' => $cm->id]);
 
         // Get user that locked the grades and scale id.
-        $releasedby = $DB->get_record_sql('SELECT u.id, u.firstname, u.lastname, u.email, MAX(h.timemodified), h.scaleid
+        $releasedby = $DB->get_record_sql('SELECT u.id, u.firstname, u.lastname, u.email, h.timemodified, h.scaleid
             FROM {grade_items_history} h
             JOIN {user} u ON u.id = h.loggeduser
             WHERE (h.itemmodule = :itemmodule AND h.iteminstance = :iteminstance)
             AND locked > :locked
-            GROUP BY u.id', [
+            ORDER BY h.timemodified DESC
+            LIMIT 1', [
                 'itemmodule' => 'assign',
                 'iteminstance' => $cm->instance,
                 'locked' => $lastruntime

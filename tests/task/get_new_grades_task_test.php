@@ -630,32 +630,4 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
         $queuedgrades = $DB->get_records('local_solsits_assign_grades');
         $this->assertCount(0, $queuedgrades);
     }
-
-    /**
-     * Mark, Release and Lock grades for students on this assignment
-     *
-     * @param array $students
-     * @param array $grades
-     * @param object $assign
-     * @param object $moduleleader
-     * @param string $workflowstate ASSIGN_MARKING_WORKFLOW_STATE_ constant
-     * @return void
-     */
-    private function mark_assignments($students, $grades, $assign, $moduleleader,
-            $workflowstate = ASSIGN_MARKING_WORKFLOW_STATE_RELEASED) {
-        $this->setUser($moduleleader);
-        foreach ($students as $x => $student) {
-            $data = new stdClass();
-            $data->grade = $grades[$x];
-            $data->workflowstate = $workflowstate;
-            $assign->testable_apply_grade_to_user($data, $student->id, 0);
-            if ($workflowstate == ASSIGN_MARKING_WORKFLOW_STATE_RELEASED) {
-                $assign->lock_submission($student->id);
-            }
-        }
-        if ($workflowstate == ASSIGN_MARKING_WORKFLOW_STATE_RELEASED) {
-            $gradeitem = $assign->get_grade_item();
-            $gradeitem->set_locked(time(), false, true);
-        }
-    }
 }

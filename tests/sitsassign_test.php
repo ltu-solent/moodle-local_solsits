@@ -28,13 +28,17 @@ namespace local_solsits;
 use advanced_testcase;
 use assign;
 use context_module;
+use local_solsits\task\task_trait;
+use mod_assign_test_generator;
 
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
 require_once($CFG->dirroot . '/mod/assign/locallib.php');
+require_once($CFG->dirroot . '/mod/assign/tests/generator.php');
 require_once($CFG->dirroot . '/local/solsits/tests/generator.php');
+require_once($CFG->dirroot . '/local/solsits/tests/task/task_trait.php');
 /**
  * Test sitsassign persistent class
  * @covers \local_solsits\sitsassign
@@ -42,6 +46,8 @@ require_once($CFG->dirroot . '/local/solsits/tests/generator.php');
  */
 class sitsassign_test extends advanced_testcase {
     use generator;
+    use mod_assign_test_generator;
+    use task_trait;
     /**
      * Test getting a list of assignments that can now be created
      *
@@ -566,6 +572,136 @@ class sitsassign_test extends advanced_testcase {
                 'coursedeleted' => false
             ]
         ];
+    }
+
+    /**
+     * Get queued grades for export test.
+     * Reads the local_solsits_assign_grades table for assignments that have not yet been exported.
+     *
+     * @return void
+     */
+    public function test_get_queued_grades_for_export() {
+        global $DB;
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
+        $this->create_solent_gradescales();
+        $config = get_config('local_solsits');
+        // Add items that appear to have been sent already (response is not null) (create 2 assignments).
+        // Add new items.
+
+        // The module needs SITS data as this is used in the grade export.
+        $course = $this->getDataGenerator()->create_course([
+            'shortname' => 'ABC101_A_S1_2022/23',
+            'idnumber' => 'ABC101_A_S1_2022/23',
+            'customfield_academic_year' => '2023/23',
+            'customfield_module_code' => 'ABC101'
+        ]);
+
+        // Set this up to appear to already have been exported.
+        $assignexported = $this->create_instance($course, [
+            'blindmarking' => 1,
+            'idnumber' => 'ABC101_A_S1_2022/23_PROJ1_0_1',
+            'grade' => $config->grademarkscale * -1
+        ]);
+        $sitsassignexported = $dg->create_sits_assign([
+            'cmid' => $assignexported->get_course_module()->id,
+            'courseid' => $course->id
+        ]);
+        // This has not been exported and so will be picked up for export.
+        $assign = $this->create_instance($course, [
+            'blindmarking' => 1,
+            'idnumber' => 'ABC101_A_S1_2022/23_REPORT1_0_1',
+            'grade' => $config->grademarkscale * -1
+        ]);
+        $sitsassign = $dg->create_sits_assign([
+            'cmid' => $assign->get_course_module()->id,
+            'courseid' => $course->id
+        ]);
+
+        $students = [];
+        $grades = [];
+        for ($x = 0; $x < 19; $x++) {
+            // Student needs to have a numeric idnumber for grades to be uploaded to sits.
+            $students[$x] = $this->getDataGenerator()->create_user(['idnumber' => '200000' . $x]);
+            $this->getDataGenerator()->enrol_user($students[$x]->id, $course->id, 'student');
+            // Mimic grademark scale with various values so we can test convert_grade.
+            if ($x < 19) {
+                $grades[$x] = (float)$x;
+            } else {
+                $grades[$x] = 0;
+            }
+        }
+        $moduleleader = $this->getDataGenerator()->create_user([
+            'firstname' => 'Module',
+            'lastname' => 'Leader'
+        ]);
+        $this->getDataGenerator()->enrol_user($moduleleader->id, $course->id, 'editingteacher');
+        $this->mark_assignments($students, $grades, $assign, $moduleleader, ASSIGN_MARKING_WORKFLOW_STATE_RELEASED);
+        $this->mark_assignments($students, $grades, $assignexported, $moduleleader, ASSIGN_MARKING_WORKFLOW_STATE_RELEASED);
+        $this->setAdminUser();
+        $insertedgrades = [];
+        for ($x = 0; $x < 19; $x++) {
+            // Spoof already exported grades.
+            $insertedgrades[] = $dg->create_assign_grade([
+                'solassignmentid' => $sitsassignexported->get('id'),
+                'graderid' => $moduleleader->id,
+                'studentid' => $students[$x]->id,
+                'converted_grade' => helper::convert_grade($config->grademarkscale, $grades[$x]),
+                'response_code' => 'SUCCESS',
+                'response' => 0
+            ]);
+        }
+        // We have already exported some grades, and others are waiting to be queued, so the queue is currently empty.
+        $waiting = sitsassign::get_queued_grades_for_export(99);
+        $this->assertCount(0, $waiting);
+
+        $expectedoutput = 'Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_REPORT1_0_1, Grader id: ' .
+        $moduleleader->id . ', Grade: 0, Student idnumber: 2000000
+Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_REPORT1_0_1, Grader id: ' . $moduleleader->id .
+        ', Grade: 0, Student idnumber: 2000001
+Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_REPORT1_0_1, Grader id: ' . $moduleleader->id .
+        ', Grade: 55, Student idnumber: 20000010
+Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_REPORT1_0_1, Grader id: ' . $moduleleader->id .
+        ', Grade: 58, Student idnumber: 20000011
+Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_REPORT1_0_1, Grader id: ' . $moduleleader->id .
+        ', Grade: 62, Student idnumber: 20000012
+Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_REPORT1_0_1, Grader id: ' . $moduleleader->id .
+        ', Grade: 65, Student idnumber: 20000013
+Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_REPORT1_0_1, Grader id: ' . $moduleleader->id .
+        ', Grade: 68, Student idnumber: 20000014
+Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_REPORT1_0_1, Grader id: ' . $moduleleader->id .
+        ', Grade: 74, Student idnumber: 20000015
+Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_REPORT1_0_1, Grader id: ' . $moduleleader->id .
+        ', Grade: 83, Student idnumber: 20000016
+Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_REPORT1_0_1, Grader id: ' . $moduleleader->id .
+        ', Grade: 92, Student idnumber: 20000017
+Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_REPORT1_0_1, Grader id: ' . $moduleleader->id .
+        ', Grade: 100, Student idnumber: 20000018
+Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_REPORT1_0_1, Grader id: ' . $moduleleader->id .
+        ', Grade: 1, Student idnumber: 2000002
+Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_REPORT1_0_1, Grader id: ' . $moduleleader->id .
+        ', Grade: 15, Student idnumber: 2000003
+Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_REPORT1_0_1, Grader id: ' . $moduleleader->id .
+        ', Grade: 20, Student idnumber: 2000004
+Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_REPORT1_0_1, Grader id: ' . $moduleleader->id .
+        ', Grade: 35, Student idnumber: 2000005
+Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_REPORT1_0_1, Grader id: ' . $moduleleader->id .
+        ', Grade: 42, Student idnumber: 2000006
+Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_REPORT1_0_1, Grader id: ' . $moduleleader->id .
+        ', Grade: 45, Student idnumber: 2000007
+Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_REPORT1_0_1, Grader id: ' . $moduleleader->id .
+        ', Grade: 48, Student idnumber: 2000008
+Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_REPORT1_0_1, Grader id: ' . $moduleleader->id .
+        ', Grade: 52, Student idnumber: 2000009
+';
+        $this->expectOutputString($expectedoutput);
+        $this->execute_task('\local_solsits\task\get_new_grades_task');
+        $waiting = sitsassign::get_queued_grades_for_export(99);
+        $this->assertCount(1, $waiting);
+        $this->assertCount(19, $waiting[0]['grades']);
+        $queuedgrades = $DB->get_records('local_solsits_assign_grades', ['solassignmentid' => $sitsassign->get('id')]);
+        $this->assertCount(19, $queuedgrades);
     }
 
     /**

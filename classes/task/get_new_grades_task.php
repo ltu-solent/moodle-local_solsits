@@ -56,13 +56,15 @@ class get_new_grades_task extends scheduled_task {
      */
     public function execute() {
         global $DB;
-        // This gets the last time grades were stored in this table. There is a potential for a gap to exist
-        // between this time and actuality if grades are being released rapidly. Potentially, backtrack this
-        // lastruntime 1 minute and capture any unnecessary updates rather than allow the gap to be created.
+        // This gets the last time grades were stored in this table.
         $lastruntime = $DB->get_field_sql('SELECT max(timecreated) FROM {local_solsits_assign_grades}');
 
         if ($lastruntime == null) {
             $lastruntime = 0;
+        } else {
+            // Backtrack this lastruntime 1 minute to capture some unnecessary updates
+            // rather than allow the gap to be created.
+            $lastruntime = $lastruntime - 60;
         }
         // Get assign ids for new assignments.
         $assignids = $DB->get_records_sql('SELECT iteminstance
@@ -87,19 +89,19 @@ class get_new_grades_task extends scheduled_task {
                 // Only handle SITS assignments. Nothing else.
                 continue;
             }
-            $this->get_grades_for_assignment($assignid, $cm, $lastruntime);
+            $this->store_grades_for_assignment($assignid, $cm, $lastruntime);
         }
     }
 
     /**
-     * Get grade for given assignment and inserts them in the processing queue
+     * Gets grades for given assignment and inserts them in the processing queue
      *
      * @param int $assignid
      * @param stdClass $cm
      * @param integer $lastruntime
      * @return void
      */
-    private function get_grades_for_assignment($assignid, $cm, $lastruntime = 0) {
+    private function store_grades_for_assignment($assignid, $cm, $lastruntime = 0) {
         global $DB;
         $course = get_course($cm->course);
         $sitsassign = sitsassign::get_record(['cmid' => $cm->id]);
@@ -155,8 +157,6 @@ class get_new_grades_task extends scheduled_task {
             ];
             if ($isqueued) {
                 mtrace(get_string('gradequeued', 'local_solsits', $tracedata));
-            } else {
-                mtrace(get_string('gradenotqueued', 'local_solsits', $tracedata));
             }
         }
     }

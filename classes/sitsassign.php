@@ -484,4 +484,97 @@ class sitsassign extends persistent {
         }
         return false;
     }
+
+    /**
+     * Get queued grades for export.
+     * Reads the local_solsits_assign_grades table for assignments that have not yet been exported.
+     *
+     * @param integer $limit
+     * @return array
+     */
+    public static function get_queued_grades_for_export($limit = 1): array {
+        global $DB;
+        // The challenge here is that the local_sits_assign_grades table lists one entry for each person
+        // on the assignment.
+        // We want to group all these grades under the assignment.
+        // The grades for each assignment are bundled as a single payload.
+        // Could split this into separate queries.
+        // * Get list of assignments to export grades for.
+        // * Add the list of grades to each.
+        $assignids = $DB->get_records_sql(
+            "SELECT DISTINCT(ag.solassignmentid) solassignmentid
+            FROM {local_solsits_assign_grades} ag
+            WHERE ag.response IS NULL", [], 0, $limit);
+        $assignids = array_keys($assignids);
+
+        [$insql, $inparams] = $DB->get_in_or_equal(['module_code', 'academic_year']);
+        $sql = "SELECT cf.id, cf.shortname
+            FROM {customfield_field} cf
+            JOIN {customfield_category} cat ON cat.id = cf.categoryid AND cat.name = 'Student Records System'
+            WHERE cf.shortname {$insql}";
+        $fields = $DB->get_records_sql($sql, $inparams);
+
+        $params = [];
+        foreach ($fields as $field) {
+            $params[$field->shortname . 'id'] = $field->id;
+        }
+        $toexport = [];
+        foreach ($assignids as $assignid) {
+            $sql = "SELECT sag.id, sa.sitsref,
+            stu.id studentid, stu.idnumber studentidnumber, stu.firstname studentfirstname, stu.lastname studentlastname,
+            lead.firstname leaderfirstname, lead.lastname leaderlastname, lead.email leaderemail,
+            cfmod.value modulecode, c.fullname moduletitle, cfay.value academic_year, c.shortname moduleinstance,
+            a.name assessment_name, a.duedate, sag.converted_grade
+            FROM {local_solsits_assign_grades} sag
+            JOIN {user} stu ON stu.id = sag.studentid
+            JOIN {user} lead ON lead.id = sag.graderid
+            JOIN {local_solsits_assign} sa ON sa.id = sag.solassignmentid
+            JOIN {course_modules} cm ON cm.id = sa.cmid
+            JOIN {assign} a ON a.id = cm.instance
+            JOIN {course} c ON c.id = sa.courseid
+            JOIN {customfield_data} cfmod ON cfmod.instanceid = sa.courseid AND cfmod.fieldid = :module_codeid
+            JOIN {customfield_data} cfay ON cfay.instanceid = sa.courseid AND cfay.fieldid = :academic_yearid
+            WHERE sag.solassignmentid = :solassignmentid";
+            $params['solassignmentid'] = $assignid;
+            $markedassignments = $DB->get_records_sql($sql, $params);
+            if (!$markedassignments) {
+                // This should never happen.
+                mtrace("No grades for {$assignid} found for export");
+                continue;
+            }
+            $firstrecord = reset($markedassignments);
+
+            $item = [
+                'assignment' => [
+                    'sitsref' => $firstrecord->sitsref,
+                    'name' => $firstrecord->assessment_name,
+                    'modulecode' => $firstrecord->modulecode,
+                    'moduleinstance' => $firstrecord->moduleinstance,
+                    'moduletitle' => $firstrecord->moduletitle,
+                    'academic_year' => $firstrecord->academic_year,
+                    'duedate' => $firstrecord->duedate
+                ],
+                'unitleader' => [
+                    'firstname' => $firstrecord->leaderfirstname,
+                    'lastname' => $firstrecord->leaderlastname,
+                    'email' => $firstrecord->leaderemail
+                ],
+                'grades' => []
+            ];
+            foreach ($markedassignments as $markedassignment) {
+                $gradeitem = [
+                    'firstname' => $markedassignment->studentfirstname,
+                    'lastname' => $markedassignment->studentlastname,
+                    'idnumber' => $markedassignment->studentidnumber,
+                    'result' => $markedassignment->converted_grade,
+                    'submissiontime' => time(), // Spoof for now.
+                    'misconduct' => false // Spoof for now.
+                ];
+                $item['grades'][] = $gradeitem;
+            }
+            $toexport[] = $item;
+        }
+
+        return $toexport;
+    }
 }

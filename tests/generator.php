@@ -79,4 +79,32 @@ trait generator {
         ]);
         set_config('grademarkexemptscale', $solentnumeric->id, 'local_solsits');
     }
+
+    /**
+     * Mark, Release and Lock grades for students on this assignment
+     *
+     * @param array $students
+     * @param array $grades
+     * @param object $assign
+     * @param object $moduleleader
+     * @param string $workflowstate ASSIGN_MARKING_WORKFLOW_STATE_ constant
+     * @return void
+     */
+    private function mark_assignments($students, $grades, $assign, $moduleleader,
+            $workflowstate = ASSIGN_MARKING_WORKFLOW_STATE_RELEASED) {
+        $this->setUser($moduleleader);
+        foreach ($students as $x => $student) {
+            $data = new stdClass();
+            $data->grade = $grades[$x];
+            $data->workflowstate = $workflowstate;
+            $assign->testable_apply_grade_to_user($data, $student->id, 0);
+            if ($workflowstate == ASSIGN_MARKING_WORKFLOW_STATE_RELEASED) {
+                $assign->lock_submission($student->id);
+            }
+        }
+        if ($workflowstate == ASSIGN_MARKING_WORKFLOW_STATE_RELEASED) {
+            $gradeitem = $assign->get_grade_item();
+            $gradeitem->set_locked(time(), false, true);
+        }
+    }
 }

@@ -125,8 +125,8 @@ class get_new_grades_task extends scheduled_task {
             'u.id, u.lastname, u.firstname, idnumber', 'idnumber, u.lastname, u.firstname'
         );
         $allgrades = mod_assign_external::get_grades([$assignid]);
-        $allgrades = $allgrades['assignments'];
-
+        // Returns an array of assignments, pick off the first (and only) one.
+        $allgrades = reset($allgrades['assignments']);
         foreach ($students as $student) {
             if (!is_numeric($student->idnumber)) {
                 // Students only have numeric idnumbers. Staff have alphanumeric.
@@ -171,13 +171,11 @@ class get_new_grades_task extends scheduled_task {
      */
     private function user_grade($allgrades, $student, $scaleid): string {
         $grade = (string) 0;
-        foreach ($allgrades as $gv) {
-            foreach ($gv['grades'] as $value) {
-                if ($value['userid'] == $student->id) {
-                    // This is stripping everything after the decimal point - grades in Moodle are stored as decimal numbers: 10.00.
-                    // So this results in 10.
-                    $grade = (string) helper::convert_grade($scaleid, substr($value['grade'], 0, strpos($value['grade'], ".")));
-                }
+        foreach ($allgrades['grades'] as $value) {
+            if ($value['userid'] == $student->id) {
+                // This is stripping everything after the decimal point - grades in Moodle are stored as decimal numbers: 10.00.
+                // So this results in 10.
+                $grade = (string) helper::convert_grade($scaleid, substr($value['grade'], 0, strpos($value['grade'], ".")));
             }
         }
         return $grade;

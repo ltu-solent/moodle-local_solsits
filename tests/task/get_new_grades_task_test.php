@@ -72,10 +72,12 @@ class get_new_grades_task_test extends advanced_testcase {
             $this->getDataGenerator()->enrol_user($students[$x]->id, $course->id, 'student');
             // Mimic grademark scale with various values so we can test convert_grade.
             if ($x < 19) {
-                $grades[$x] = (float)$x;
+                $grades[$x]['grade'] = (float)$x;
             } else {
-                $grades[$x] = 0;
+                $grades[$x]['grade'] = 0;
             }
+            $grades[$x]['feedbackcomments'] = "Comment for {$x}. " . $this->getDataGenerator()->loremipsum;
+            $grades[$x]['feedbackmisconduct'] = random_int(0, 1);
         }
 
         $moduleleader = $this->getDataGenerator()->create_user([
@@ -103,7 +105,7 @@ class get_new_grades_task_test extends advanced_testcase {
             // Test grade has been stored.
             $studentgrade = $assign->get_user_grade($student->id, false);
             $x = substr($student->idnumber, 6);
-            $this->assertEquals($grades[$x], $studentgrade->grade);
+            $this->assertEquals($grades[$x]['grade'], $studentgrade->grade);
         }
         $expectedoutput = 'Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1_0_1, Grader id: ' .
         $moduleleader->id . ', Grade: 0, Student idnumber: 2000000
@@ -158,7 +160,7 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
             // Find x from idnumber.
             $x = substr($student->idnumber, 6);
 
-            $convertedgrade = helper::convert_grade($config->grademarkscale, $grades[$x]);
+            $convertedgrade = helper::convert_grade($config->grademarkscale, $grades[$x]['grade']);
             if ($convertedgrade == -1) {
                 $convertedgrade = 0;
             }
@@ -190,11 +192,11 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
             // Mimic grademarkexempt scale with various values so we can test convert_grade.
             switch ($x) {
                 case 100:
-                    $grades[$x] = null;
+                    $grades[$x]['grade'] = null;
                 case 101:
-                    $grades[$x] = -1;
+                    $grades[$x]['grade'] = -1;
                 default:
-                    $grades[$x] = (float)$x;
+                    $grades[$x]['grade'] = (float)$x;
             }
         }
 
@@ -223,7 +225,7 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
             // Test grade has been stored.
             $studentgrade = $assign->get_user_grade($student->id, false);
             $x = substr($student->idnumber, 6);
-            $this->assertEquals($grades[$x], $studentgrade->grade);
+            $this->assertEquals($grades[$x]['grade'], $studentgrade->grade);
         }
         $expectedoutput = 'Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1_0_1, Grader id: ' .
         $moduleleader->id . ', Grade: 0, Student idnumber: 2000000
@@ -442,7 +444,7 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
             // Find x from idnumber.
             $x = substr($student->idnumber, 6);
 
-            $convertedgrade = helper::convert_grade($config->grademarkexemptscale, $grades[$x]);
+            $convertedgrade = helper::convert_grade($config->grademarkexemptscale, $grades[$x]['grade']);
             $this->assertEquals($convertedgrade, $queuedgrade->converted_grade);
         }
     }
@@ -469,9 +471,9 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
             $this->getDataGenerator()->enrol_user($students[$x]->id, $course->id, 'student');
             // Mimic grademark scale with various values so we can test convert_grade.
             if ($x < 19) {
-                $grades[$x] = (float)$x;
+                $grades[$x]['grade'] = (float)$x;
             } else {
-                $grades[$x] = 0;
+                $grades[$x]['grade'] = 0;
             }
         }
 
@@ -500,7 +502,7 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
             // Test grade has been stored.
             $studentgrade = $assign->get_user_grade($student->id, false);
             $x = substr($student->idnumber, 6);
-            $this->assertEquals($grades[$x], $studentgrade->grade);
+            $this->assertEquals($grades[$x]['grade'], $studentgrade->grade);
         }
         $this->expectOutputString('No grades have been released
 ');
@@ -532,9 +534,9 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
             $this->getDataGenerator()->enrol_user($students[$x]->id, $course->id, 'student');
             // Mimic grademark scale with various values so we can test convert_grade.
             if ($x < 19) {
-                $grades[$x] = (float)$x;
+                $grades[$x]['grade'] = (float)$x;
             } else {
-                $grades[$x] = 0;
+                $grades[$x]['grade'] = 0;
             }
         }
 
@@ -559,7 +561,7 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
             // Test grade has been stored.
             $studentgrade = $assign->get_user_grade($student->id, false);
             $x = substr($student->idnumber, 6);
-            $this->assertEquals($grades[$x], $studentgrade->grade);
+            $this->assertEquals($grades[$x]['grade'], $studentgrade->grade);
         }
 
         $this->expectOutputString('No grades have been released
@@ -592,9 +594,9 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
             $this->getDataGenerator()->enrol_user($students[$x]->id, $course->id, 'student');
             // Mimic grademark scale with various values so we can test convert_grade.
             if ($x < 19) {
-                $grades[$x] = (float)$x;
+                $grades[$x]['grade'] = (float)$x;
             } else {
-                $grades[$x] = 0;
+                $grades[$x]['grade'] = 0;
             }
         }
 
@@ -621,7 +623,7 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
             // Test grade has been stored.
             $studentgrade = $assign->get_user_grade($student->id, false);
             $x = substr($student->idnumber, 6);
-            $this->assertEquals($grades[$x], $studentgrade->grade);
+            $this->assertEquals($grades[$x]['grade'], $studentgrade->grade);
         }
 
         $this->execute_task('\local_solsits\task\get_new_grades_task');

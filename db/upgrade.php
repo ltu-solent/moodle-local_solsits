@@ -214,5 +214,21 @@ function xmldb_local_solsits_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2023040505, 'local', 'solsits');
     }
 
+    if ($oldversion < 2023040508) {
+        $table = new xmldb_table('local_solsits_assign_grades');
+        $field = new xmldb_field('response', XMLDB_TYPE_TEXT, null, null, false, null, null);
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'message');
+        }
+        $field = new xmldb_field('response_code', XMLDB_TYPE_CHAR, 255, null, false, false, null);
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'response');
+        }
+        $field = new xmldb_field('processed');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+    }
+
     return true;
 }

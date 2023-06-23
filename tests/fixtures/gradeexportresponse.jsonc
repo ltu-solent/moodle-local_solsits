@@ -1,0 +1,32 @@
+{
+    "sitsref": "ABC101_A_SEM1_2023/24_ABC10101_002_0",
+    "grades": [
+        {
+            "moodlestudentid": 57,
+            "response": "SUCCESS",
+            "message": ""
+        },
+        {
+            "moodlestudentid": 58,
+            "response": "FAILED",
+            "message": "Mark exists in Student Record System for asssement: {studentidnumber}||Mark value: {whatever's in SITS}",
+            // Example messages found in production from Quercus.
+            "message2": "Failed to validate course details against Live Link for student id {studentidnumber} and module id {moduleinstanceid}",
+            "message3": "Exception for student id {studentidnumber} is Could not find a part of the path ...",
+            "message4": "Duplicate data sent through from SOL: {studentidnumber}||{moduleinstanceid}",
+            "message5": "Unable to retrive course for student {studentidnumber}. Exception is Warning: Student not found",
+            "message6": "Failed to process student id {studentidnumber}",
+            "message7": "Grade exists in Student Record System for assessment: {studentidnumber}||{moduleinstanceid}, grade value: {grade}",
+            "message8": "Failed to validate assessment sitting code. Code should be fir sitting only for student id: {studentidnumber} and module id: {moduleinstanceid}",
+            "message9": "Please contact Integration Services Team. Exception for student id {studentidnumber} is The ADO.NET provider with invariant name 'Oracle.ManagedDataAccess.Client' is eith not registered in the machine or application config file, or could not be loaded. See the inner exception for details",
+            "message10": "Student status for assessment shows as {studentidnumber}||{moduleinstanceid}, status value: EXEMPT_PREV",
+            "message11": "Student {studentidnumber} not rolled over. Please contact Student Registry",
+            "message12": "Resit grade already exists in Student Record System for assessment: {studentidnumber}||{moduleinstanceid}, grade value: {grade}",
+            "message13": "No student_curriculum record found.",
+            "message14": "No module instance code specified where multiple module instance from a module exist in student curriculum"
+        }
+    ],
+    "status": "SUCCESS",
+    "message": "", // Error message for whole transaction e.g. bad request
+    "errorcode": "" // Perhaps something that can help narrow down where the failure is.
+}

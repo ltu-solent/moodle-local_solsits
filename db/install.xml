@@ -41,9 +41,8 @@
                 <FIELD NAME="graderid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true"  SEQUENCE="false"/>
                 <FIELD NAME="studentid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false"/>
                 <FIELD NAME="converted_grade" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false"/>
-                <FIELD NAME="response_code" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="response" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-                <FIELD NAME="processed" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+                <FIELD NAME="response" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+                <FIELD NAME="message" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
                 <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false"/>
                 <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false"/>
             </FIELDS>

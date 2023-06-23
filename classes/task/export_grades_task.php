@@ -26,6 +26,7 @@
 namespace local_solsits\task;
 
 use core\task\scheduled_task;
+use local_solsits\sitsassign;
 
 /**
  * Get newly released grades. Used in conjunction with export_grades.
@@ -46,6 +47,16 @@ class export_grades_task extends scheduled_task {
      * @return void
      */
     public function execute() {
-        global $DB;
+        $retrylist = sitsassign::get_retry_list();
+        foreach ($retrylist as $sitsassignid) {
+            $sitsassign = new sitsassign($sitsassignid);
+            if (!$sitsassign) {
+                continue;
+            }
+            $grades = $sitsassign->get_queued_grades_for_export();
+            // Post grades to SITS.
+            // Receive response.
+            // Update grade records with individual responses.
+        }
     }
 }

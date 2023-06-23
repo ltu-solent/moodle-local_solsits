@@ -25,7 +25,11 @@
 
 namespace local_solsits;
 
+defined('MOODLE_INTERNAL') || die();
+global $CFG;
+
 use stdClass;
+use mod_assign_testable_assign;
 
 trait generator {
     /**
@@ -84,8 +88,8 @@ trait generator {
      * Mark, Release and Lock grades for students on this assignment
      *
      * @param array $students
-     * @param array $grades
-     * @param object $assign
+     * @param array $grades Includes grade and feedback
+     * @param mod_assign_testable_assign $assign
      * @param object $moduleleader
      * @param string $workflowstate ASSIGN_MARKING_WORKFLOW_STATE_ constant
      * @return void
@@ -95,8 +99,14 @@ trait generator {
         $this->setUser($moduleleader);
         foreach ($students as $x => $student) {
             $data = new stdClass();
-            $data->grade = $grades[$x];
+            $data->grade = $grades[$x]['grade'];
             $data->workflowstate = $workflowstate;
+
+            // Add some feedback.
+            $data->misconduct_check = $grades[$x]['feedbackmisconduct'] ?? 0;
+            $data->assignfeedbackcomments_editor['text'] = $grades[$x]['feedbackcomments'] ?? '';
+            $data->assignfeedbackcomments_editor['format'] = FORMAT_HTML;
+
             $assign->testable_apply_grade_to_user($data, $student->id, 0);
             if ($workflowstate == ASSIGN_MARKING_WORKFLOW_STATE_RELEASED) {
                 $assign->lock_submission($student->id);

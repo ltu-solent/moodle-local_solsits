@@ -1,0 +1,34 @@
+{
+    "module": {
+        "modulecode": "ABC101",
+        "moduleinstanceid": "ABC101_A_SEM1_2023/24",
+        "moduletitle": "Baking bread",
+        "modulestartdate": "21/09/2023 00:00:00",
+        "moduleenddate": "18/12/2023 23:59:59",
+        "academic_year": "2023/24"
+    },
+    "assignment": {
+        "sitsref": "ABC101_A_SEM1_2023/24_ABC10101_002_0",
+        "assignmenttitle": "Bake a loaf",
+        "duedate": "23/11/2023 16:00:00",
+        "assignid": 58,
+        "reattempt": 0,
+        "sequence": 0
+    },
+    "unitleader": {
+        "firstname": "Paul",
+        "lastname": "Hollywood",
+        "email": "p.hollywood@bread.com"
+    },
+    "grades": [
+        {
+            "firstname": "Stuart",
+            "lastname": "Dent",
+            "studentidnumber": 19999999,
+            "moodlestudentid": 57,
+            "result": 68,
+            "submissiontime": "22/06/2023 15:59:40",
+            "misconduct": "No" // Yes/No
+        }
+    ]
+}

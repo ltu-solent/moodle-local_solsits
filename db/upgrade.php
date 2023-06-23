@@ -228,6 +228,7 @@ function xmldb_local_solsits_upgrade($oldversion) {
         if ($dbman->field_exists($table, $field)) {
             $dbman->drop_field($table, $field);
         }
+        upgrade_plugin_savepoint(true, 2023040508, 'local', 'solsits');
     }
 
     return true;

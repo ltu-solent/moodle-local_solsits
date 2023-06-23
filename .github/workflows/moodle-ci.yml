@@ -63,6 +63,7 @@ jobs:
 
       - name: Install moodle-plugin-ci
         run: |
+          moodle-plugin-ci add-plugin --branch main ltu-solent/moodle-assign_feedback_misconduct
           moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
         env:
           DB: ${{ matrix.database }}

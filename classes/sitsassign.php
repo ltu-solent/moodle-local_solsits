@@ -488,6 +488,38 @@ class sitsassign extends persistent {
     }
 
     /**
+     * Update grade in local_solsits_assign_grades for individual student
+     *
+     * @param object $grade appropriate data object for table.
+     * @return bool Success or not.
+     */
+    public function update_grade($grade) {
+        global $DB;
+        $exists = $DB->record_exists('local_solsits_assign_grades', [
+            'solassignmentid' => $grade->solassignmentid,
+            'studentid' => $grade->studentid
+        ]);
+        if (!$exists) {
+            return false;
+        }
+        return $DB->update_record('local_solsits_assign_grades', $grade);
+    }
+
+    /**
+     * Get grade from local_solsits_assign_grades for individual student.
+     *
+     * @param string $studentid
+     * @return object|false
+     */
+    public function get_grade($studentid) {
+        global $DB;
+        return $DB->get_record('local_solsits_assign_grades', [
+            'solassignmentid' => $this->get('id'),
+            'studentid' => $studentid
+        ]);
+    }
+
+    /**
      * Get list of solassignmentids for exporting
      *
      * @param integer $limit

@@ -108,8 +108,8 @@ class local_solsits_generator extends component_generator_base {
         }
         $record = (object)array_merge([
             'converted_grade' => 0,
-            'response_code' => '',
-            'response' => '',
+            'message' => '',
+            'response' => null,
             'timecreated' => time(),
             'timemodified' => time()
         ], (array)$record);

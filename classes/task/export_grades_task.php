@@ -26,7 +26,9 @@
 namespace local_solsits\task;
 
 use core\task\scheduled_task;
+use local_solsits\ais_client;
 use local_solsits\sitsassign;
+use stdClass;
 
 /**
  * Get newly released grades. Used in conjunction with export_grades.
@@ -42,21 +44,85 @@ class export_grades_task extends scheduled_task {
     }
 
     /**
+     * Get ais_client (curl)
+     *
+     * @return ais_client
+     */
+    public function get_client(): ais_client {
+        // In the test, mock get_client and set the response to whatever we want.
+        $config = get_config('local_solsits');
+        // Set token, urls.
+        $client = new ais_client([], $config->ais_exportgrades_url);
+        return $client;
+    }
+
+    /**
      * {@inheritDoc}
      *
      * @return void
      */
     public function execute() {
+        global $DB;
         $retrylist = sitsassign::get_retry_list();
+        if (empty($retrylist)) {
+            mtrace("No grades to export to SITS");
+            return;
+        }
+        $client = $this->get_client();
         foreach ($retrylist as $sitsassignid) {
             $sitsassign = new sitsassign($sitsassignid);
             if (!$sitsassign) {
+                mtrace("Sitsassign doesn't exist");
                 continue;
             }
+            [$course, $cm] = get_course_and_cm_from_cmid($sitsassign->get('cmid'));
+            mtrace("Begin Marks upload {$course->shortname} and assignment {$sitsassign->get('sitsref')}");
             $grades = $sitsassign->get_queued_grades_for_export();
-            // Post grades to SITS.
-            // Receive response.
+            // Post grades to SITS and receive response.
+            $response = $client->export_grades($grades);
+            if (!$response) {
+                mtrace("Error! unable to export grades for {$sitsassign->get('sitsref')}");
+                continue;
+            }
             // Update grade records with individual responses.
+            $response = json_decode($response);
+            $sitsref = $response->sitsref;
+            // Check we're getting the correct assignment info back.
+            if ($sitsref != $sitsassign->get('sitsref')) {
+                mtrace("Something has gone horribly wrong with {$sitsref} trying to update {$sitsassign->get('sitsref')}");
+                continue;
+            }
+            $grades = $response->grades;
+            if ($response->status == 'FAILED') {
+                mtrace("- FAILED ($response->errorcode). {$response->message}");
+            }
+            foreach ($grades as $grade) {
+                $gradeitem = $sitsassign->get_grade($grade->moodlestudentid);
+                if (!$gradeitem) {
+                    // This shouldn't happen.
+                    mtrace("Grade item not found for userid({$grade->moodlestudentid}) in local_solsits_assign_grades");
+                    continue;
+                }
+                $gradeitem->message = $grade->message;
+                $gradeitem->response = $grade->response;
+                $sitsassign->update_grade($gradeitem);
+                $student = $DB->get_record('user', ['id' => $grade->moodlestudentid]);
+                if ($response->status == 'FAILED') {
+                    // Don't output individual results.
+                    continue;
+                }
+                if ($grade->response == 'SUCCESS') {
+                    mtrace("- {$student->firstname} {$student->lastname} " .
+                    "({$student->idnumber}): SUCCESS");
+                } else if ($grade->response == 'FAILED') {
+                    mtrace("- {$student->firstname} {$student->lastname} " .
+                    "({$student->idnumber}): FAILED - {$grade->message}");
+                } else {
+                    mtrace("An invalid response was received {$grade->response}");
+                }
+            }
+            mtrace("End Marks upload {$course->shortname} and assignment {$sitsassign->get('sitsref')}");
         }
+        \core\task\manager::clear_static_caches();
     }
 }

@@ -55,6 +55,7 @@ class templatequeue_table extends table_sql {
             'startdate',
             'enddate',
             'visibility',
+            'timecreated',
             'pagetype',
             'session',
             'allocatedtemplate',
@@ -68,6 +69,7 @@ class templatequeue_table extends table_sql {
             new lang_string('startdate', 'local_solsits'),
             new lang_string('enddate', 'local_solsits'),
             new lang_string('visibility', 'local_solsits'),
+            new lang_string('timecreated'),
             new lang_string('pagetype', 'local_solsits'),
             new lang_string('session', 'local_solsits'),
             new lang_string('allocatedtemplate', 'local_solsits'),
@@ -181,6 +183,16 @@ class templatequeue_table extends table_sql {
      */
     public function col_startdate($row) {
         return userdate($row->startdate);
+    }
+
+    /**
+     * Output course creation time
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_timecreated($row) {
+        return userdate($row->timecreated);
     }
 
     /**

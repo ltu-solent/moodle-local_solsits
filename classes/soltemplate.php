@@ -183,7 +183,7 @@ class soltemplate extends persistent {
             }
         }
 
-        $select = "c.id, c.visible, c.shortname, c.fullname, c.startdate, c.enddate,
+        $select = "c.id, c.visible, c.shortname, c.fullname, c.startdate, c.enddate, c.timecreated,
         cfdpt.value pagetype, cfdt.value templateapplied, cfday.value academic_year ";
 
         $from = "{course} c

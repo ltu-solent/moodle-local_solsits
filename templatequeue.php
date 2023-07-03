@@ -62,6 +62,6 @@ $filterform->display();
 
 $table = new \local_solsits\tables\templatequeue_table('templatequeue', $params);
 
-$table->out(5, false);
+$table->out(100, false);
 
 echo $OUTPUT->footer();

@@ -51,7 +51,10 @@ class template_filter_form extends moodleform {
             'valuehtmlcallback' => function($value) {
                 global $DB;
                 $course = $DB->get_record('course', ['id' => $value]);
-                return $course->shortname . ': ' . $course->fullname;
+                if ($course) {
+                    return $course->shortname . ': ' . $course->fullname;
+                }
+                return false;
             }
         ];
         $mform->addElement('autocomplete', 'selectedcourses',
@@ -70,5 +73,48 @@ class template_filter_form extends moodleform {
         ] + helper::get_session_menu();
         $mform->addElement('select', 'session', new lang_string('session', 'local_solsits'), $options);
         $this->add_action_buttons(false, get_string('filter', 'local_solsits'));
+    }
+
+    /**
+     * Manually set values for fields so it can work with both get and post
+     *
+     * @return void
+     */
+    public function definition_after_data() {
+        $mform = $this->_form;
+        $customdata = $this->_customdata;
+        $selectedcourses = $mform->getElement('selectedcourses');
+        $selectedcourses->setValue($customdata['selectedcourses']);
+        $pagetype = $mform->getElement('pagetype');
+        $pagetype->setValue($customdata['pagetype']);
+        $session = $mform->getElement('session');
+        $session->setValue($customdata['session']);
+    }
+
+    public function validation($data, $files) {
+        $errors = parent::validation($data, $files);
+        if (!empty($data['pagetype'])) {
+            $pagetypemenu = helper::get_pagetypes_menu();
+            if (!isset($pagetypemenu[$data['pagetype']])) {
+                $errors['pagetype'] = get_string('invalidpagetype', 'local_solsits');
+            }
+        }
+
+        if (!empty($data['session'])) {
+            $sessionmenu = helper::get_session_menu();
+            if (!isset($sessionmenu[$data['session']])) {
+                $errors['session'] = get_string('invalidsession', 'local_solsits');
+            }
+        }
+
+        if (!empty($data['selectedcourses'])) {
+            foreach ($data['selectedcourses'] as $selectedcourse) {
+                if (!is_numeric($selectedcourse)) {
+                    $errors['selectedcourses'] = get_string('invalidcourseid', 'local_solsits');
+                }
+            }
+        }
+
+        return $errors;
     }
 }

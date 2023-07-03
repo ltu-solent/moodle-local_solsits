@@ -91,6 +91,7 @@ $string['gradingdueinterval_desc'] = 'Grading due date interval in weeks';
 
 $string['immediately'] = 'Immediately';
 $string['info'] = 'Info';
+$string['invalidcourseid'] = 'Invalid courseid';
 $string['invalidpagetype'] = 'Invalid pagetype';
 $string['invalidsession'] = 'Invalid session';
 $string['invalidstudent'] = 'Student IDNumber invalid of {$a->idnumber} for {$a->firstname} {$a->lastname}';

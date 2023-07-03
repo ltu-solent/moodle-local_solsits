@@ -27,6 +27,7 @@ namespace local_solsits\tables;
 
 use html_writer;
 use lang_string;
+use local_solsits\helper;
 use local_solsits\soltemplate;
 use moodle_url;
 use table_sql;
@@ -78,11 +79,38 @@ class templatequeue_table extends table_sql {
         $this->define_columns($columns);
         $this->define_headers($columnheadings);
         $this->collapsible(false);
-        $this->define_baseurl(new moodle_url("/local/solsits/templatequeue.php"));
 
-        [$select, $from, $where, $params] = soltemplate::get_templateapplied_sql($filters['pagetype'], $filters['session']);
-        if ($filters['selectedcourses']) {
-            [$insql, $inparams] = $DB->get_in_or_equal($filters['selectedcourses'], SQL_PARAMS_NAMED);
+        // Filter validation.
+        $pagetype = $filters['pagetype'] ?? '';
+        $pagetypemenu = helper::get_pagetypes_menu();
+        if ($pagetype != '') {
+            if (!isset($pagetypemenu[$pagetype])) {
+                $pagetype = '';
+            }
+        }
+        $session = $filters['session'] ?? '';
+        $sessionmenu = helper::get_session_menu();
+        if ($session != '') {
+            if (!isset($sessionmenu[$session])) {
+                $session = '';
+            }
+        }
+        $selectedcourses = $filters['selectedcourses'] ?? [];
+
+        // Ensure the filter form elements are replicated for paging links.
+        $baseurl = new moodle_url("/local/solsits/templatequeue.php");
+        $baseurl->param('pagetype', $pagetype);
+        $baseurl->param('session', $session);
+        foreach ($selectedcourses as $selectedcourse) {
+            // The moodle_url object doesn't accept params like selectedcourses[]=12&selectedcourses[]=13,
+            // so inject the courseid as part of the key name to make unique params.
+            $baseurl->param('selectedcourses[' . $selectedcourse . ']', $selectedcourse);
+        }
+        $this->define_baseurl($baseurl);
+
+        [$select, $from, $where, $params] = soltemplate::get_templateapplied_sql($pagetype, $session);
+        if ($selectedcourses) {
+            [$insql, $inparams] = $DB->get_in_or_equal($selectedcourses, SQL_PARAMS_NAMED);
             if ($where != '') {
                 $where .= " AND c.id $insql ";
             } else {

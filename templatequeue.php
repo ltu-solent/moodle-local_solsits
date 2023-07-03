@@ -30,32 +30,38 @@ admin_externalpage_setup('local_solsits/templatequeue', '', null, '/local/solsit
 $context = context_system::instance();
 require_capability('local/solsits:managetemplates', $context);
 
+// When paging results with the filter form, the form won't find the params in the url, so
+// explicitly set them.
+$pagetype = optional_param('pagetype', '', PARAM_ALPHANUMEXT);
+$session = optional_param('session', '', PARAM_TEXT);
+$selectedcourses = optional_param_array('selectedcourses', [], PARAM_INT);
+$params = [
+    'pagetype' => $pagetype,
+    'session' => $session,
+    'selectedcourses' => $selectedcourses
+];
+
 $PAGE->set_context($context);
 $PAGE->set_heading(get_string('templatequeue', 'local_solsits'));
 $PAGE->set_pagelayout('admin');
 $PAGE->set_title(get_string('templatequeue', 'local_solsits'));
 $PAGE->set_url($CFG->wwwroot.'/local/solsits/templatequeue.php');
 
+$filterform = new \local_solsits\forms\template_filter_form(null, $params);
+if ($filterdata = $filterform->get_data()) {
+    $params['pagetype'] = $filterdata->pagetype ?? '';
+    $params['session'] = $filterdata->session ?? '';
+    $params['selectedcourses'] = $filterdata->selectedcourses ?? [];
+}
+
 echo $OUTPUT->header();
-$params = [
-    'pagetype' => '',
-    'session' => '',
-    'selectedcourses' => []
-];
 
 echo html_writer::div(get_string('templatequeuehelp', 'local_solsits'));
-
-$filterform = new \local_solsits\forms\template_filter_form(null);
-if ($filterdata = $filterform->get_data()) {
-    $params['pagetype'] = $filterdata->pagetype;
-    $params['session'] = $filterdata->session;
-    $params['selectedcourses'] = $filterdata->selectedcourses;
-}
 
 $filterform->display();
 
 $table = new \local_solsits\tables\templatequeue_table('templatequeue', $params);
 
-$table->out(100, false);
+$table->out(5, false);
 
 echo $OUTPUT->footer();

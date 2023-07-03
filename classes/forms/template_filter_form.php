@@ -91,6 +91,13 @@ class template_filter_form extends moodleform {
         $session->setValue($customdata['session']);
     }
 
+    /**
+     * Form validation
+     *
+     * @param array $data
+     * @param array $files
+     * @return array List of errors
+     */
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
         if (!empty($data['pagetype'])) {

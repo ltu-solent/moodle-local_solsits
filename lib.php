@@ -23,6 +23,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_solsits\helper;
 use local_solsits\sitsassign;
 
 /**
@@ -123,4 +124,18 @@ function local_solsits_pre_course_module_delete($cm) {
 
     // Alternatively use the event course_module_deleted.
     return;
+}
+
+/**
+ * Add some contextual help as alerts
+ *
+ * @param array $alerts An array of \core\output\notification objects
+ * @return array An array of \core\output\notification objects
+ */
+function local_solsits_solentzone_alerts($alerts) {
+    global $COURSE, $DB, $PAGE;
+    if ($PAGE->pagetype == 'mod-assign-grading') {
+        $alerts = array_merge($alerts, helper::gradingalerts($PAGE->cm, $COURSE, $PAGE->context));
+    }
+    return $alerts;
 }

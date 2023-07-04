@@ -25,6 +25,7 @@
 
 namespace local_solsits;
 
+use assign;
 use context_module;
 use context_system;
 use core_course\customfield\course_handler;
@@ -471,6 +472,80 @@ class helper {
             }
         }
         return $converted;
+    }
+
+    /**
+     * Grading alerts
+     *
+     * @param object $cm
+     * @param object $course
+     * @param object $context
+     * @return array
+     */
+    public static function gradingalerts($cm, $course, $context): array {
+        $alerts = [];
+        $issummative = static::is_summative_assignment($cm->id);
+        if (!$issummative) {
+            return $alerts;
+        }
+        $issitsassignment = static::is_sits_assignment($cm->id);
+        $srs = get_string('quercus', 'local_solsits');
+        if ($issitsassignment) {
+            $srs = get_string('gatewaysits', 'local_solsits');
+        }
+        $assign = new assign($context, $cm, $course);
+        if ($assign->get_grade_item()->locked == 0) {
+            $text = get_config('local_solsits', 'assignmentmessage_marksuploadinclude');
+            $text = str_replace('{SRS}', $srs, $text);
+            $alerts[] = new \core\output\notification(clean_text($text), \core\notification::INFO);
+        }
+
+        // I would call quercus alerts here, but that's to do with sittings dates,
+        // which we're not much interested in anymore.
+
+        return $alerts;
+    }
+
+    /**
+     * Quercus specific alerts
+     *
+     * @param object $assign Assign object
+     * @return array
+     */
+    private static function quercusalerts($assign): array {
+        global $DB;
+        $alerts = [];
+        $locked = $assign->get_grade_item()->locked;
+        if ($locked == 0) {
+            $sitting = $DB->get_record('local_quercus_tasks_sittings',
+                ['assign' => $assign->get_course_module()->instance],
+                'sitting_desc, externaldate',
+                IGNORE_MISSING);
+            print_r($sitting);
+            if ($sitting->sitting_desc != 'FIRST_SITTING') {
+                if ($sitting->externaldate != null) {
+                    $releaseavailable = DateTime::createFromFormat('U', $sitting->externaldate);
+                    $boardbuffer = get_config('local_quercus_tasks', 'boardbuffer') ?? 14;
+                    $modifystring = '+' . $boardbuffer . ' days';
+                    $releaseavailable  = $releaseavailable->modify($modifystring);
+                    $releaseavailable = $releaseavailable->getTimestamp();
+                    $alerts[] = new \core\output\notification(
+                        get_string('releasedate', 'local_solsits', [
+                                'date' => date('d/m/Y', $releaseavailable),
+                                'days' => $boardbuffer
+                        ]),
+                        \core\notification::SUCCESS);
+                } else {
+                    echo "Null";
+                    $alerts[] = new \core\output\notification(
+                        get_string('noboard', 'local_solsits'),
+                        \core\notification::SUCCESS
+                    );
+                }
+            }
+        }
+        return $alerts;
+
     }
 }
 

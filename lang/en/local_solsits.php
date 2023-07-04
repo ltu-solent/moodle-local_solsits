@@ -32,6 +32,10 @@ $string['assessmentcode'] = 'Assessment code';
 $string['assessmentname'] = 'Assessment name';
 $string['assignmentsettings'] = 'Assignment settings';
 $string['assignmentsettings_desc'] = 'Settings to help manage assignment creation';
+$string['assignmentmessagesettings'] = 'Assignment messages settings';
+$string['assignmentmessagesettings_desc'] = 'Messages relating to Summative assignments to help guide processes.';
+$string['assignmentmessage_marksuploadinclude'] = 'Marks upload message';
+$string['assignmentmessage_marksuploadinclude_desc'] = 'Message appears on grading page to remind marks about the Marks upload process.';
 $string['assignmenttitle'] = 'Assignment title';
 $string['availablefrom'] = 'Available from';
 
@@ -74,6 +78,7 @@ $string['externaldate'] = 'External date';
 $string['filter'] = 'Filter';
 $string['filterassignments'] = 'Filter assignments';
 
+$string['gatewaysits'] = 'Gateway (SITS)';
 $string['generalsettings'] = 'General settings';
 $string['getnewgradestask'] = 'Get newly released grades';
 $string['graderidnotexists'] = 'Graderid user does not exist';
@@ -108,6 +113,7 @@ $string['modifiedby'] = 'Modified by';
 
 $string['newsavedtemplate'] = 'New template saved';
 $string['newsoltemplate'] = 'New template';
+$string['noboard'] = '<p>No board date is available (grades cannot be released). Please contact student.registry@solent.ac.uk.</p>';
 $string['nolongerexists'] = 'No longer exists';
 $string['noselection'] = 'No selection';
 $string['notemplate'] = 'No template';
@@ -130,6 +136,9 @@ $string['reattempt4'] = 'Fourth reattempt';
 $string['reattempt5'] = 'Fifth reattempt';
 $string['reattempt6'] = 'Sixth reattempt';
 $string['recreate'] = 'Recreate Assignment activity';
+$string['releasedate'] = 'Grades cannot be released until {$a->date} ({$a->days} days after the board has passed).';
+
+$string['quercus'] = 'Quercus';
 
 $string['scale'] = 'Scale';
 $string['selectapagetype'] = 'Select a pagetype';

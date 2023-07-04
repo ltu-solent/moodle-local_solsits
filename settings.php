@@ -117,6 +117,20 @@ if ($hassiteconfig) {
     $options = array_combine(range(1, 30), range(1, 30));
     $settings->add(new admin_setting_configselect($name, $title, $description, 1, $options));
 
+    // Assignment message settings.
+    $name = 'local_solsits/assignmentmessagesettings';
+    $title = new lang_string('assignmentmessagesettings', 'local_solsits');
+    $description = new lang_string('assignmentmessagesettings_desc', 'local_solsits');
+    $settings->add(new admin_setting_heading($name, $title, $description));
+
+    $name = 'local_solsits/assignmentmessage_marksuploadinclude';
+    $title = new lang_string('assignmentmessage_marksuploadinclude', 'local_solsits');
+    $description = new lang_string('assignmentmessage_marksuploadinclude_desc', 'local_solsits');
+    $settings->add(new admin_setting_configtextarea($name, $title, $description, '<p>Grades for this assignment will be sent to Quercus once they have been released to students in SOL.</p>
+    <p><strong>Please do not add marks out of 100 in Turnitin</strong> as it can cause issues with grades sent to Quercus.</p>
+    <p>For technical guidance please visit refer to the <strong><a href="https://learn.solent.ac.uk/staff-help" target="_blank" rel="noopener noreferrer">assignment help</a></strong>
+     or contact ltu@solent.ac.uk (ext. 5100). For amendments to dates please email student.registry@solent.ac.uk.</p>'));
+
     $ADMIN->add('local_solsitscat', $settings);
 
     $name = 'local_solsits/managetemplates';

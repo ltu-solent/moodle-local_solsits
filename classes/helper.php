@@ -521,7 +521,6 @@ class helper {
                 ['assign' => $assign->get_course_module()->instance],
                 'sitting_desc, externaldate',
                 IGNORE_MISSING);
-            print_r($sitting);
             if ($sitting->sitting_desc != 'FIRST_SITTING') {
                 if ($sitting->externaldate != null) {
                     $releaseavailable = DateTime::createFromFormat('U', $sitting->externaldate);

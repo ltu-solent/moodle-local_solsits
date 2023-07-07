@@ -494,12 +494,22 @@ class helper {
             $srs = get_string('gatewaysits', 'local_solsits');
         }
         $assign = new assign($context, $cm, $course);
-        if ($assign->get_grade_item()->locked == 0) {
+        $locked = $assign->get_grade_item()->locked;
+        if ($locked == 0) {
             $text = get_config('local_solsits', 'assignmentmessage_marksuploadinclude');
             $text = str_replace('{SRS}', $srs, $text);
             $alerts[] = new \core\output\notification(clean_text($text), \core\notification::INFO);
         }
-
+        $text = get_config('local_solsits', 'assignmentmessage_reattempt');
+        if ($issitsassignment) {
+            $sitsassign = sitsassign::get_record(['cmid' => $cm->id]);
+            $reattempt = $sitsassign->get('reattempt');
+            if (($reattempt > 0) && $locked == 0) {
+                $reattemptstring = get_string('reattempt' . $reattempt, 'local_solsits');
+                $text = str_replace('{REATTEMPT}', $reattemptstring, $text);
+                $alerts[] = new \core\output\notification(clean_text($text), \core\notification::ERROR);
+            }
+        }
         // I would call quercus alerts here, but that's to do with sittings dates,
         // which we're not much interested in anymore.
 

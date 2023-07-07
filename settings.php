@@ -133,6 +133,16 @@ if ($hassiteconfig) {
      rel="noopener noreferrer">assignment help</a></strong>
      or contact ltu@solent.ac.uk (ext. 5100). For amendments to dates please email student.registry@solent.ac.uk.</p>'));
 
+    $name = 'local_solsits/assignmentmessage_reattempt';
+    $title = new lang_string('assignmentmessage_reattempt', 'local_solsits');
+    $description = new lang_string('assignmentmessage_reattempt_desc', 'local_solsits');
+    $settings->add(
+        new admin_setting_configtextarea(
+            $name, $title, $description,
+            'Please do not release these {REATTEMPT} submissions before the first attempt submissions have been marked and released.'
+        )
+    );
+
     $ADMIN->add('local_solsitscat', $settings);
 
     $name = 'local_solsits/managetemplates';

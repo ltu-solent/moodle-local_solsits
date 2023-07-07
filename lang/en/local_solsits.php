@@ -36,6 +36,8 @@ $string['assignmentmessagesettings'] = 'Assignment messages settings';
 $string['assignmentmessagesettings_desc'] = 'Messages relating to Summative assignments to help guide processes.';
 $string['assignmentmessage_marksuploadinclude'] = 'Marks upload message';
 $string['assignmentmessage_marksuploadinclude_desc'] = 'Message appears on grading page to remind marks about the Marks upload process.';
+$string['assignmentmessage_reattempt'] = 'Reattempt message';
+$string['assignmentmessage_reattempt_desc'] = 'Message appears on the grading page when this is a reattempt, to warn about early release.';
 $string['assignmenttitle'] = 'Assignment title';
 $string['availablefrom'] = 'Available from';
 

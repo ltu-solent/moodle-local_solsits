@@ -139,7 +139,8 @@ if ($hassiteconfig) {
     $settings->add(
         new admin_setting_configtextarea(
             $name, $title, $description,
-            'Please do not release these {REATTEMPT} submissions before the first attempt submissions have been marked and released.'
+            'Please do not release these {REATTEMPT} submissions before the first attempt submissions have been ' .
+            'marked and released.'
         )
     );
 

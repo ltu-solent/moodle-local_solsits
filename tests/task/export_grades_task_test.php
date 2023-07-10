@@ -44,6 +44,7 @@ require_once($CFG->dirroot . '/local/solsits/tests/task/task_trait.php');
 
 /**
  * Export grades task test
+ * @group sol
  */
 class export_grades_task_test extends advanced_testcase {
     use generator;

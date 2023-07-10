@@ -29,6 +29,7 @@ use advanced_testcase;
 
 /**
  * AIS client test
+ * @group sol
  */
 class ais_client_test extends advanced_testcase {
     /**

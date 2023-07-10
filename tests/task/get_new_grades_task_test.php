@@ -43,6 +43,7 @@ require_once($CFG->dirroot . '/mod/assign/tests/generator.php');
  * Get new grades for export test
  *
  * @covers \local_solsits\task\get_new_grades
+ * @group sol
  */
 class get_new_grades_task_test extends advanced_testcase {
 

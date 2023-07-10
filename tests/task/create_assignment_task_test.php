@@ -40,6 +40,7 @@ require_once($CFG->dirroot . '/local/solsits/tests/task/task_trait.php');
  * Test create assignment task
  *
  * @covers \local_solsits\create_assignment_task
+ * @group sol
  */
 class create_assignment_task_test extends advanced_testcase {
     use generator;

@@ -32,6 +32,7 @@ use core_date;
 use DateTime;
 use lang_string;
 use mod_assign_external;
+use plagiarism_plugin_turnitin;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -282,6 +283,7 @@ class sitsassign extends persistent {
         if ($cm) {
             $this->set('cmid', $cm->id);
             $this->save();
+            $this->save_tii();
             return true;
         } else {
             mtrace('Failed to create Course module for ' . $course->shortname . ". {$this->get('sitsref')}");
@@ -456,6 +458,32 @@ class sitsassign extends persistent {
         $this->formdata->coursemodule = '';
         $this->calculatedates();
 
+    }
+
+    /**
+     * If Turnitin is enabled, save the configuration for it
+     *
+     * @return void
+     */
+    private function save_tii() {
+        // TII isn't installed. Nothing to do.
+        if (!class_exists('plagiarism_plugin_turnitin')) {
+            return;
+        }
+        $tiiform = new stdClass();
+        $tiiform->modulename = 'assign';
+        $tiiform->coursemodule = $this->get('cmid');
+        $tiienabled = \plagiarism_plugin_turnitin::get_config_settings('mod_assign');
+        if (empty($tiienabled)) {
+            return;
+        }
+        $tii = new \plagiarism_plugin_turnitin();
+        $defaults = $tii->get_settings();
+        foreach ($defaults as $name => $value) {
+            $tiiform->$name = $value;
+        }
+        $course = get_course($this->get('courseid'));
+        \plagiarism_turnitin_coursemodule_edit_post_actions($tiiform, $course);
     }
 
     /**

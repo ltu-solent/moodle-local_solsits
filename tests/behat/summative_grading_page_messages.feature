@@ -137,3 +137,42 @@ Feature: Guidance message is displayed to those who can view the grading page
     And I follow "View all submissions"
     Then I should see "Released" in the "I'm the student1 submission" "table_row"
     And I should not see "Please do not release these First reattempt submissions before the first attempt submissions have been marked and released."
+
+  Scenario: Locked and released notification visible to teachers for summative assignments
+    Given the following "activity" exists:
+      | activity                            | assign |
+      | name                                | SITS1  |
+      | course                              | C1     |
+      | idnumber                            | SITS1  |
+      | assignsubmission_onlinetext_enabled | 1      |
+      | markingworkflow                     | 1      |
+    And the following "mod_assign > submissions" exist:
+      | assign                | user      | onlinetext                   |
+      | SITS1                 | student1  | I'm the student1 submission  |
+    And the following sits assignment exists:
+      | sitsref         | SITS1         |
+      | course          | C1            |
+      | title           | ASSIGN1       |
+      | weighting       | 50            |
+      | duedate         | ## 5 May 2023 16:00:00 ## |
+      | assessmentcode  | PROJ1         |
+      | assessmentname  | Project 1     |
+      | sequence        | 001           |
+      | availablefrom   | 0             |
+      | reattempt       | 0             |
+      | grademarkexempt | 0             |
+    And I am on the "SITS1" Activity page logged in as moduleleader1
+    When I follow "View all submissions"
+    Then I should see "Grades for this assignment will be sent to Gateway (SITS) once they have been released to students in SOL."
+    And I should not see "Grades for this assignment will be sent to Quercus"
+    And I should not see "Grades for this assignment have been released and locked."
+    And I set the field "selectall" to "1"
+    And I set the field "operation" to "Set marking workflow state"
+    And I click on "Go" "button" confirming the dialogue
+    And I set the field "Marking workflow state" to "Released"
+    And I set the field "Notify student" to "No"
+    And I press "Save changes"
+    And I am on the "SITS1" "assign activity" page
+    And I follow "View all submissions"
+    Then I should see "Grades for this assignment have been released and locked."
+    And I should not see "Grades for this assignment will be sent to Gateway (SITS) once they have been released to students in SOL."

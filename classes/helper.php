@@ -296,6 +296,9 @@ class helper {
      * @return boolean
      */
     public static function is_summative_assignment($cmid) {
+        if (!static::issolsits()) {
+            return false;
+        }
         try {
             [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'assign');
             return ($cm->idnumber != '');
@@ -499,6 +502,8 @@ class helper {
             $text = get_config('local_solsits', 'assignmentmessage_marksuploadinclude');
             $text = str_replace('{SRS}', $srs, $text);
             $alerts[] = new \core\output\notification(clean_text($text), \core\notification::INFO);
+        } else {
+            $alerts[] = new \core\output\notification(get_string('gradeslocked', 'local_solsits'), \core\notification::INFO);
         }
         $text = get_config('local_solsits', 'assignmentmessage_reattempt');
         if ($issitsassignment) {

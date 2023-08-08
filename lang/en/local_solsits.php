@@ -93,6 +93,7 @@ $string['grademarkscale'] = 'Grademark scale';
 $string['grademarkscale_desc'] = 'Solent Grade scale A1, A2, A3, B1 etc';
 $string['gradenotqueued'] = 'Not Queued - Course: {$a->course}, Assignment code: {$a->sitsref}, Grader id: {$a->graderid}, Grade: {$a->grade}, Student idnumber: {$a->studentidnumber}';
 $string['gradequeued'] = 'Queued - Course: {$a->course}, Assignment code: {$a->sitsref}, Grader id: {$a->graderid}, Grade: {$a->grade}, Student idnumber: {$a->studentidnumber}';
+$string['gradeslocked'] = '<strong>Grades for this assignment have been released and locked.</strong>';
 $string['gradingdueinterval'] = 'Grading due interval';
 $string['gradingdueinterval_desc'] = 'Grading due date interval in weeks';
 

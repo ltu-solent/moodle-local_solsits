@@ -375,12 +375,22 @@ class local_solsits_external extends external_api {
         );
     }
 
+    /**
+     * AIS parameters (none required).
+     *
+     * @return external_function_parameters
+     */
     public static function ais_testconnection_parameters(): external_function_parameters {
         return new external_function_parameters([
             'something' => new external_value(PARAM_TEXT, 'Nothing needed')
         ]);
     }
 
+    /**
+     * Test AIS function. Only available to siteadmins.
+     *
+     * @return array Response from remote API
+     */
     public static function ais_testconnection() {
         if (!is_siteadmin()) {
             throw new moodle_exception('nopermissions');
@@ -391,6 +401,11 @@ class local_solsits_external extends external_api {
         return ['result' => $result];
     }
 
+    /**
+     * Return result for ais_testconnection
+     *
+     * @return external_single_structure
+     */
     public static function ais_testconnection_returns(): external_single_structure {
         return new external_single_structure([
             'result' => new external_value(PARAM_RAW, 'Something interesting')

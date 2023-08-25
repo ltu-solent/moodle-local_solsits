@@ -68,6 +68,9 @@ class export_grades_task_test extends advanced_testcase {
         $this->resetAfterTest();
         $this->create_solent_gradescales();
         set_config('default', 1, 'assignfeedback_misconduct');
+        set_config('ais_exportgrades_url', 'https://example.com', 'local_solsits');
+        set_config('ais_exportgrades_endpoint', '/api/Results/upload', 'local_solsits');
+        set_config('ais_exportgrades_key', 'RANDOM##1234', 'local_solsits');
         $config = get_config('local_solsits');
         $this->setAdminUser();
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
@@ -149,7 +152,7 @@ class export_grades_task_test extends advanced_testcase {
 
         $this->expectOutputString($expectedoutput);
 
-        $testclient = new ais_client([], '');
+        $testclient = new ais_client([], $config->ais_exportgrades_url, $config->ais_exportgrades_key);
         $testclient->mock_response(json_encode($response));
         $mocktask = $this->getMockBuilder(\local_solsits\task\export_grades_task::class)
             ->onlyMethods(['get_client'])

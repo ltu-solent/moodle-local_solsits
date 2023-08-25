@@ -26,6 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['actions'] = 'Actions';
+$string['ais_testconnection'] = 'Test connection';
 $string['allocatedtemplate'] = 'Allocated template';
 $string['applytemplatetask'] = 'Apply template';
 $string['assessmentcode'] = 'Assessment code';
@@ -104,10 +105,19 @@ $string['invalidpagetype'] = 'Invalid pagetype';
 $string['invalidsession'] = 'Invalid session';
 $string['invalidstudent'] = 'Student IDNumber invalid of {$a->idnumber} for {$a->firstname} {$a->lastname}';
 
+$string['keynotset'] = 'AIS key not set';
+
 $string['lastmodified'] = 'Last modified';
 
 $string['manageassignments'] = 'Manage assignments';
 $string['managetemplates'] = 'Manage templates';
+$string['marksuploadssettings'] = 'Marks uploads settings';
+$string['marksuploads_endpoint'] = 'Export grades endpoint';
+$string['marksuploads_endpoint_desc'] = 'The path for the export grades function. Start with /';
+$string['marksuploads_key'] = 'API key';
+$string['marksuploads_key_desc'] = 'API key provided by integration team';
+$string['marksuploads_url'] = 'AIS Base url';
+$string['marksuploads_url_desc'] = 'Base url for Moodle -> AIS. Can be used for multiple functions.';
 $string['maxassignments'] = 'Max assignments';
 $string['maxassignments_desc'] = 'Maximum number of assignments to create in a single run.';
 $string['maxtemplates'] = 'Max templates';
@@ -201,6 +211,7 @@ $string['timecreated'] = 'Time created';
 $string['timemodified'] = 'Time modified';
 
 $string['updatedtemplate'] = '"{$a}" has been updated.';
+$string['urlnotset'] = 'AIS client url not set';
 
 $string['visibility'] = 'Visibility';
 $string['visible'] = 'Visible';

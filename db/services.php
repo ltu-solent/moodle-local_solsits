@@ -65,5 +65,13 @@ $functions = [
         'description' => 'Search courses',
         'type' => 'read',
         'ajax'  => true
+    ],
+    'local_solsits_ais_testconnection' => [
+        'classname' => 'local_solsits_external',
+        'methodname' => 'ais_testconnection',
+        'classpath' => 'local/solsits/externallib.php',
+        'description' => 'Test the AIS properties are set correctly',
+        'type' => 'read',
+        'ajax' => true
     ]
 ];

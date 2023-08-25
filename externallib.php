@@ -374,4 +374,26 @@ class local_solsits_external extends external_api {
             ])
         );
     }
+
+    public static function ais_testconnection_parameters(): external_function_parameters {
+        return new external_function_parameters([
+            'something' => new external_value(PARAM_TEXT, 'Nothing needed')
+        ]);
+    }
+
+    public static function ais_testconnection() {
+        if (!is_siteadmin()) {
+            throw new moodle_exception('nopermissions');
+        }
+        $config = get_config('local_solsits');
+        $client = new local_solsits\ais_client([], $config->ais_exportgrades_url, $config->ais_exportgrades_key);
+        $result = $client->test_connection();
+        return ['result' => $result];
+    }
+
+    public static function ais_testconnection_returns(): external_single_structure {
+        return new external_single_structure([
+            'result' => new external_value(PARAM_RAW, 'Something interesting')
+        ]);
+    }
 }

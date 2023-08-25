@@ -26,6 +26,7 @@
 namespace local_solsits;
 
 use curl;
+use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -43,14 +44,29 @@ class ais_client extends curl {
     private $url;
 
     /**
+     * Key used for exporting grades
+     *
+     * @var string
+     */
+    private $key;
+
+    /**
      * Constructor setting url for this client.
      *
      * @param array $settings
      * @param string $url
+     * @param string $key
      */
-    public function __construct($settings = [], $url = '') {
+    public function __construct($settings, $url, $key) {
         parent::__construct($settings);
-        $this->url = $url;
+        $this->url = $url ?? '';
+        $this->key = $key ?? '';
+        if ($this->url == '') {
+            throw new moodle_exception('urlnotset', 'local_solsits');
+        }
+        if ($this->key == '') {
+            throw new moodle_exception('keynotset', 'local_solsits');
+        }
     }
     /**
      * Export grades
@@ -60,14 +76,53 @@ class ais_client extends curl {
      */
     public function export_grades($grades) {
         $export = json_encode($grades);
+        $endpoint = get_config('local_solsits', 'endpoint') ?? '';
+        $fullpath = "{$this->url}{$endpoint}";
         $this->setopt([
             'CURLOPT_RETURNTRANSFER' => 1, // Post will return false on error, or the response on success.
-            'CURLOPT_FAILONERROR' => 1,
+            'CURLOPT_ENCODING' => '',
+            'CURLOPT_MAXREDIRS' => 10,
+            'CURLOPT_TIMEOUT' => 0,
+            'CURLOPT_FOLLOWLOCATION' => 1,
+            'CURLOPT_HTTP_VERSION' => CURL_HTTP_VERSION_1_1,
+            'CURLOPT_HTTPHEADER' => [
+                "X-API-KEY: {$this->key}",
+                'Content-Type: application/json'
+            ]
             // @codingStandardsIgnoreStart
             // 'CURLOPT_SSL_VERIFYHOST' => false,
             // 'CURLOPT_SSL_VERIFYPEER' => false
             // @codingStandardsIgnoreEnd
         ]);
-        return $this->post($this->url, $export);
+        return $this->put($fullpath, $export);
+    }
+
+    /**
+     * A simple test connection on the target server
+     *
+     * @param array $payload
+     * @return string response
+     */
+    public function test_connection($payload = []) {
+        $export = json_encode($payload);
+        $endpoint = '/api/TestConnection';
+        $fullpath = "{$this->url}{$endpoint}";
+        $this->setopt([
+            'CURLOPT_RETURNTRANSFER' => 1, // Post will return false on error, or the response on success.
+            'CURLOPT_ENCODING' => '',
+            'CURLOPT_MAXREDIRS' => 10,
+            'CURLOPT_TIMEOUT' => 0,
+            'CURLOPT_FOLLOWLOCATION' => 1,
+            'CURLOPT_HTTP_VERSION' => CURL_HTTP_VERSION_1_1,
+            'CURLOPT_HTTPHEADER' => [
+                "X-API-KEY: {$this->key}",
+                'Content-Type: application/json'
+            ]
+            // @codingStandardsIgnoreStart
+            // 'CURLOPT_SSL_VERIFYHOST' => false,
+            // 'CURLOPT_SSL_VERIFYPEER' => false
+            // @codingStandardsIgnoreEnd
+        ]);
+        return $this->get($fullpath);
     }
 }

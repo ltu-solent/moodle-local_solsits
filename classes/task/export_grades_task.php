@@ -52,7 +52,7 @@ class export_grades_task extends scheduled_task {
         // In the test, mock get_client and set the response to whatever we want.
         $config = get_config('local_solsits');
         // Set token, urls.
-        $client = new ais_client([], $config->ais_exportgrades_url);
+        $client = new ais_client([], $config->ais_exportgrades_url, $config->ais_exportgrades_key);
         return $client;
     }
 

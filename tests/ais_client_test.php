@@ -43,7 +43,12 @@ class ais_client_test extends advanced_testcase {
      * @return void
      */
     public function test_export_grades($export, $response) {
-        $ais = new ais_client();
+        $this->resetAfterTest();
+        set_config('ais_exportgrades_url', 'https://example.com/moodle', 'local_solsits');
+        set_config('ais_exportgrades_endpoint', '/api/Results/upload', 'local_solsits');
+        set_config('ais_exportgrades_key', 'RANDOM##1234', 'local_solsits');
+        $config = get_config('local_solsits');
+        $ais = new ais_client([], $config->ais_exportgrades_url, $config->ais_exportgrades_key);
         $ais->mock_response(json_encode($response));
         $mockedresponse = $ais->export_grades($export);
         if (!$mockedresponse) {

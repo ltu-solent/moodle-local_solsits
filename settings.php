@@ -144,6 +144,41 @@ if ($hassiteconfig) {
         )
     );
 
+    $name = 'local_solsits/marksuploadssettings';
+    $title = new lang_string('marksuploadssettings', 'local_solsits');
+    $description = '';
+    $settings->add(new admin_setting_heading($name, $title, $description));
+
+    $name = 'local_solsits/ais_exportgrades_url';
+    $title = new lang_string('marksuploads_url', 'local_solsits');
+    $description = new lang_string('marksuploads_url_desc', 'local_solsits');
+    $settings->add(new admin_setting_configtext($name, $title, $description, '', PARAM_URL));
+
+    $name = 'local_solsits/ais_exportgrades_endpoint';
+    $title = new lang_string('marksuploads_endpoint', 'local_solsits');
+    $description = new lang_string('marksuploads_endpoint_desc', 'local_solsits');
+    $settings->add(new admin_setting_configtext($name, $title, $description, '', PARAM_PATH));
+
+    $name = 'local_solsits/ais_exportgrades_key';
+    $title = new lang_string('marksuploads_key', 'local_solsits');
+    $description = new lang_string('marksuploads_key_desc', 'local_solsits');
+    $settings->add(new admin_setting_configpasswordunmask($name, $title, $description, ''));
+
+    $name = 'local_solsits/ais_testconnection';
+    $title = new lang_string('ais_testconnection', 'local_solsits');
+    $description = html_writer::tag('p',
+        html_writer::tag('button',
+            $title,
+            [
+                'class' => 'btn btn-primary',
+                'id' => 'ais_testconnection',
+            ]
+        ) . html_writer::tag('span', '', ['id' => 'ais_testconnection_response'])
+
+    );
+    $settings->add(new admin_setting_description($name, '', $description));
+    $PAGE->requires->js_call_amd('local_solsits/ais-testconnection', 'init');
+
     $ADMIN->add('local_solsitscat', $settings);
 
     $name = 'local_solsits/managetemplates';

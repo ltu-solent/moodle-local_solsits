@@ -645,7 +645,8 @@ class sitsassign extends persistent {
                 'assignment' => $cm->instance,
                 'grade' => $studentgrades[$markedassignment->studentid]->id]);
             $misconductstring = get_string('no');
-            if ($misconduct->misconduct) {
+            $misconduct = $misconduct->misconduct ?? 0;
+            if ($misconduct == 1) {
                 $misconductstring = get_string('yes');
             }
             $submissiontime = date('d/m/Y H:i:s', $studentgrades[$markedassignment->studentid]->submissiontime);

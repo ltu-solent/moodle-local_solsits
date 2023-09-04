@@ -23,7 +23,6 @@
  */
 
 import Ajax from 'core/ajax';
-import Log from 'core/log';
 import Prefetch from 'core/prefetch';
 import Notification from 'core/notification';
 
@@ -38,13 +37,13 @@ export const init = () => {
                 methodname: 'local_solsits_ais_testconnection',
                 'args': {'something': 'interesting'}
             }])[0].done(function(data) {
-                if (data.result) {
-                    Log.debug(data.result);
+                if (data.result == 200) {
                     e.target.disable = false;
-                    resultdiv.innerHTML = data.result;
+                    resultdiv.innerHTML = '<i class="fa fa-solid fa-check-circle" style="color: var(--success)"></i> Success';
                 } else {
                     e.target.disable = false;
-                    resultdiv.innerHTML = 'No response returned';
+                    resultdiv.innerHTML = '<i class="fa fa-solid fa-times-circle" style="color: var(--danger)"></i> Failure: '
+                        + data.result;
                 }
             }).fail(Notification.exception);
         }

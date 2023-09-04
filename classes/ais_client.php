@@ -108,7 +108,7 @@ class ais_client extends curl {
         $endpoint = '/api/TestConnection';
         $fullpath = "{$this->url}{$endpoint}";
         $this->setopt([
-            'CURLOPT_RETURNTRANSFER' => 1, // Post will return false on error, or the response on success.
+            'CURLOPT_RETURNTRANSFER' => 0, // Post will return false on error, or the response on success.
             'CURLOPT_ENCODING' => '',
             'CURLOPT_MAXREDIRS' => 10,
             'CURLOPT_TIMEOUT' => 0,
@@ -123,6 +123,8 @@ class ais_client extends curl {
             // 'CURLOPT_SSL_VERIFYPEER' => false
             // @codingStandardsIgnoreEnd
         ]);
-        return $this->get($fullpath);
+        $this->get($fullpath);
+        // Only interested in the response code.
+        return $this->info['http_code'];
     }
 }

@@ -173,7 +173,7 @@ if ($hassiteconfig) {
                 'class' => 'btn btn-primary',
                 'id' => 'ais_testconnection',
             ]
-        ) . html_writer::tag('span', '', ['id' => 'ais_testconnection_response'])
+        ) . html_writer::tag('span', '', ['id' => 'ais_testconnection_response', 'class' => 'pl-1'])
 
     );
     $settings->add(new admin_setting_description($name, '', $description));

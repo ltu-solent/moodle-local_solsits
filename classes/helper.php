@@ -498,7 +498,7 @@ class helper {
         }
         $assign = new assign($context, $cm, $course);
         $locked = $assign->get_grade_item()->locked;
-        if ($locked == 0) {
+        if (empty($locked) || $locked == 0) {
             $text = get_config('local_solsits', 'assignmentmessage_marksuploadinclude');
             $text = str_replace('{SRS}', $srs, $text);
             $alerts[] = new \core\output\notification(clean_text($text), \core\notification::INFO);

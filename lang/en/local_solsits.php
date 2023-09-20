@@ -152,6 +152,7 @@ $string['recreate'] = 'Recreate Assignment activity';
 $string['releasedate'] = 'Grades cannot be released until {$a->date} ({$a->days} days after the board has passed).';
 
 $string['quercus'] = 'Quercus';
+$string['quercusassignmentonsitscourse'] = 'The Quercus assignment ({$a->assignidnumber}) should not be on the Gateway module ({$a->courseidnumber}). Please contact Guided.Learning@solent.ac.uk to delete it.';
 
 $string['scale'] = 'Scale';
 $string['selectapagetype'] = 'Select a pagetype';
@@ -217,4 +218,4 @@ $string['visibility'] = 'Visibility';
 $string['visible'] = 'Visible';
 
 $string['weighting'] = 'Weighting';
-
+$string['wrongassignmentonwrongcourse'] = 'This assignment ({$a->assignidnumber}) should not be on {$a->courseidnumber}, please contact Guided.Learning@solent.ac.uk to remove it.';

@@ -137,5 +137,8 @@ function local_solsits_solentzone_alerts($alerts) {
     if ($PAGE->pagetype == 'mod-assign-grading') {
         $alerts = array_merge($alerts, helper::gradingalerts($PAGE->cm, $COURSE, $PAGE->context));
     }
+    if ($PAGE->pagetype == 'mod-assign-view') {
+        $alerts = array_merge($alerts, helper::badassignalerts($PAGE->cm, $COURSE, $PAGE->context));
+    }
     return $alerts;
 }

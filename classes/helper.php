@@ -291,6 +291,7 @@ class helper {
 
     /**
      * Given a coursemodule id, returns if this is a summative assignment.
+     * Basically a non-empty idnumber.
      *
      * @param int $cmid Course module id
      * @return boolean
@@ -518,6 +519,58 @@ class helper {
         // I would call quercus alerts here, but that's to do with sittings dates,
         // which we're not much interested in anymore.
 
+        return $alerts;
+    }
+
+    /**
+     * Does this assignment look as it should? Perhaps it's been copied.
+     *
+     * @param object $cm
+     * @param object $course
+     * @param object $context
+     * @return array
+     */
+    public static function badassignalerts($cm, $course, $context): array {
+        $alerts = [];
+        $issummative = static::is_summative_assignment($cm->id);
+        if (!$issummative) {
+            return $alerts;
+        }
+        // Only show errors to people who can grade assignments.
+        if (!has_capability('mod/assign:grade', $context)) {
+            return $alerts;
+        }
+        // A Quercus assignment idnumber has two parts: TYPE_YEAR
+        // A SITS assignment is listed in the local_solsits_assign table.
+        $assignidnumberparts = explode('_', $cm->idnumber);
+        $assignpartcount = count($assignidnumberparts);
+        // A Quercus course idnumber has two parts: MODULECODE_NUMBER.
+        // A SITS course has MODULECODE_OCC_PERIOD_YEAR.
+        $courseidnumberparts = explode('_', $course->idnumber);
+        $coursepartcount = count($courseidnumberparts);
+
+        if ($assignpartcount == 2 && $coursepartcount > 2) {
+            // This very much looks like a Quercus Assignment on a SITS course.
+            $alerts[] = new \core\output\notification(
+                get_string('quercusassignmentonsitscourse', 'local_solsits', [
+                    'assignidnumber' => $cm->idnumber,
+                    'courseidnumber' => $course->idnumber
+                ]),
+                \core\notification::ERROR
+            );
+
+        }
+        // The SITS assignment idnumber (sitsref) should match with the courseid in sits assign table.
+        $issitsassign = sitsassign::get_record(['sitsref' => $cm->idnumber, 'courseid' => $course->id]);
+        if ($assignpartcount > 2 && !$issitsassign) {
+            $alerts[] = new \core\output\notification(
+                get_string('wrongassignmentonwrongcourse', 'local_solsits', [
+                    'assignidnumber' => $cm->idnumber,
+                    'courseidnumber' => $course->idnumber
+                ]),
+                \core\notification::ERROR
+            );
+        }
         return $alerts;
     }
 

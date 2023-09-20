@@ -26,6 +26,7 @@
 namespace local_solsits;
 
 use advanced_testcase;
+use context_module;
 use context_system;
 use core_customfield\category;
 use core_customfield\field;
@@ -252,5 +253,129 @@ class helper_test extends advanced_testcase {
         // No valid solent scale, should just return the input.
         $grade = helper::convert_grade(0, $x);
         $this->assertEquals(70, $grade);
+    }
+
+    /**
+     * Test assignments on wrong pages
+     *
+     * @dataProvider badassignalerts_dataprovider
+     * @param array $coursedata Course
+     * @param array $assigndata Assignment data
+     * @param string $response
+     * @param int $alertcount
+     * @return void
+     * @covers \local_solsits\helper::badassignalerts
+     */
+    public function test_badassignalerts($coursedata, $assigndata, $response, $alertcount) {
+        $this->resetAfterTest();
+        $this->create_solent_gradescales();
+        $this->setAdminUser();
+
+        $course = $this->getDataGenerator()->create_course($coursedata);
+        $assigngen = $this->getDataGenerator()->get_plugin_generator('mod_assign');
+        $sitsgen = $this->getDataGenerator()->get_plugin_generator('local_solsits');
+        if ($assigndata['issits'] == true) {
+            $assign = $sitsgen->create_sits_assign([
+                'sitsref' => $assigndata['idnumber'],
+                'courseid' => $course->id
+            ]);
+            $assign->create_assignment();
+            $cmid = $assign->get('cmid');
+        } else {
+            $assign = $assigngen->create_instance([
+                'idnumber' => $assigndata['idnumber'],
+                'course' => $course->id
+            ]);
+            $cmid = $assign->cmid;
+        }
+        $context = context_module::instance($cmid);
+        [$c, $cm] = get_course_and_cm_from_cmid($cmid, 'assign');
+
+        $teacher = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'editingteacher');
+        $student = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
+
+        $this->setUser($teacher);
+        $alerts = helper::badassignalerts($cm, $c, $context);
+
+        $expectedresponse = '';
+        if ($response != '') {
+            $expectedresponse = get_string($response, 'local_solsits', [
+                'assignidnumber' => $cm->idnumber,
+                'courseidnumber' => $course->idnumber
+            ]);
+        }
+        $this->assertCount($alertcount, $alerts);
+        if (count($alerts) > 0) {
+            $firstresponse = reset($alerts);
+            $this->assertEquals($expectedresponse, $firstresponse->get_message());
+        }
+
+        $this->setUser($student);
+        $alerts = helper::badassignalerts($cm, $c, $context);
+        // Students shouldn't see these ever.
+        $this->assertCount(0, $alerts);
+    }
+
+    /**
+     * Data provider for test_badassignalerts
+     * return array
+     */
+    public function badassignalerts_dataprovider(): array {
+        return [
+            'quercus assignment on sits course' => [
+                'coursedata' => [
+                    'fullname' => 'SITS course (ABC101)',
+                    'shortname' => 'ABC101_A_SEM1_2023/24',
+                    'idnumber' => 'ABC101_A_SEM1_2023/24'
+                ],
+                'assigndata' => [
+                    'issits' => false,
+                    'idnumber' => 'PROJ1_2022'
+                ],
+                'response' => 'quercusassignmentonsitscourse',
+                'alertcount' => 1
+            ],
+            'sits assign on wrong sits course' => [
+                'coursedata' => [
+                    'fullname' => 'SITS course (ABC101)',
+                    'shortname' => 'ABC101_A_SEM1_2024/25',
+                    'idnumber' => 'ABC101_A_SEM1_2024/25'
+                ],
+                'assigndata' => [
+                    'issits' => false,
+                    'idnumber' => 'ABC101_A_SEM1_2023/24_ABC10101_001_0'
+                ],
+                'response' => 'wrongassignmentonwrongcourse',
+                'alertcount' => 1
+            ],
+            'quercus assignment on quercus course' => [
+                'coursedata' => [
+                    'fullname' => 'Quercus course (ABC101)',
+                    'shortname' => 'ABC101_123456789',
+                    'idnumber' => 'ABC101_123456789'
+                ],
+                'assigndata' => [
+                    'issits' => false,
+                    'idnumber' => 'PROJ1_2022'
+                ],
+                'response' => '',
+                'alertcount' => 0
+            ],
+            'sits assign on correct sits course' => [
+                'coursedata' => [
+                    'fullname' => 'SITS course (ABC101)',
+                    'shortname' => 'ABC101_A_SEM1_2024/25',
+                    'idnumber' => 'ABC101_A_SEM1_2024/25'
+                ],
+                'assigndata' => [
+                    'issits' => true,
+                    'idnumber' => 'ABC101_A_SEM1_2024/25_ABC10101_001_0'
+                ],
+                'response' => '',
+                'alertcount' => 0
+            ]
+        ];
     }
 }

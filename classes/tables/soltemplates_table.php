@@ -53,7 +53,7 @@ class soltemplates_table extends table_sql {
             'enabled',
             'usermodified',
             'timemodified',
-            'actions'
+            'actions',
         ];
 
         $columnheadings = [

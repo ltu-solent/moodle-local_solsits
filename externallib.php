@@ -57,7 +57,7 @@ class local_solsits_external extends external_api {
                     'availablefrom' => new external_value(
                         PARAM_INT, 'When the assignment is available to the student from', VALUE_OPTIONAL),
                 ])
-            )
+            ),
         ]);
     }
 
@@ -70,7 +70,7 @@ class local_solsits_external extends external_api {
     public static function add_assignments($assignments) {
         global $DB;
         $params = self::validate_parameters(self::add_assignments_parameters(),
-                array('assignments' => $assignments));
+                ['assignments' => $assignments]);
         $transaction = $DB->start_delegated_transaction();
         $inserted = [];
         foreach ($params['assignments'] as $assignment) {
@@ -155,7 +155,7 @@ class local_solsits_external extends external_api {
                     'availablefrom' => new external_value(
                         PARAM_INT, 'When the assignment is available to the student from', VALUE_OPTIONAL),
                 ])
-            )
+            ),
         ]);
     }
 
@@ -174,7 +174,7 @@ class local_solsits_external extends external_api {
         // Do we change the title and hide it?
         global $DB;
         $params = self::validate_parameters(self::add_assignments_parameters(),
-                array('assignments' => $assignments));
+                ['assignments' => $assignments]);
         $transaction = $DB->start_delegated_transaction();
         $inserted = [];
         foreach ($params['assignments'] as $assignment) {
@@ -314,7 +314,7 @@ class local_solsits_external extends external_api {
     public static function search_courses_parameters(): external_function_parameters {
         return new external_function_parameters([
             'query' => new external_value(PARAM_TEXT, 'Search string'),
-            'currentcourses' => new external_value(PARAM_BOOL, 'Only include current courses in results')
+            'currentcourses' => new external_value(PARAM_BOOL, 'Only include current courses in results'),
         ]);
     }
 
@@ -330,7 +330,7 @@ class local_solsits_external extends external_api {
         $params = self::validate_parameters(self::search_courses_parameters(),
             [
                 'currentcourses' => $currentcourses,
-                'query' => $query
+                'query' => $query,
             ]
         );
 
@@ -370,7 +370,7 @@ class local_solsits_external extends external_api {
         return new external_multiple_structure(
             new external_single_structure([
                 'courseid' => new external_value(PARAM_INT, 'courseid'),
-                'label' => new external_value(PARAM_RAW, 'User friendly label - Shortname')
+                'label' => new external_value(PARAM_RAW, 'User friendly label - Shortname'),
             ])
         );
     }
@@ -382,7 +382,7 @@ class local_solsits_external extends external_api {
      */
     public static function ais_testconnection_parameters(): external_function_parameters {
         return new external_function_parameters([
-            'something' => new external_value(PARAM_TEXT, 'Nothing needed')
+            'something' => new external_value(PARAM_TEXT, 'Nothing needed'),
         ]);
     }
 
@@ -408,7 +408,7 @@ class local_solsits_external extends external_api {
      */
     public static function ais_testconnection_returns(): external_single_structure {
         return new external_single_structure([
-            'result' => new external_value(PARAM_RAW, 'Something interesting')
+            'result' => new external_value(PARAM_RAW, 'Something interesting'),
         ]);
     }
 }

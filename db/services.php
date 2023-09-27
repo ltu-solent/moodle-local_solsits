@@ -26,29 +26,29 @@
 defined('MOODLE_INTERNAL') || die();
 
 $functions = [
-    'local_solsits_add_assignments' => array(
+    'local_solsits_add_assignments' => [
         'classname'   => 'local_solsits_external',
         'methodname'  => 'add_assignments',
         'classpath'   => 'local/solsits/externallib.php',
         'description' => 'Add assignments via the AIS-SITS interface',
         'capabilities' => 'local/solsits:manageassignments',
         'type'        => 'write',
-    ),
-    'local_solsits_update_assignments' => array(
+    ],
+    'local_solsits_update_assignments' => [
         'classname'   => 'local_solsits_external',
         'methodname'  => 'update_assignments',
         'classpath'   => 'local/solsits/externallib.php',
         'description' => 'Update assignments via the AIS-SITS interface',
         'capabilities' => 'local/solsits:manageassignments',
         'type'        => 'write',
-    ),
+    ],
     'local_solsits_register_sitscourses' => [
         'classname' => 'local_solsits_external',
         'methodname' => 'register_sitscourses',
         'classpath' => 'local/solsits/externallib.php',
         'description' => 'Register that a Moodle course has come from SITS so that templates can be appplied',
         'capabilities' => 'local/solsits:registersitscourse',
-        'type' => 'write'
+        'type' => 'write',
     ],
     'local_solsits_get_sitscourse_template' => [
         'classname' => 'local_solsits_external',
@@ -56,7 +56,7 @@ $functions = [
         'classpath' => 'local/solsits/externallib.php',
         'description' => 'Check that a Moodle course has come from SITS has had its template appplied',
         'capabilities' => 'local/solsits:registersitscourse',
-        'type' => 'read'
+        'type' => 'read',
     ],
     'local_solsits_search_courses' => [
         'classname' => 'local_solsits_external',
@@ -64,7 +64,7 @@ $functions = [
         'classpath' => 'local/solsits/externallib.php',
         'description' => 'Search courses',
         'type' => 'read',
-        'ajax'  => true
+        'ajax'  => true,
     ],
     'local_solsits_ais_testconnection' => [
         'classname' => 'local_solsits_external',
@@ -72,6 +72,6 @@ $functions = [
         'classpath' => 'local/solsits/externallib.php',
         'description' => 'Test the AIS properties are set correctly',
         'type' => 'read',
-        'ajax' => true
-    ]
+        'ajax' => true,
+    ],
 ];

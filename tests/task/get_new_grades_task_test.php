@@ -59,11 +59,12 @@ class get_new_grades_task_test extends advanced_testcase {
     public function test_grademark_assignment() {
         global $DB;
         $this->resetAfterTest();
+        /** @var local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $this->setAdminUser();
         $course = $this->getDataGenerator()->create_course([
             'shortname' => 'ABC101_A_S1_2022/23',
-            'idnumber' => 'ABC101_A_S1_2022/23'
+            'idnumber' => 'ABC101_A_S1_2022/23',
         ]);
         $students = [];
         $grades = [];
@@ -83,7 +84,7 @@ class get_new_grades_task_test extends advanced_testcase {
 
         $moduleleader = $this->getDataGenerator()->create_user([
             'firstname' => 'Module',
-            'lastname' => 'Leader'
+            'lastname' => 'Leader',
         ]);
         $this->getDataGenerator()->enrol_user($moduleleader->id, $course->id, 'editingteacher');
         $this->create_solent_gradescales();
@@ -93,11 +94,11 @@ class get_new_grades_task_test extends advanced_testcase {
         $assign = $this->create_instance($course, [
             'blindmarking' => 1,
             'idnumber' => 'ABC101_A_S1_2022/23_PROJ1_0_1',
-            'grade' => $config->grademarkscale * -1
+            'grade' => $config->grademarkscale * -1,
         ]);
         $sitsassign = $dg->create_sits_assign([
             'cmid' => $assign->get_course_module()->id,
-            'courseid' => $course->id
+            'courseid' => $course->id,
         ]);
 
         $this->mark_assignments($students, $grades, $assign, $moduleleader, ASSIGN_MARKING_WORKFLOW_STATE_RELEASED);
@@ -177,12 +178,13 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
     public function test_grademarkexempt_assignment() {
         global $DB;
         $this->resetAfterTest();
+        /** @var local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $this->setAdminUser();
 
         $course = $this->getDataGenerator()->create_course([
             'shortname' => 'ABC101_A_S1_2022/23',
-            'idnumber' => 'ABC101_A_S1_2022/23'
+            'idnumber' => 'ABC101_A_S1_2022/23',
         ]);
         $students = [];
         $grades = [];
@@ -203,7 +205,7 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
 
         $moduleleader = $this->getDataGenerator()->create_user([
             'firstname' => 'Module',
-            'lastname' => 'Leader'
+            'lastname' => 'Leader',
         ]);
         $this->getDataGenerator()->enrol_user($moduleleader->id, $course->id, 'editingteacher');
         $this->create_solent_gradescales();
@@ -213,11 +215,11 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
         $assign = $this->create_instance($course, [
             'blindmarking' => 1,
             'idnumber' => 'ABC101_A_S1_2022/23_PROJ1_0_1',
-            'grade' => $config->grademarkexemptscale * -1
+            'grade' => $config->grademarkexemptscale * -1,
         ]);
         $sitsassign = $dg->create_sits_assign([
             'cmid' => $assign->get_course_module()->id,
-            'courseid' => $course->id
+            'courseid' => $course->id,
         ]);
 
         $this->mark_assignments($students, $grades, $assign, $moduleleader, ASSIGN_MARKING_WORKFLOW_STATE_RELEASED);
@@ -458,11 +460,12 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
     public function test_not_released() {
         global $DB;
         $this->resetAfterTest();
+        /** @var local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $this->setAdminUser();
         $course = $this->getDataGenerator()->create_course([
             'shortname' => 'ABC101_A_S1_2022/23',
-            'idnumber' => 'ABC101_A_S1_2022/23'
+            'idnumber' => 'ABC101_A_S1_2022/23',
         ]);
         $students = [];
         $grades = [];
@@ -480,7 +483,7 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
 
         $moduleleader = $this->getDataGenerator()->create_user([
             'firstname' => 'Module',
-            'lastname' => 'Leader'
+            'lastname' => 'Leader',
         ]);
         $this->getDataGenerator()->enrol_user($moduleleader->id, $course->id, 'editingteacher');
         $this->create_solent_gradescales();
@@ -490,11 +493,11 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
         $assign = $this->create_instance($course, [
             'blindmarking' => 1,
             'idnumber' => 'ABC101_A_S1_2022/23_PROJ1_0_1',
-            'grade' => $config->grademarkscale * -1
+            'grade' => $config->grademarkscale * -1,
         ]);
         $sitsassign = $dg->create_sits_assign([
             'cmid' => $assign->get_course_module()->id,
-            'courseid' => $course->id
+            'courseid' => $course->id,
         ]);
 
         $this->mark_assignments($students, $grades, $assign, $moduleleader, ASSIGN_MARKING_WORKFLOW_STATE_READYFORRELEASE);
@@ -525,7 +528,7 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
         $this->setAdminUser();
         $course = $this->getDataGenerator()->create_course([
             'shortname' => 'ABC101_A_S1_2022/23',
-            'idnumber' => 'ABC101_A_S1_2022/23'
+            'idnumber' => 'ABC101_A_S1_2022/23',
         ]);
         $students = [];
         $grades = [];
@@ -543,7 +546,7 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
 
         $moduleleader = $this->getDataGenerator()->create_user([
             'firstname' => 'Module',
-            'lastname' => 'Leader'
+            'lastname' => 'Leader',
         ]);
         $this->getDataGenerator()->enrol_user($moduleleader->id, $course->id, 'editingteacher');
         $this->create_solent_gradescales();
@@ -553,7 +556,7 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
         $assign = $this->create_instance($course, [
             'blindmarking' => 1,
             'idnumber' => '',
-            'grade' => $config->grademarkscale * -1
+            'grade' => $config->grademarkscale * -1,
         ]);
 
         $this->mark_assignments($students, $grades, $assign, $moduleleader, ASSIGN_MARKING_WORKFLOW_STATE_RELEASED);
@@ -585,7 +588,7 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
         $this->setAdminUser();
         $course = $this->getDataGenerator()->create_course([
             'shortname' => 'ABC101_A_S1_2022/23',
-            'idnumber' => 'ABC101_A_S1_2022/23'
+            'idnumber' => 'ABC101_A_S1_2022/23',
         ]);
         $students = [];
         $grades = [];
@@ -603,7 +606,7 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
 
         $moduleleader = $this->getDataGenerator()->create_user([
             'firstname' => 'Module',
-            'lastname' => 'Leader'
+            'lastname' => 'Leader',
         ]);
         $this->getDataGenerator()->enrol_user($moduleleader->id, $course->id, 'editingteacher');
         $this->create_solent_gradescales();
@@ -613,7 +616,7 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
         $assign = $this->create_instance($course, [
             'blindmarking' => 1,
             'idnumber' => 'ABC101_A_S1_2022/23_PROJ1_0_1',
-            'grade' => $config->grademarkscale * -1
+            'grade' => $config->grademarkscale * -1,
         ]);
         // The difference between Quercus and SITS assignments is that SITS assignments are logged in the
         // local_solsits_assign table, and Quercus asssignments are not.

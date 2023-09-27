@@ -57,21 +57,22 @@ class sitsassign_test extends advanced_testcase {
      */
     public function test_get_create_list() {
         $this->resetAfterTest();
+        /** @var local_solsits_generator $ssdg */
         $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $tcourse = $this->getDataGenerator()->create_course([
             'fullname' => 'Template applied',
             'shortname' => 'templated',
-            'idnumber' => 'templated'
+            'idnumber' => 'templated',
         ]);
         $ntcourse = $this->getDataGenerator()->create_course([
             'fullname' => 'Template NOT applied',
             'shortname' => 'nottemplated',
-            'idnumber' => 'nottemplated'
+            'idnumber' => 'nottemplated',
         ]);
         $sits = $this->getDataGenerator()->create_module('assign', [
             'course' => $tcourse->id,
             'name' => 'sits',
-            'idnumber' => 'SITS_1'
+            'idnumber' => 'SITS_1',
         ]);
         $sitscm = get_coursemodule_from_instance('assign', $sits->id);
         // Add this one in for noise.
@@ -117,6 +118,7 @@ class sitsassign_test extends advanced_testcase {
         $config = get_config('local_solsits');
         // Perhaps change this is to a WS user with permissions to "Manage activities".
         $this->setAdminUser();
+        /** @var local_solsits_generator $ssdg */
         $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $course = $this->getDataGenerator()->create_course();
         // Pretend to apply template to the course.
@@ -198,7 +200,7 @@ class sitsassign_test extends advanced_testcase {
      *
      * @return array
      */
-    public function create_assignment_provider(): array {
+    public static function create_assignment_provider(): array {
         return [
             'valid_duedate' => [
                 'sitsassign' => [
@@ -208,9 +210,9 @@ class sitsassign_test extends advanced_testcase {
                     'weighting' => 100,
                     'duedate' => strtotime('+1 week'),
                     'grademarkexempt' => false,
-                    'availablefrom' => 0
+                    'availablefrom' => 0,
                 ],
-                'coursedeleted' => false
+                'coursedeleted' => false,
             ],
             'first_reattempt' => [
                 'sitsassign' => [
@@ -220,9 +222,9 @@ class sitsassign_test extends advanced_testcase {
                     'weighting' => 100,
                     'duedate' => strtotime('+4 week'),
                     'grademarkexempt' => false,
-                    'availablefrom' => 0
+                    'availablefrom' => 0,
                 ],
-                'coursedeleted' => false
+                'coursedeleted' => false,
             ],
             'deleted_course' => [
                 'sitsassign' => [
@@ -232,9 +234,9 @@ class sitsassign_test extends advanced_testcase {
                     'weighting' => 100,
                     'duedate' => strtotime('+1 week'),
                     'grademarkexempt' => false,
-                    'availablefrom' => 0
+                    'availablefrom' => 0,
                 ],
-                'coursedeleted' => true
+                'coursedeleted' => true,
             ],
             'no_duedate' => [
                 'sitsassign' => [
@@ -244,9 +246,9 @@ class sitsassign_test extends advanced_testcase {
                     'weighting' => 100,
                     'duedate' => 0,
                     'grademarkexempt' => false,
-                    'availablefrom' => 0
+                    'availablefrom' => 0,
                 ],
-                'coursedeleted' => false
+                'coursedeleted' => false,
             ],
             'availablefrom' => [
                 'sitsassign' => [
@@ -256,9 +258,9 @@ class sitsassign_test extends advanced_testcase {
                     'weighting' => 100,
                     'duedate' => strtotime('+3 week'),
                     'grademarkexempt' => false,
-                    'availablefrom' => strtotime('+1 week')
+                    'availablefrom' => strtotime('+1 week'),
                 ],
-                'coursedeleted' => false
+                'coursedeleted' => false,
             ],
             'grademark_exempt' => [
                 'sitsassign' => [
@@ -268,9 +270,9 @@ class sitsassign_test extends advanced_testcase {
                     'weighting' => 100,
                     'duedate' => strtotime('+1 week'),
                     'grademarkexempt' => true,
-                    'availablefrom' => 0
+                    'availablefrom' => 0,
                 ],
-                'coursedeleted' => false
+                'coursedeleted' => false,
             ],
             'exam_cutoffdate' => [
                 'sitsassign' => [
@@ -280,9 +282,9 @@ class sitsassign_test extends advanced_testcase {
                     'weighting' => 100,
                     'duedate' => strtotime('+1 week'),
                     'grademarkexempt' => true,
-                    'availablefrom' => 0
+                    'availablefrom' => 0,
                 ],
-                'coursedeleted' => false
+                'coursedeleted' => false,
             ],
         ];
     }
@@ -305,6 +307,7 @@ class sitsassign_test extends advanced_testcase {
         set_config('enablecompletion', COMPLETION_ENABLED);
         // Perhaps change this is to a WS user with permissions to "Manage activities".
         $this->setAdminUser();
+        /** @var local_solsits_generator $ssdg */
         $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $course = $this->getDataGenerator()->create_course();
         // Pretend to apply template to the course.
@@ -422,7 +425,7 @@ class sitsassign_test extends advanced_testcase {
      *
      * @return array
      */
-    public function update_assignment_provider(): array {
+    public static function update_assignment_provider(): array {
         return [
             'new_duedate' => [
                 'oldassign' => [
@@ -432,7 +435,7 @@ class sitsassign_test extends advanced_testcase {
                     'weighting' => 100,
                     'duedate' => strtotime('+1 week'),
                     'grademarkexempt' => false,
-                    'availablefrom' => 0
+                    'availablefrom' => 0,
                 ],
                 'newassign' => [
                     'sitsref' => 'PROJECT1_ABC101_2023/24',
@@ -441,9 +444,9 @@ class sitsassign_test extends advanced_testcase {
                     'weighting' => 100,
                     'duedate' => strtotime('+2 week'),
                     'grademarkexempt' => false,
-                    'availablefrom' => 0
+                    'availablefrom' => 0,
                 ],
-                'coursedeleted' => false
+                'coursedeleted' => false,
             ],
             'deleted_course_after_old_assign' => [
                 'oldassign' => [
@@ -453,7 +456,7 @@ class sitsassign_test extends advanced_testcase {
                     'weighting' => 100,
                     'duedate' => strtotime('+1 week'),
                     'grademarkexempt' => false,
-                    'availablefrom' => 0
+                    'availablefrom' => 0,
                 ],
                 'newassign' => [
                     'sitsref' => 'PROJECT1_ABC101_2023/24',
@@ -462,9 +465,9 @@ class sitsassign_test extends advanced_testcase {
                     'weighting' => 100,
                     'duedate' => strtotime('+2 week'),
                     'grademarkexempt' => false,
-                    'availablefrom' => 0
+                    'availablefrom' => 0,
                 ],
-                'coursedeleted' => true
+                'coursedeleted' => true,
             ],
             // In this scenario, the scheduled task will create the assignment.
             'no_duedate-valid_duedate' => [
@@ -475,7 +478,7 @@ class sitsassign_test extends advanced_testcase {
                     'weighting' => 100,
                     'duedate' => 0,
                     'grademarkexempt' => false,
-                    'availablefrom' => 0
+                    'availablefrom' => 0,
                 ],
                 'newassign' => [
                     'sitsref' => 'PROJECT1_ABC101_2023/24',
@@ -484,9 +487,9 @@ class sitsassign_test extends advanced_testcase {
                     'weighting' => 100,
                     'duedate' => strtotime('+1 week'),
                     'grademarkexempt' => false,
-                    'availablefrom' => 0
+                    'availablefrom' => 0,
                 ],
-                'coursedeleted' => false
+                'coursedeleted' => false,
             ],
             'availablefrom_past-availablefrom_future' => [
                 'oldassign' => [
@@ -496,7 +499,7 @@ class sitsassign_test extends advanced_testcase {
                     'weighting' => 100,
                     'duedate' => strtotime('+3 week'),
                     'grademarkexempt' => false,
-                    'availablefrom' => strtotime('-1 week')
+                    'availablefrom' => strtotime('-1 week'),
                 ],
                 'newassign' => [
                     'sitsref' => 'PROJECT1_ABC101_2023/24',
@@ -505,9 +508,9 @@ class sitsassign_test extends advanced_testcase {
                     'weighting' => 100,
                     'duedate' => strtotime('+3 week'),
                     'grademarkexempt' => false,
-                    'availablefrom' => strtotime('+1 week')
+                    'availablefrom' => strtotime('+1 week'),
                 ],
-                'coursedeleted' => false
+                'coursedeleted' => false,
             ],
             'grademark_exempt-no_grademarkexempt' => [
                 'oldassign' => [
@@ -517,7 +520,7 @@ class sitsassign_test extends advanced_testcase {
                     'weighting' => 100,
                     'duedate' => strtotime('+1 week'),
                     'grademarkexempt' => true,
-                    'availablefrom' => 0
+                    'availablefrom' => 0,
                 ],
                 'newassign' => [
                     'sitsref' => 'PROJECT1_ABC101_2023/24',
@@ -526,9 +529,9 @@ class sitsassign_test extends advanced_testcase {
                     'weighting' => 100,
                     'duedate' => strtotime('+1 week'),
                     'grademarkexempt' => false,
-                    'availablefrom' => 0
+                    'availablefrom' => 0,
                 ],
-                'coursedeleted' => false
+                'coursedeleted' => false,
             ],
             'exam_cutoffdate-new_duedate' => [
                 'oldassign' => [
@@ -538,7 +541,7 @@ class sitsassign_test extends advanced_testcase {
                     'weighting' => 100,
                     'duedate' => strtotime('+1 week'),
                     'grademarkexempt' => true,
-                    'availablefrom' => 0
+                    'availablefrom' => 0,
                 ],
                 'newassign' => [
                     'sitsref' => 'EXAM_ABC101_2023/24',
@@ -547,9 +550,9 @@ class sitsassign_test extends advanced_testcase {
                     'weighting' => 100,
                     'duedate' => strtotime('+2 week'),
                     'grademarkexempt' => true,
-                    'availablefrom' => 0
+                    'availablefrom' => 0,
                 ],
-                'coursedeleted' => false
+                'coursedeleted' => false,
             ],
             'new_weighting' => [
                 'oldassign' => [
@@ -559,7 +562,7 @@ class sitsassign_test extends advanced_testcase {
                     'weighting' => 100,
                     'duedate' => strtotime('+1 week'),
                     'grademarkexempt' => false,
-                    'availablefrom' => 0
+                    'availablefrom' => 0,
                 ],
                 'newassign' => [
                     'sitsref' => 'PROJECT1_ABC101_2023/24',
@@ -568,10 +571,10 @@ class sitsassign_test extends advanced_testcase {
                     'weighting' => 50,
                     'duedate' => strtotime('+1 week'),
                     'grademarkexempt' => false,
-                    'availablefrom' => 0
+                    'availablefrom' => 0,
                 ],
-                'coursedeleted' => false
-            ]
+                'coursedeleted' => false,
+            ],
         ];
     }
 
@@ -585,6 +588,7 @@ class sitsassign_test extends advanced_testcase {
         global $DB;
         $this->resetAfterTest();
         $this->setAdminUser();
+        /** @var local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $this->create_solent_gradescales();
         $config = get_config('local_solsits');
@@ -595,7 +599,7 @@ class sitsassign_test extends advanced_testcase {
             'shortname' => 'ABC101_A_S1_2022/23',
             'idnumber' => 'ABC101_A_S1_2022/23',
             'customfield_academic_year' => '2022/23',
-            'customfield_module_code' => 'ABC101'
+            'customfield_module_code' => 'ABC101',
         ]);
 
         // Already exported assignment grades.
@@ -612,7 +616,7 @@ class sitsassign_test extends advanced_testcase {
             'scale' => 'grademark',
             'assessmentcode' => 'ABC10101',
             'assessmentname' => 'Portfolio 1',
-            'sequence' => '001'
+            'sequence' => '001',
         ]);
         $sitsassignexported->create_assignment();
         $cm = get_coursemodule_from_id('assign', $sitsassignexported->get('cmid'), $course->id);
@@ -633,7 +637,7 @@ class sitsassign_test extends advanced_testcase {
             'scale' => 'grademark',
             'assessmentcode' => 'ABC10102',
             'assessmentname' => 'Report 1',
-            'sequence' => '001'
+            'sequence' => '001',
         ]);
         $sitsassign->create_assignment();
         $cm = get_coursemodule_from_id('assign', $sitsassign->get('cmid'), $course->id);
@@ -657,7 +661,7 @@ class sitsassign_test extends advanced_testcase {
         }
         $moduleleader = $this->getDataGenerator()->create_user([
             'firstname' => 'Module',
-            'lastname' => 'Leader'
+            'lastname' => 'Leader',
         ]);
         $this->getDataGenerator()->enrol_user($moduleleader->id, $course->id, 'editingteacher');
         $this->mark_assignments($students, $grades, $assign, $moduleleader, ASSIGN_MARKING_WORKFLOW_STATE_RELEASED);
@@ -672,7 +676,7 @@ class sitsassign_test extends advanced_testcase {
                 'studentid' => $students[$x]->id,
                 'converted_grade' => helper::convert_grade($config->grademarkscale, $grades[$x]['grade']),
                 'message' => '',
-                'response' => 'SUCCESS'
+                'response' => 'SUCCESS',
             ]);
         }
         // We have already exported some grades, and others are waiting to be queued, so the queue is currently empty.

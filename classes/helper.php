@@ -47,7 +47,7 @@ class helper {
     public static function get_pagetypes_menu(): array {
         $options = [
             soltemplate::MODULE => soltemplate::MODULE,
-            soltemplate::COURSE => soltemplate::COURSE
+            soltemplate::COURSE => soltemplate::COURSE,
         ];
         return $options;
     }
@@ -98,7 +98,7 @@ class helper {
             'defaultvalue' => '',
             'displaysize' => 50,
             'maxlength' => 1333,
-            'link' => ''
+            'link' => '',
         ]);
         $configdatainvisible = json_encode([
             'locked' => 1,
@@ -109,46 +109,46 @@ class helper {
             'defaultvalue' => '',
             'displaysize' => 50,
             'maxlength' => 1333,
-            'link' => ''
+            'link' => '',
         ]);
         $predefined = [
             'academic_year' => [
-                'name' => 'Academic year'
+                'name' => 'Academic year',
             ],
             'level_code' => [
-                'name' => 'Academic level'
+                'name' => 'Academic level',
             ],
             'location_code' => [
-                'name' => 'Location code'
+                'name' => 'Location code',
             ],
             'location_name' => [
-                'name' => 'Location'
+                'name' => 'Location',
             ],
             'module_code' => [
-                'name' => 'Module or Course code'
+                'name' => 'Module or Course code',
             ],
             'module_occurrence' => [
-                'name' => 'Module occurrence'
+                'name' => 'Module occurrence',
             ],
             'org_2' => [
-                'name' => 'Faculty/School'
+                'name' => 'Faculty/School',
             ],
             'org_3' => [
-                'name' => 'Department'
+                'name' => 'Department',
             ],
             'pagetype' => [
                 'name' => 'Page type',
-                'configdata' => $configdatainvisible
+                'configdata' => $configdatainvisible,
             ],
             'period_code' => [
                 'name' => 'Period',
-                'configdata' => $configdatainvisible
+                'configdata' => $configdatainvisible,
             ],
             'related_courses' => [
-                'name' => 'Related courses'
+                'name' => 'Related courses',
             ],
             'subject_area' => [
-                'name' => 'Subject area'
+                'name' => 'Subject area',
             ],
             'templateapplied' => [
                 'name' => 'Template applied',
@@ -161,9 +161,9 @@ class helper {
                     'defaultvalue' => '0',
                     'displaysize' => 50,
                     'maxlength' => 1333,
-                    'link' => ''
-                ])
-            ]
+                    'link' => '',
+                ]),
+            ],
         ];
 
         if (!array_key_exists($shortname, $predefined)) {
@@ -174,7 +174,7 @@ class helper {
         $category = category::get_record([
             'name' => 'Student Records System',
             'area' => 'course',
-            'component' => 'core_course'
+            'component' => 'core_course',
         ]);
         if (!$category) {
             // No category, so create and use it.
@@ -183,13 +183,13 @@ class helper {
                 'description' => 'Fields managed by the university\'s Student records system. Do not change unless asked to.',
                 'area' => 'course',
                 'component' => 'core_course',
-                'contextid' => context_system::instance()->id
+                'contextid' => context_system::instance()->id,
             ]);
             $category->save();
         }
         $field = field::get_record([
             'shortname' => $shortname,
-            'categoryid' => $category->get('id')
+            'categoryid' => $category->get('id'),
         ]);
         if ($field) {
             // Already exists. Nothing to do here.
@@ -554,7 +554,7 @@ class helper {
             $alerts[] = new \core\output\notification(
                 get_string('quercusassignmentonsitscourse', 'local_solsits', [
                     'assignidnumber' => $cm->idnumber,
-                    'courseidnumber' => $course->idnumber
+                    'courseidnumber' => $course->idnumber,
                 ]),
                 \core\notification::ERROR
             );
@@ -566,7 +566,7 @@ class helper {
             $alerts[] = new \core\output\notification(
                 get_string('wrongassignmentonwrongcourse', 'local_solsits', [
                     'assignidnumber' => $cm->idnumber,
-                    'courseidnumber' => $course->idnumber
+                    'courseidnumber' => $course->idnumber,
                 ]),
                 \core\notification::ERROR
             );
@@ -599,7 +599,7 @@ class helper {
                     $alerts[] = new \core\output\notification(
                         get_string('releasedate', 'local_solsits', [
                                 'date' => date('d/m/Y', $releaseavailable),
-                                'days' => $boardbuffer
+                                'days' => $boardbuffer,
                         ]),
                         \core\notification::SUCCESS);
                 } else {

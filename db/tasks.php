@@ -33,7 +33,7 @@ $tasks = [
         'hour' => '*',
         'day' => '*',
         'month' => '*',
-        'dayofweek' => '*'
+        'dayofweek' => '*',
     ], [
         'classname' => '\local_solsits\task\create_assignment_task',
         'blocking' => 0,
@@ -41,7 +41,7 @@ $tasks = [
         'hour' => '*',
         'day' => '*',
         'month' => '*',
-        'dayofweek' => '*'
+        'dayofweek' => '*',
     ], [
         'classname' => '\local_solsits\task\get_new_grades_task',
         'blocking' => 0,
@@ -49,7 +49,7 @@ $tasks = [
         'hour' => '*',
         'day' => '*',
         'month' => '*',
-        'dayofweek' => '*'
+        'dayofweek' => '*',
     ], [
         'classname' => '\local_solsits\task\export_grades_task',
         'blocking' => 0,
@@ -57,6 +57,6 @@ $tasks = [
         'hour' => '*',
         'day' => '*',
         'month' => '*',
-        'dayofweek' => '*'
-    ]
+        'dayofweek' => '*',
+    ],
 ];

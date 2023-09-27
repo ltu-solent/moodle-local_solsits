@@ -55,7 +55,7 @@ class template_filter_form extends moodleform {
                     return $course->shortname . ': ' . $course->fullname;
                 }
                 return false;
-            }
+            },
         ];
         $mform->addElement('autocomplete', 'selectedcourses',
             new lang_string('selectcourses', 'local_solsits'),
@@ -64,12 +64,12 @@ class template_filter_form extends moodleform {
         $mform->setDefault('selectedcourses', []);
 
         $options = [
-            '' => get_string('selectapagetype', 'local_solsits')
+            '' => get_string('selectapagetype', 'local_solsits'),
         ] + helper::get_pagetypes_menu();
         $mform->addElement('select', 'pagetype', new lang_string('pagetype', 'local_solsits'), $options);
 
         $options = [
-            '' => new lang_string('selectasession', 'local_solsits')
+            '' => new lang_string('selectasession', 'local_solsits'),
         ] + helper::get_session_menu();
         $mform->addElement('select', 'session', new lang_string('session', 'local_solsits'), $options);
         $this->add_action_buttons(false, get_string('filter', 'local_solsits'));

@@ -57,7 +57,7 @@ class helper_test extends advanced_testcase {
             'name' => 'Student Records System',
             'area' => 'course',
             'component' => 'core_course',
-            'contextid' => context_system::instance()->id
+            'contextid' => context_system::instance()->id,
         ]);
         $this->assertEquals('Student Records System', $category->get('name'));
         $this->assertEquals(
@@ -66,7 +66,7 @@ class helper_test extends advanced_testcase {
         );
         $field = field::get_record([
             'shortname' => 'academic_year',
-            'categoryid' => $category->get('id')
+            'categoryid' => $category->get('id'),
         ]);
         $this->assertEquals('academic_year', $field->get('shortname'));
         $this->assertEquals('Academic year', $field->get('name'));
@@ -81,7 +81,7 @@ class helper_test extends advanced_testcase {
         helper::create_sits_coursecustomfields('pagetype');
         $field = field::get_record([
             'shortname' => 'pagetype',
-            'categoryid' => $category->get('id')
+            'categoryid' => $category->get('id'),
         ]);
         $this->assertEquals('Page type', $field->get('name'));
     }
@@ -98,21 +98,22 @@ class helper_test extends advanced_testcase {
         $sits = $this->getDataGenerator()->create_module('assign', [
             'course' => $course->id,
             'name' => 'sits',
-            'idnumber' => 'SITS_1'
+            'idnumber' => 'SITS_1',
         ]);
         $quercus = $this->getDataGenerator()->create_module('assign', [
             'course' => $course->id,
             'name' => 'quercus',
-            'idnumber' => 'QUERCUS_1'
+            'idnumber' => 'QUERCUS_1',
         ]);
         $formative = $this->getDataGenerator()->create_module('assign', [
             'course' => $course->id,
             'name' => 'formative',
-            'idnumber' => ''
+            'idnumber' => '',
         ]);
         $sitscm = get_coursemodule_from_instance('assign', $sits->id);
         $quercuscm = get_coursemodule_from_instance('assign', $quercus->id);
         $formativecm = get_coursemodule_from_instance('assign', $formative->id);
+        /** @var local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $dg->create_sits_assign(['cmid' => $sitscm->id, 'courseid' => $course->id]);
         $this->assertTrue(local_solsits\helper::is_sits_assignment($sitscm->id));
@@ -137,11 +138,12 @@ class helper_test extends advanced_testcase {
         $assign = $this->getDataGenerator()->create_module('assign', [
             'course' => $course->id,
             'name' => $name,
-            'idnumber' => $idnumber
+            'idnumber' => $idnumber,
         ]);
 
         $cm = get_coursemodule_from_instance('assign', $assign->id);
         if ($sitsassign) {
+            /** @var local_solsits_generator $dg */
             $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
             $dg->create_sits_assign(['cmid' => $cm->id, 'courseid' => $course->id]);
         }
@@ -156,7 +158,7 @@ class helper_test extends advanced_testcase {
         // Create Solent Grademark scales.
         $solentscale = $this->getDataGenerator()->create_scale([
             'name' => 'Solent',
-            'scale' => 'N, S, F3, F2, F1, D3, D2, D1, C3, C2, C1, B3, B2, B1, A4, A3, A2, A1'
+            'scale' => 'N, S, F3, F2, F1, D3, D2, D1, C3, C2, C1, B3, B2, B1, A4, A3, A2, A1',
         ]);
         set_config('grademarkscale', $solentscale->id, 'local_solsits');
         $defaultscales[$solentscale->id] = 'Solent';
@@ -175,7 +177,7 @@ class helper_test extends advanced_testcase {
                     '21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, ' .
                     '41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, ' .
                     '61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, ' .
-                    '81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100'
+                    '81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100',
         ]);
         set_config('grademarkexemptscale', $solentnumeric->id, 'local_solsits');
         $defaultscales[$solentnumeric->id] = 'Solent numeric';
@@ -195,23 +197,23 @@ class helper_test extends advanced_testcase {
      *
      * @return array
      */
-    public function get_scales_menu_dataprovider() {
+    public static function get_scales_menu_dataprovider(): array {
         return [
             'sits' => [
                 'name' => 'Assign 1',
                 'idnumber' => 'SITS1',
-                'sitsassign' => true
+                'sitsassign' => true,
             ],
             'quercus' => [
                 'name' => 'Assign 1',
                 'idnumber' => 'QUERCUS1',
-                'sitsassign' => false
+                'sitsassign' => false,
             ],
             'formative' => [
                 'name' => 'Assign 1',
                 'idnumber' => '',
-                'sitsassign' => false
-            ]
+                'sitsassign' => false,
+            ],
         ];
     }
 
@@ -235,7 +237,8 @@ class helper_test extends advanced_testcase {
                 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
                 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60,
                 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80,
-                81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100];
+                81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100,
+            ];
         for ($x = 1; $x <= 100; $x++) {
             $grade = helper::convert_grade($scaleid, $x);
             $this->assertEquals($match[$x], $grade);
@@ -272,19 +275,21 @@ class helper_test extends advanced_testcase {
         $this->setAdminUser();
 
         $course = $this->getDataGenerator()->create_course($coursedata);
+        /** @var mod_assign_generator $assigngen */
         $assigngen = $this->getDataGenerator()->get_plugin_generator('mod_assign');
+        /** @var local_solsits_generator $sitsgen */
         $sitsgen = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         if ($assigndata['issits'] == true) {
             $assign = $sitsgen->create_sits_assign([
                 'sitsref' => $assigndata['idnumber'],
-                'courseid' => $course->id
+                'courseid' => $course->id,
             ]);
             $assign->create_assignment();
             $cmid = $assign->get('cmid');
         } else {
             $assign = $assigngen->create_instance([
                 'idnumber' => $assigndata['idnumber'],
-                'course' => $course->id
+                'course' => $course->id,
             ]);
             $cmid = $assign->cmid;
         }
@@ -303,7 +308,7 @@ class helper_test extends advanced_testcase {
         if ($response != '') {
             $expectedresponse = get_string($response, 'local_solsits', [
                 'assignidnumber' => $cm->idnumber,
-                'courseidnumber' => $course->idnumber
+                'courseidnumber' => $course->idnumber,
             ]);
         }
         $this->assertCount($alertcount, $alerts);
@@ -322,60 +327,60 @@ class helper_test extends advanced_testcase {
      * Data provider for test_badassignalerts
      * return array
      */
-    public function badassignalerts_dataprovider(): array {
+    public static function badassignalerts_dataprovider(): array {
         return [
             'quercus assignment on sits course' => [
                 'coursedata' => [
                     'fullname' => 'SITS course (ABC101)',
                     'shortname' => 'ABC101_A_SEM1_2023/24',
-                    'idnumber' => 'ABC101_A_SEM1_2023/24'
+                    'idnumber' => 'ABC101_A_SEM1_2023/24',
                 ],
                 'assigndata' => [
                     'issits' => false,
-                    'idnumber' => 'PROJ1_2022'
+                    'idnumber' => 'PROJ1_2022',
                 ],
                 'response' => 'quercusassignmentonsitscourse',
-                'alertcount' => 1
+                'alertcount' => 1,
             ],
             'sits assign on wrong sits course' => [
                 'coursedata' => [
                     'fullname' => 'SITS course (ABC101)',
                     'shortname' => 'ABC101_A_SEM1_2024/25',
-                    'idnumber' => 'ABC101_A_SEM1_2024/25'
+                    'idnumber' => 'ABC101_A_SEM1_2024/25',
                 ],
                 'assigndata' => [
                     'issits' => false,
-                    'idnumber' => 'ABC101_A_SEM1_2023/24_ABC10101_001_0'
+                    'idnumber' => 'ABC101_A_SEM1_2023/24_ABC10101_001_0',
                 ],
                 'response' => 'wrongassignmentonwrongcourse',
-                'alertcount' => 1
+                'alertcount' => 1,
             ],
             'quercus assignment on quercus course' => [
                 'coursedata' => [
                     'fullname' => 'Quercus course (ABC101)',
                     'shortname' => 'ABC101_123456789',
-                    'idnumber' => 'ABC101_123456789'
+                    'idnumber' => 'ABC101_123456789',
                 ],
                 'assigndata' => [
                     'issits' => false,
-                    'idnumber' => 'PROJ1_2022'
+                    'idnumber' => 'PROJ1_2022',
                 ],
                 'response' => '',
-                'alertcount' => 0
+                'alertcount' => 0,
             ],
             'sits assign on correct sits course' => [
                 'coursedata' => [
                     'fullname' => 'SITS course (ABC101)',
                     'shortname' => 'ABC101_A_SEM1_2024/25',
-                    'idnumber' => 'ABC101_A_SEM1_2024/25'
+                    'idnumber' => 'ABC101_A_SEM1_2024/25',
                 ],
                 'assigndata' => [
                     'issits' => true,
-                    'idnumber' => 'ABC101_A_SEM1_2024/25_ABC10101_001_0'
+                    'idnumber' => 'ABC101_A_SEM1_2024/25_ABC10101_001_0',
                 ],
                 'response' => '',
-                'alertcount' => 0
-            ]
+                'alertcount' => 0,
+            ],
         ];
     }
 }

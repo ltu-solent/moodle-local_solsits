@@ -73,54 +73,54 @@ class sitsassign extends persistent {
     protected static function define_properties() {
         return [
             'sitsref' => [
-                'type' => PARAM_TEXT
+                'type' => PARAM_TEXT,
             ],
             // Cmid can be 0 if the course has not been templated.
             'cmid' => [
                 'type' => PARAM_INT,
-                'default' => 0
+                'default' => 0,
             ],
             'courseid' => [
-                'type' => PARAM_INT
+                'type' => PARAM_INT,
             ],
             // Usually 0,1,2,3. Reattempt 0 is the first attempt.
             'reattempt' => [
                 'type' => PARAM_INT,
-                'default' => 0
+                'default' => 0,
             ],
             'title' => [
-                'type' => PARAM_TEXT
+                'type' => PARAM_TEXT,
             ],
             'weighting' => [
                 'type' => PARAM_INT,
-                'default' => 100
+                'default' => 100,
             ],
             // Although we need a duedate to create an assignment, we allow 0 to store the record.
             'duedate' => [
                 'type' => PARAM_INT,
-                'default' => 0
+                'default' => 0,
             ],
             'grademarkexempt' => [
                 'type' => PARAM_BOOL,
-                'default' => 0
+                'default' => 0,
             ],
             'scale' => [
                 'type' => PARAM_ALPHANUMEXT,
-                'default' => ''
+                'default' => '',
             ],
             'availablefrom' => [
                 'type' => PARAM_INT,
-                'default' => 0
+                'default' => 0,
             ],
             'assessmentcode' => [
-                'type' => PARAM_TEXT
+                'type' => PARAM_TEXT,
             ],
             'assessmentname' => [
-                'type' => PARAM_TEXT
+                'type' => PARAM_TEXT,
             ],
             'sequence' => [
-                'type' => PARAM_ALPHANUMEXT
-            ]
+                'type' => PARAM_ALPHANUMEXT,
+            ],
         ];
     }
 
@@ -153,7 +153,7 @@ class sitsassign extends persistent {
             WHERE cf.shortname = 'templateapplied'";
         $templateappliedfield = $DB->get_record_sql($sql);
         $params = [
-            'fieldid' => $templateappliedfield->id
+            'fieldid' => $templateappliedfield->id,
         ];
         $sql = "SELECT ssa.*
         FROM {local_solsits_assign} ssa
@@ -506,7 +506,7 @@ class sitsassign extends persistent {
         // There should only be one grade for this user on this assignment.
         $exists = $DB->record_exists('local_solsits_assign_grades', [
             'solassignmentid' => $grade->solassignmentid,
-            'studentid' => $grade->studentid
+            'studentid' => $grade->studentid,
         ]);
         if (!$exists) {
             $DB->insert_record('local_solsits_assign_grades', $grade);
@@ -525,7 +525,7 @@ class sitsassign extends persistent {
         global $DB;
         $exists = $DB->record_exists('local_solsits_assign_grades', [
             'solassignmentid' => $grade->solassignmentid,
-            'studentid' => $grade->studentid
+            'studentid' => $grade->studentid,
         ]);
         if (!$exists) {
             return false;
@@ -543,7 +543,7 @@ class sitsassign extends persistent {
         global $DB;
         return $DB->get_record('local_solsits_assign_grades', [
             'solassignmentid' => $this->get('id'),
-            'studentid' => $studentid
+            'studentid' => $studentid,
         ]);
     }
 
@@ -617,7 +617,7 @@ class sitsassign extends persistent {
                 'moduletitle' => $firstrecord->moduletitle,
                 'modulestartdate' => date('d/m/Y H:i:s', $course->startdate),
                 'moduleenddate' => date('d/m/Y H:i:s', $course->enddate),
-                'academic_year' => $firstrecord->academic_year
+                'academic_year' => $firstrecord->academic_year,
             ],
             'assignment' => [
                 'sitsref' => $firstrecord->sitsref,
@@ -625,14 +625,14 @@ class sitsassign extends persistent {
                 'duedate' => date('d/m/Y H:i:s', $firstrecord->duedate),
                 'assignid' => $firstrecord->assignid,
                 'reattempt' => $firstrecord->reattempt,
-                'sequence' => $firstrecord->sequence
+                'sequence' => $firstrecord->sequence,
             ],
             'unitleader' => [
                 'firstname' => $firstrecord->leaderfirstname,
                 'lastname' => $firstrecord->leaderlastname,
-                'email' => $firstrecord->leaderemail
+                'email' => $firstrecord->leaderemail,
             ],
-            'grades' => []
+            'grades' => [],
         ];
 
         $studentgrades = $this->get_grades();
@@ -643,7 +643,8 @@ class sitsassign extends persistent {
             }
             $misconduct = $DB->get_record('assignfeedback_misconduct', [
                 'assignment' => $cm->instance,
-                'grade' => $studentgrades[$markedassignment->studentid]->id]);
+                'grade' => $studentgrades[$markedassignment->studentid]->id,
+            ]);
             $misconductstring = get_string('no');
             $misconduct = $misconduct->misconduct ?? 0;
             if ($misconduct == 1) {
@@ -657,7 +658,7 @@ class sitsassign extends persistent {
                 'moodlestudentid' => $markedassignment->studentid,
                 'result' => $markedassignment->converted_grade,
                 'submissiontime' => $submissiontime,
-                'misconduct' => $misconductstring
+                'misconduct' => $misconductstring,
             ];
             $toexport['grades'][] = $gradeitem;
         }
@@ -674,7 +675,7 @@ class sitsassign extends persistent {
         global $DB;
         [$course, $cm] = get_course_and_cm_from_cmid($this->get('cmid'));
         $params = [
-            'assignid' => $cm->instance
+            'assignid' => $cm->instance,
         ];
         $sql = "SELECT ag.userid,
                         ag.id,

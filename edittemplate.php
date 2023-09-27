@@ -38,7 +38,7 @@ if (!in_array($action, ['edit', 'delete', 'new'])) {
 }
 $pageparams = [
     'action' => $action,
-    'id' => $id
+    'id' => $id,
 ];
 
 
@@ -60,7 +60,7 @@ $form = null;
 
 if ($action == 'edit' || $action == 'delete') {
     if ($id == 0) {
-        throw new moodle_exception('invalidid');
+        throw new moodle_exception('invalidtemplateid', 'local_solsits');
     }
 } else {
     $action = 'new';
@@ -69,7 +69,7 @@ if ($action == 'edit' || $action == 'delete') {
 $soltemplate = new soltemplate($id);
 $customdata = [
     'persistent' => $soltemplate,
-    'userid' => $USER->id
+    'userid' => $USER->id,
 ];
 
 if ($confirmdelete && confirm_sesskey()) {
@@ -122,7 +122,7 @@ if ($action == 'delete') {
         'action' => 'delete',
         'confirmdelete' => true,
         'id' => $id,
-        'sesskey' => sesskey()
+        'sesskey' => sesskey(),
     ]);
     $deletebutton = new single_button($deleteurl, get_string('delete'));
     echo $OUTPUT->confirm(

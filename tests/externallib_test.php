@@ -64,7 +64,7 @@ class externallib_test extends externallib_advanced_testcase {
         if ($courseidnumber) {
             $course = $this->getDataGenerator()->create_course([
                 'shortname' => $courseidnumber,
-                'idnumber' => $courseidnumber
+                'idnumber' => $courseidnumber,
             ]);
             $assign['courseid'] = $course->id;
         }
@@ -72,9 +72,7 @@ class externallib_test extends externallib_advanced_testcase {
             $this->expectException($expectederror);
         }
         $this->setAdminUser();
-        \local_solsits_external::add_assignments([
-            $assign
-        ]);
+        \local_solsits_external::add_assignments([$assign]);
         $sitsassign = sitsassign::get_record(['sitsref' => $assign['sitsref']]);
         $this->assertEquals($assign['sitsref'], $sitsassign->get('sitsref'));
         $this->assertEquals($assign['title'], $sitsassign->get('title'));
@@ -97,7 +95,7 @@ class externallib_test extends externallib_advanced_testcase {
      *
      * @return array
      */
-    public function add_assignments_provider() {
+    public static function add_assignments_provider(): array {
         return [
             'Valid assignment' => [
                 'assign' => [
@@ -110,10 +108,10 @@ class externallib_test extends externallib_advanced_testcase {
                     'reattempt' => 0,
                     'assessmentcode' => 'AAP50201',
                     'assessmentname' => 'Project 1',
-                    'sequence' => '001'
+                    'sequence' => '001',
                 ],
                 'courseidnumber' => 'AAP502_A_SEM1_2023/24',
-                'expectederror' => ''
+                'expectederror' => '',
             ],
             'No due date' => [
                 'assign' => [
@@ -126,10 +124,10 @@ class externallib_test extends externallib_advanced_testcase {
                     'reattempt' => 0,
                     'assessmentcode' => 'AAP50201',
                     'assessmentname' => 'Project 1',
-                    'sequence' => '001'
+                    'sequence' => '001',
                 ],
                 'courseidnumber' => 'AAP502_A_SEM1_2023/24',
-                'expectederror' => ''
+                'expectederror' => '',
             ],
             'Course not exists' => [
                 'assign' => [
@@ -142,10 +140,10 @@ class externallib_test extends externallib_advanced_testcase {
                     'reattempt' => 0,
                     'assessmentcode' => 'AAP50201',
                     'assessmentname' => 'Project 1',
-                    'sequence' => '001'
+                    'sequence' => '001',
                 ],
                 'courseidnumber' => null,
-                'expectederror' => 'invalid_parameter_exception'
+                'expectederror' => 'invalid_parameter_exception',
             ],
             'With scale' => [
                 'assign' => [
@@ -159,10 +157,10 @@ class externallib_test extends externallib_advanced_testcase {
                     'assessmentcode' => 'AAP50201',
                     'assessmentname' => 'Project 1',
                     'sequence' => '001',
-                    'scale' => 'Pass-Fail'
+                    'scale' => 'Pass-Fail',
                 ],
                 'courseidnumber' => 'AAP502_A_SEM1_2023/24',
-                'expectederror' => ''
+                'expectederror' => '',
             ],
             'With malformed scale' => [
                 'assign' => [
@@ -176,11 +174,11 @@ class externallib_test extends externallib_advanced_testcase {
                     'assessmentcode' => 'AAP50201',
                     'assessmentname' => 'Project 1',
                     'sequence' => '001',
-                    'scale' => 'Pass/Fail'
+                    'scale' => 'Pass/Fail',
                 ],
                 'courseidnumber' => 'AAP502_A_SEM1_2023/24',
-                'expectederror' => 'invalid_parameter_exception'
-            ]
+                'expectederror' => 'invalid_parameter_exception',
+            ],
         ];
     }
 
@@ -202,20 +200,18 @@ class externallib_test extends externallib_advanced_testcase {
             'reattempt' => 0,
             'assessmentcode' => 'AAP50201',
             'assessmentname' => 'Project 1',
-            'sequence' => '001'
+            'sequence' => '001',
         ];
         $courseidnumber = 'AAP502_A_SEM1_2023/24';
 
         $course = $this->getDataGenerator()->create_course([
             'shortname' => $courseidnumber,
-            'idnumber' => $courseidnumber
+            'idnumber' => $courseidnumber,
         ]);
         $assign['courseid'] = $course->id;
         $this->setAdminUser();
         // First time of trying: Success.
-        \local_solsits_external::add_assignments([
-            $assign
-        ]);
+        \local_solsits_external::add_assignments([$assign]);
         $sitsassign = sitsassign::get_record(['sitsref' => $assign['sitsref']]);
         $this->assertEquals($assign['sitsref'], $sitsassign->get('sitsref'));
         $this->assertEquals($assign['title'], $sitsassign->get('title'));
@@ -232,9 +228,7 @@ class externallib_test extends externallib_advanced_testcase {
 
         // Now try to add an assignment with the same sitsref: Fail.
         $this->expectException('invalid_parameter_exception');
-        \local_solsits_external::add_assignments([
-            $assign
-        ]);
+        \local_solsits_external::add_assignments([$assign]);
     }
 
     /**
@@ -258,7 +252,7 @@ class externallib_test extends externallib_advanced_testcase {
             'idnumber' => $courseidnumber,
             'customfield_academic_year' => '2023/24',
             'customfield_pagetype' => 'module',
-            'customfield_templateapplied' => 1
+            'customfield_templateapplied' => 1,
         ]);
         // Need this for creating the assign activities.
         $this->create_solent_gradescales();
@@ -270,9 +264,7 @@ class externallib_test extends externallib_advanced_testcase {
         if (!empty($before)) {
             $before['courseid'] = $course->id;
             // Create before sitsassign record.
-            \local_solsits_external::add_assignments([
-                $before
-            ]);
+            \local_solsits_external::add_assignments([$before]);
             $sitsassignbefore = sitsassign::get_record(['sitsref' => $before['sitsref']]);
         }
         $after['courseid'] = $course->id;
@@ -288,9 +280,7 @@ class externallib_test extends externallib_advanced_testcase {
         }
 
         // Run update assignment.
-        \local_solsits_external::update_assignments([
-            $after
-        ]);
+        \local_solsits_external::update_assignments([$after]);
         $sitsassignafter = sitsassign::get_record(['sitsref' => $after['sitsref']]);
         // First check the sitsassign table update has happened.
         $this->assertEquals($after['sitsref'], $sitsassignafter->get('sitsref'));
@@ -331,7 +321,7 @@ class externallib_test extends externallib_advanced_testcase {
      *
      * @return array
      */
-    public function update_assignment_provider(): array {
+    public static function update_assignment_provider(): array {
         // Need before and after.
         return [
             'Existing sits assignment - No Course Module' => [
@@ -345,7 +335,7 @@ class externallib_test extends externallib_advanced_testcase {
                     'reattempt' => 0,
                     'assessmentcode' => 'AAP50201',
                     'assessmentname' => 'Project 1',
-                    'sequence' => '001'
+                    'sequence' => '001',
                 ],
                 'after' => [
                     'sitsref' => 'AAP502_A_SEM1_2023/24_AAP50201_001_0',
@@ -357,11 +347,11 @@ class externallib_test extends externallib_advanced_testcase {
                     'reattempt' => 0,
                     'assessmentcode' => 'AAP50201',
                     'assessmentname' => 'Project 1',
-                    'sequence' => '001'
+                    'sequence' => '001',
                 ],
                 'courseidnumber' => 'AAP502_A_SEM1_2023/24',
                 'expectederror' => '',
-                'cmexists' => false
+                'cmexists' => false,
             ],
             'Not existing sits assignment' => [
                 'before' => [], // Empty to create a non-existing context.
@@ -375,11 +365,11 @@ class externallib_test extends externallib_advanced_testcase {
                     'reattempt' => 0,
                     'assessmentcode' => 'AAP50201',
                     'assessmentname' => 'Project 1',
-                    'sequence' => '001'
+                    'sequence' => '001',
                 ],
                 'courseidnumber' => 'AAP502_A_SEM1_2023/24',
                 'expectederror' => 'invalid_parameter_exception',
-                'cmexists' => false
+                'cmexists' => false,
             ],
             'Existing sits assignment - Course Module exists' => [
                 'before' => [
@@ -392,7 +382,7 @@ class externallib_test extends externallib_advanced_testcase {
                     'reattempt' => 0,
                     'assessmentcode' => 'AAP50201',
                     'assessmentname' => 'Project 1',
-                    'sequence' => '001'
+                    'sequence' => '001',
                 ],
                 'after' => [
                     'sitsref' => 'AAP502_A_SEM1_2023/24_AAP50201_001_0',
@@ -404,12 +394,12 @@ class externallib_test extends externallib_advanced_testcase {
                     'reattempt' => 0,
                     'assessmentcode' => 'AAP50201',
                     'assessmentname' => 'Project 1',
-                    'sequence' => '001'
+                    'sequence' => '001',
                 ],
                 'courseidnumber' => 'AAP502_A_SEM1_2023/24',
                 'expectederror' => '',
-                'cmexists' => true
-            ]
+                'cmexists' => true,
+            ],
         ];
     }
 }

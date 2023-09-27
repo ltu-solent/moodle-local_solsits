@@ -82,7 +82,7 @@ class ais_client_test extends advanced_testcase {
      *
      * @return array Returns the data exported, and the expected response for that data.
      */
-    public function export_grades_provider(): array {
+    public static function export_grades_provider(): array {
         return [
             'no grades sent' => [
                 'export' => [
@@ -92,7 +92,7 @@ class ais_client_test extends advanced_testcase {
                         'moduletitle' => 'Making Widgets',
                         'modulestartdate' => '21/09/2023 00:00:00',
                         'moduleenddate' => '20/12/2023 23:59:59',
-                        'academic_year' => '2023/24'
+                        'academic_year' => '2023/24',
                     ],
                     'assignment' => [
                         'sitsref' => 'ABC101_A_SEM1_2022/23_ABC10102_001_0_0_1',
@@ -100,22 +100,22 @@ class ais_client_test extends advanced_testcase {
                         'duedate' => '10/12/2023 16:00:00',
                         'assignid' => '1',
                         'reattempt' => '0',
-                        'sequence' => '001'
+                        'sequence' => '001',
                     ],
                     'unitleader' => [
                         'firstname' => 'Teacher',
                         'lastname' => 'Test',
-                        'email' => 'teacher.test@example.com'
+                        'email' => 'teacher.test@example.com',
                     ],
-                    'grades' => []
+                    'grades' => [],
                 ],
                 'response' => [
                     'sitsref' => 'ABC101_A_SEM1_2022/23_ABC10102_001_0_0_1',
                     'grades' => [],
                     'status' => 'SUCCESS',
                     'message' => '',
-                    'errorcode' => ''
-                ]
+                    'errorcode' => '',
+                ],
             ],
             'module not in sits' => [
                 'export' => [
@@ -125,7 +125,7 @@ class ais_client_test extends advanced_testcase {
                         'moduletitle' => 'Making Widgets',
                         'modulestartdate' => '21/09/2023 00:00:00',
                         'moduleenddate' => '20/12/2023 23:59:59',
-                        'academic_year' => '2023/24'
+                        'academic_year' => '2023/24',
                     ],
                     'assignment' => [
                         'sitsref' => 'ABC102_A_SEM1_2022/23_ABC10202_001_0_0_1',
@@ -133,12 +133,12 @@ class ais_client_test extends advanced_testcase {
                         'duedate' => '10/12/2023 16:00:00',
                         'assignid' => '1',
                         'reattempt' => '0',
-                        'sequence' => '001'
+                        'sequence' => '001',
                     ],
                     'unitleader' => [
                         'firstname' => 'Teacher',
                         'lastname' => 'Test',
-                        'email' => 'teacher.test@example.com'
+                        'email' => 'teacher.test@example.com',
                     ],
                     'grades' => [
                         [
@@ -148,7 +148,7 @@ class ais_client_test extends advanced_testcase {
                             'moodlestudentid' => '57',
                             'result' => 68,
                             'submissiontime' => '09/12/2023 13:45:12',
-                            'misconduct' => 'No'
+                            'misconduct' => 'No',
                         ],
                         [
                             'firstname' => 'Steve',
@@ -157,9 +157,9 @@ class ais_client_test extends advanced_testcase {
                             'moodlestudentid' => '58',
                             'result' => 99,
                             'submissiontime' => '10/12/2023 11:25:12',
-                            'misconduct' => 'No'
-                        ]
-                    ]
+                            'misconduct' => 'No',
+                        ],
+                    ],
                 ],
                 'response' => [
                     'sitsref' => 'ABC102_A_SEM1_2022/23_ABC10202_001_0_0_1',
@@ -173,12 +173,12 @@ class ais_client_test extends advanced_testcase {
                             'moodlestudentid' => '58',
                             'response' => 'FAILED',
                             'message' => 'Module not found in SITS',
-                        ]
+                        ],
                     ],
                     'status' => 'FAILED',
                     'message' => 'Module not found in SITS',
-                    'errorcode' => '1'
-                ]
+                    'errorcode' => '1',
+                ],
             ],
             'module instance not in sits' => [
                 'export' => [
@@ -188,7 +188,7 @@ class ais_client_test extends advanced_testcase {
                         'moduletitle' => 'Making Widgets',
                         'modulestartdate' => '21/09/2023 00:00:00',
                         'moduleenddate' => '20/12/2023 23:59:59',
-                        'academic_year' => '2023/24'
+                        'academic_year' => '2023/24',
                     ],
                     'assignment' => [
                         'sitsref' => 'ABC102_A_SEM1_2022/23_ABC10202_001_0_0_1',
@@ -196,12 +196,12 @@ class ais_client_test extends advanced_testcase {
                         'duedate' => '10/12/2023 16:00:00',
                         'assignid' => '1',
                         'reattempt' => '0',
-                        'sequence' => '001'
+                        'sequence' => '001',
                     ],
                     'unitleader' => [
                         'firstname' => 'Teacher',
                         'lastname' => 'Test',
-                        'email' => 'teacher.test@example.com'
+                        'email' => 'teacher.test@example.com',
                     ],
                     'grades' => [
                         [
@@ -211,7 +211,7 @@ class ais_client_test extends advanced_testcase {
                             'moodlestudentid' => '57',
                             'result' => 68,
                             'submissiontime' => '09/12/2023 13:45:12',
-                            'misconduct' => 'No'
+                            'misconduct' => 'No',
                         ],
                         [
                             'firstname' => 'Steve',
@@ -220,9 +220,9 @@ class ais_client_test extends advanced_testcase {
                             'moodlestudentid' => '58',
                             'result' => 99,
                             'submissiontime' => '10/12/2023 11:25:12',
-                            'misconduct' => 'No'
-                        ]
-                    ]
+                            'misconduct' => 'No',
+                        ],
+                    ],
                 ],
                 'response' => [
                     'sitsref' => 'ABC102_A_SEM1_2022/23_ABC10202_001_0_0_1',
@@ -236,12 +236,12 @@ class ais_client_test extends advanced_testcase {
                             'moodlestudentid' => '58',
                             'response' => 'FAILED',
                             'message' => 'Module instance not found in SITS',
-                        ]
+                        ],
                     ],
                     'status' => 'FAILED',
                     'message' => 'Module instance not found in SITS',
-                    'errorcode' => '2'
-                ]
+                    'errorcode' => '2',
+                ],
             ],
             'assessment not found in sits' => [
                 'export' => [
@@ -251,7 +251,7 @@ class ais_client_test extends advanced_testcase {
                         'moduletitle' => 'Making Widgets',
                         'modulestartdate' => '21/09/2023 00:00:00',
                         'moduleenddate' => '20/12/2023 23:59:59',
-                        'academic_year' => '2023/24'
+                        'academic_year' => '2023/24',
                     ],
                     'assignment' => [
                         'sitsref' => 'ABC102_A_SEM1_2022/23_ABC10202_001_0_0_1',
@@ -259,12 +259,12 @@ class ais_client_test extends advanced_testcase {
                         'duedate' => '10/12/2023 16:00:00',
                         'assignid' => '1',
                         'reattempt' => '0',
-                        'sequence' => '001'
+                        'sequence' => '001',
                     ],
                     'unitleader' => [
                         'firstname' => 'Teacher',
                         'lastname' => 'Test',
-                        'email' => 'teacher.test@example.com'
+                        'email' => 'teacher.test@example.com',
                     ],
                     'grades' => [
                         [
@@ -274,7 +274,7 @@ class ais_client_test extends advanced_testcase {
                             'moodlestudentid' => '57',
                             'result' => 68,
                             'submissiontime' => '09/12/2023 13:45:12',
-                            'misconduct' => 'No'
+                            'misconduct' => 'No',
                         ],
                         [
                             'firstname' => 'Steve',
@@ -283,9 +283,9 @@ class ais_client_test extends advanced_testcase {
                             'moodlestudentid' => '58',
                             'result' => 99,
                             'submissiontime' => '10/12/2023 11:25:12',
-                            'misconduct' => 'No'
-                        ]
-                    ]
+                            'misconduct' => 'No',
+                        ],
+                    ],
                 ],
                 'response' => [
                     'sitsref' => 'ABC102_A_SEM1_2022/23_ABC10202_001_0_0_1',
@@ -299,12 +299,12 @@ class ais_client_test extends advanced_testcase {
                             'moodlestudentid' => '58',
                             'response' => 'FAILED',
                             'message' => 'Assessment not found in SITS',
-                        ]
+                        ],
                     ],
                     'status' => 'FAILED',
                     'message' => 'Assessment not found in SITS',
-                    'errorcode' => '3'
-                ]
+                    'errorcode' => '3',
+                ],
             ],
             'Module assessment link not found in SITS' => [
                 'export' => [
@@ -314,7 +314,7 @@ class ais_client_test extends advanced_testcase {
                         'moduletitle' => 'Making Widgets',
                         'modulestartdate' => '21/09/2023 00:00:00',
                         'moduleenddate' => '20/12/2023 23:59:59',
-                        'academic_year' => '2023/24'
+                        'academic_year' => '2023/24',
                     ],
                     'assignment' => [
                         'sitsref' => 'ABC102_A_SEM1_2022/23_ABC10202_001_0_0_1',
@@ -322,12 +322,12 @@ class ais_client_test extends advanced_testcase {
                         'duedate' => '10/12/2023 16:00:00',
                         'assignid' => '1',
                         'reattempt' => '0',
-                        'sequence' => '001'
+                        'sequence' => '001',
                     ],
                     'unitleader' => [
                         'firstname' => 'Teacher',
                         'lastname' => 'Test',
-                        'email' => 'teacher.test@example.com'
+                        'email' => 'teacher.test@example.com',
                     ],
                     'grades' => [
                         [
@@ -337,7 +337,7 @@ class ais_client_test extends advanced_testcase {
                             'moodlestudentid' => '57',
                             'result' => 68,
                             'submissiontime' => '09/12/2023 13:45:12',
-                            'misconduct' => 'No'
+                            'misconduct' => 'No',
                         ],
                         [
                             'firstname' => 'Steve',
@@ -346,9 +346,9 @@ class ais_client_test extends advanced_testcase {
                             'moodlestudentid' => '58',
                             'result' => 99,
                             'submissiontime' => '10/12/2023 11:25:12',
-                            'misconduct' => 'No'
-                        ]
-                    ]
+                            'misconduct' => 'No',
+                        ],
+                    ],
                 ],
                 'response' => [
                     'sitsref' => 'ABC102_A_SEM1_2022/23_ABC10202_001_0_0_1',
@@ -362,12 +362,12 @@ class ais_client_test extends advanced_testcase {
                             'moodlestudentid' => '58',
                             'response' => 'FAILED',
                             'message' => 'Module assessment link not found in SITS',
-                        ]
+                        ],
                     ],
                     'status' => 'FAILED',
                     'message' => 'Module assessment link not found in SITS',
-                    'errorcode' => '4'
-                ]
+                    'errorcode' => '4',
+                ],
             ],
             'Student and assessment validation failures' => [
                 'export' => [
@@ -377,7 +377,7 @@ class ais_client_test extends advanced_testcase {
                         'moduletitle' => 'Making Widgets',
                         'modulestartdate' => '21/09/2023 00:00:00',
                         'moduleenddate' => '20/12/2023 23:59:59',
-                        'academic_year' => '2023/24'
+                        'academic_year' => '2023/24',
                     ],
                     'assignment' => [
                         'sitsref' => 'ABC102_A_SEM1_2022/23_ABC10202_001_0_0_1',
@@ -385,12 +385,12 @@ class ais_client_test extends advanced_testcase {
                         'duedate' => '10/12/2023 16:00:00',
                         'assignid' => '1',
                         'reattempt' => '0',
-                        'sequence' => '001'
+                        'sequence' => '001',
                     ],
                     'unitleader' => [
                         'firstname' => 'Teacher',
                         'lastname' => 'Test',
-                        'email' => 'teacher.test@example.com'
+                        'email' => 'teacher.test@example.com',
                     ],
                     'grades' => [
                         [
@@ -400,7 +400,7 @@ class ais_client_test extends advanced_testcase {
                             'moodlestudentid' => '57',
                             'result' => 68,
                             'submissiontime' => '09/12/2023 13:45:12',
-                            'misconduct' => 'No'
+                            'misconduct' => 'No',
                         ],
                         [
                             'firstname' => 'Steve',
@@ -409,7 +409,7 @@ class ais_client_test extends advanced_testcase {
                             'moodlestudentid' => '58',
                             'result' => 99,
                             'submissiontime' => '10/12/2023 11:25:12',
-                            'misconduct' => 'No'
+                            'misconduct' => 'No',
                         ],
                         [
                             'firstname' => 'Raginhild',
@@ -418,7 +418,7 @@ class ais_client_test extends advanced_testcase {
                             'moodlestudentid' => '59',
                             'result' => 99,
                             'submissiontime' => '10/12/2023 11:25:12',
-                            'misconduct' => 'No'
+                            'misconduct' => 'No',
                         ],
                         [
                             'firstname' => 'Tara',
@@ -427,7 +427,7 @@ class ais_client_test extends advanced_testcase {
                             'moodlestudentid' => '60',
                             'result' => null,
                             'submissiontime' => '10/12/2023 11:25:12',
-                            'misconduct' => 'No'
+                            'misconduct' => 'No',
                         ],
                         [
                             'firstname' => 'Maia',
@@ -436,7 +436,7 @@ class ais_client_test extends advanced_testcase {
                             'moodlestudentid' => '61',
                             'result' => -1,
                             'submissiontime' => '10/12/2023 11:25:12',
-                            'misconduct' => 'No'
+                            'misconduct' => 'No',
                         ],
                         [
                             'firstname' => 'Amadi',
@@ -445,7 +445,7 @@ class ais_client_test extends advanced_testcase {
                             'moodlestudentid' => '62',
                             'result' => 80,
                             'submissiontime' => '10/12/2023 11:25:12',
-                            'misconduct' => 'No'
+                            'misconduct' => 'No',
                         ],
                         [
                             'firstname' => 'Lark',
@@ -454,7 +454,7 @@ class ais_client_test extends advanced_testcase {
                             'moodlestudentid' => '63',
                             'result' => 80,
                             'submissiontime' => '10/12/2023 11:25:12',
-                            'misconduct' => 'No'
+                            'misconduct' => 'No',
                         ],
                         [
                             'firstname' => 'Noe',
@@ -463,9 +463,9 @@ class ais_client_test extends advanced_testcase {
                             'moodlestudentid' => '64',
                             'result' => 80,
                             'submissiontime' => '10/12/2023 11:25:12',
-                            'misconduct' => 'No'
-                        ]
-                    ]
+                            'misconduct' => 'No',
+                        ],
+                    ],
                 ],
                 'response' => [
                     'sitsref' => 'ABC102_A_SEM1_2022/23_ABC10202_001_0_0_1',
@@ -509,12 +509,12 @@ class ais_client_test extends advanced_testcase {
                             'moodlestudentid' => '64',
                             'response' => 'FAILED',
                             'message' => 'Error uploading the assessment result',
-                        ]
+                        ],
                     ],
                     'status' => 'SUCCESS',
                     'message' => '',
-                    'errorcode' => ''
-                ]
+                    'errorcode' => '',
+                ],
             ],
             'Student and reassessment validation failures' => [
                 'export' => [
@@ -524,7 +524,7 @@ class ais_client_test extends advanced_testcase {
                         'moduletitle' => 'Making Widgets',
                         'modulestartdate' => '21/09/2023 00:00:00',
                         'moduleenddate' => '20/12/2023 23:59:59',
-                        'academic_year' => '2023/24'
+                        'academic_year' => '2023/24',
                     ],
                     'assignment' => [
                         'sitsref' => 'ABC102_A_SEM1_2022/23_ABC10202_002_0_0_1',
@@ -532,12 +532,12 @@ class ais_client_test extends advanced_testcase {
                         'duedate' => '10/12/2023 16:00:00',
                         'assignid' => '1',
                         'reattempt' => '0',
-                        'sequence' => '002'
+                        'sequence' => '002',
                     ],
                     'unitleader' => [
                         'firstname' => 'Teacher',
                         'lastname' => 'Test',
-                        'email' => 'teacher.test@example.com'
+                        'email' => 'teacher.test@example.com',
                     ],
                     'grades' => [
                         [
@@ -547,7 +547,7 @@ class ais_client_test extends advanced_testcase {
                             'moodlestudentid' => '62',
                             'result' => 80,
                             'submissiontime' => '10/12/2023 11:25:12',
-                            'misconduct' => 'No'
+                            'misconduct' => 'No',
                         ],
                         [
                             'firstname' => 'Lark',
@@ -556,7 +556,7 @@ class ais_client_test extends advanced_testcase {
                             'moodlestudentid' => '63',
                             'result' => 80,
                             'submissiontime' => '10/12/2023 11:25:12',
-                            'misconduct' => 'No'
+                            'misconduct' => 'No',
                         ],
                         [
                             'firstname' => 'Noe',
@@ -565,9 +565,9 @@ class ais_client_test extends advanced_testcase {
                             'moodlestudentid' => '64',
                             'result' => 80,
                             'submissiontime' => '10/12/2023 11:25:12',
-                            'misconduct' => 'No'
-                        ]
-                    ]
+                            'misconduct' => 'No',
+                        ],
+                    ],
                 ],
                 'response' => [
                     'sitsref' => 'ABC102_A_SEM1_2022/23_ABC10202_002_0_0_1',
@@ -586,13 +586,13 @@ class ais_client_test extends advanced_testcase {
                             'moodlestudentid' => '64',
                             'response' => 'FAILED',
                             'message' => 'Error uploading the re-assessment result',
-                        ]
+                        ],
                     ],
                     'status' => 'SUCCESS',
                     'message' => '',
-                    'errorcode' => ''
-                ]
-            ]
+                    'errorcode' => '',
+                ],
+            ],
         ];
     }
 }

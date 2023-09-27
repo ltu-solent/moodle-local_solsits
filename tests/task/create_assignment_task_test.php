@@ -53,6 +53,7 @@ class create_assignment_task_test extends advanced_testcase {
      */
     public function test_template_applied() {
         $this->resetAfterTest();
+        /** @var local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         set_config('maxassignments', 10, 'local_solsits');
         $this->create_solent_gradescales();
@@ -72,7 +73,7 @@ class create_assignment_task_test extends advanced_testcase {
         $assignments = [];
         for ($x = 0; $x < 10; $x++) {
             $assignments[$x] = $dg->create_sits_assign([
-                'courseid' => $course->id
+                'courseid' => $course->id,
             ]);
         }
         $expectedoutput = 'New assignment successfully created: SITS1
@@ -97,11 +98,12 @@ New assignment successfully created: SITS10
      */
     public function test_template_not_applied() {
         $this->resetAfterTest();
+        /** @var local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         set_config('maxassignments', 5, 'local_solsits');
 
         $course = $this->getDataGenerator()->create_course([
-            'customfield_templateapplied' => 0
+            'customfield_templateapplied' => 0,
         ]);
 
         $this->expectOutputString("No assignments found to process.
@@ -111,7 +113,7 @@ No assignments found to process.
         $this->execute_task('\local_solsits\task\create_assignment_task');
 
         $dg->create_sits_assign([
-            'courseid' => $course->id
+            'courseid' => $course->id,
         ]);
         $this->execute_task('\local_solsits\task\create_assignment_task');
     }
@@ -124,6 +126,7 @@ No assignments found to process.
      */
     public function test_no_duedate() {
         $this->resetAfterTest();
+        /** @var local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         set_config('maxassignments', 10, 'local_solsits');
         $this->create_solent_gradescales();
@@ -145,7 +148,7 @@ No assignments found to process.
         for ($x = 0; $x < 10; $x++) {
             $assignments[$x] = $dg->create_sits_assign([
                 'courseid' => $course->id,
-                'duedate' => 0
+                'duedate' => 0,
             ]);
         }
         $expectedoutput = 'No assignments found to process.
@@ -178,6 +181,7 @@ New assignment successfully created: SITS10
      */
     public function test_maxassignments() {
         $this->resetAfterTest();
+        /** @var local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         set_config('maxassignments', 1, 'local_solsits');
         $this->create_solent_gradescales();
@@ -198,7 +202,7 @@ New assignment successfully created: SITS10
         // Due date set to 0, so these assignments will not be created.
         for ($x = 0; $x < 10; $x++) {
             $assignments[$x] = $dg->create_sits_assign([
-                'courseid' => $course->id
+                'courseid' => $course->id,
             ]);
         }
         $expectedoutput = 'New assignment successfully created: SITS1

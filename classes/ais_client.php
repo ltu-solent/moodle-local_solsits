@@ -87,8 +87,8 @@ class ais_client extends curl {
             'CURLOPT_HTTP_VERSION' => CURL_HTTP_VERSION_1_1,
             'CURLOPT_HTTPHEADER' => [
                 "X-API-KEY: {$this->key}",
-                'Content-Type: application/json'
-            ]
+                'Content-Type: application/json',
+            ],
             // @codingStandardsIgnoreStart
             // 'CURLOPT_SSL_VERIFYHOST' => false,
             // 'CURLOPT_SSL_VERIFYPEER' => false
@@ -116,8 +116,8 @@ class ais_client extends curl {
             'CURLOPT_HTTP_VERSION' => CURL_HTTP_VERSION_1_1,
             'CURLOPT_HTTPHEADER' => [
                 "X-API-KEY: {$this->key}",
-                'Content-Type: application/json'
-            ]
+                'Content-Type: application/json',
+            ],
             // @codingStandardsIgnoreStart
             // 'CURLOPT_SSL_VERIFYHOST' => false,
             // 'CURLOPT_SSL_VERIFYPEER' => false

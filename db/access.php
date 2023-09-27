@@ -26,31 +26,30 @@
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = [
-
-    'local/solsits:manageassignments' => array(
+    'local/solsits:manageassignments' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array(
+        'archetypes' => [
             'manager' => CAP_ALLOW,
-        )
-    ),
-    'local/solsits:managetemplates' => array(
+        ],
+    ],
+    'local/solsits:managetemplates' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array(
+        'archetypes' => [
             'manager' => CAP_ALLOW,
-        )
-    ),
+        ],
+    ],
     'local/solsits:registersitscourse' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'archtypes' => [
-            'manager' => CAP_ALLOW
-        ]
+            'manager' => CAP_ALLOW,
+        ],
     ],
     'local/solsits:releasegrades' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => []
-    ]
+        'archetypes' => [],
+    ],
 ];

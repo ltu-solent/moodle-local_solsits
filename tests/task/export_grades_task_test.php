@@ -73,6 +73,7 @@ class export_grades_task_test extends advanced_testcase {
         set_config('ais_exportgrades_key', 'RANDOM##1234', 'local_solsits');
         $config = get_config('local_solsits');
         $this->setAdminUser();
+        /** @var local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
 
         $course = $this->getDataGenerator()->create_course($module);
@@ -85,7 +86,7 @@ class export_grades_task_test extends advanced_testcase {
             'title' => $assignment['assignmenttitle'],
             'duedate' => $assignment['duedate'],
             'assessmentcode' => $assignment['assessmentcode'],
-            'assessmentname' => $assignment['assessmentname']
+            'assessmentname' => $assignment['assessmentname'],
         ]);
         $sitsassign->create_assignment();
         $cm = get_coursemodule_from_id('assign', $sitsassign->get('cmid'), $course->id);
@@ -109,7 +110,7 @@ class export_grades_task_test extends advanced_testcase {
             $student = $this->getDataGenerator()->create_user([
                 'firstname' => $grade['firstname'],
                 'lastname' => $grade['lastname'],
-                'idnumber' => $grade['studentidnumber']
+                'idnumber' => $grade['studentidnumber'],
             ]);
             $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
             $idnumber = $grade['studentidnumber'];
@@ -120,7 +121,7 @@ class export_grades_task_test extends advanced_testcase {
             $response['grades'][] = [
                 'message' => $grade['response']['message'],
                 'response' => $grade['response']['response'],
-                'moodlestudentid' => $student->id
+                'moodlestudentid' => $student->id,
             ];
             if ($response['status'] == 'SUCCESS') {
                 if ($grade['response']['response'] == 'FAILED') {
@@ -142,7 +143,7 @@ class export_grades_task_test extends advanced_testcase {
                 'solassignmentid' => $sitsassign->get('id'),
                 'graderid' => $unitleaderuser->id,
                 'studentid' => $student->id,
-                'converted_grade' => helper::convert_grade($config->grademarkscale, $assigngrades[$studentidnumber]['grade'])
+                'converted_grade' => helper::convert_grade($config->grademarkscale, $assigngrades[$studentidnumber]['grade']),
             ]);
         }
 
@@ -178,7 +179,7 @@ class export_grades_task_test extends advanced_testcase {
      *
      * @return array
      */
-    public function task_execute_provider(): array {
+    public static function task_execute_provider(): array {
         return [
             'no grades sent' => [
                 'module' => [
@@ -189,7 +190,7 @@ class export_grades_task_test extends advanced_testcase {
                     'customfield_module_code' => 'ABC101',
                     'customfield_template_applied' => 1,
                     'startdate' => strtotime('21/09/2023 00:00:00'),
-                    'enddate' => strtotime('20/12/2023 23:59:59')
+                    'enddate' => strtotime('20/12/2023 23:59:59'),
                 ],
                 'assignment' => [
                     'sitsref' => 'ABC101_A_SEM1_2022/23_ABC10102_001_0_0_1',
@@ -198,20 +199,20 @@ class export_grades_task_test extends advanced_testcase {
                     'duedate' => strtotime('10/12/2023 16:00:00'),
                     'reattempt' => '0',
                     'sequence' => '001',
-                    'assessmentcode' => 'ABC10102'
+                    'assessmentcode' => 'ABC10102',
                 ],
                 'unitleader' => [
                     'firstname' => 'Teacher',
                     'lastname' => 'Test',
-                    'email' => 'teacher.test@example.com'
+                    'email' => 'teacher.test@example.com',
                 ],
                 'grades' => [],
                 'response' => [
                     'sitsref' => 'ABC101_A_SEM1_2022/23_ABC10102_001_0_0_1',
                     'status' => 'SUCCESS',
                     'message' => '',
-                    'errorcode' => ''
-                ]
+                    'errorcode' => '',
+                ],
             ],
             'module not in sits' => [
                 'module' => [
@@ -222,7 +223,7 @@ class export_grades_task_test extends advanced_testcase {
                     'customfield_module_code' => 'ABC102',
                     'customfield_template_applied' => 1,
                     'startdate' => strtotime('21/09/2023 00:00:00'),
-                    'enddate' => strtotime('20/12/2023 23:59:59')
+                    'enddate' => strtotime('20/12/2023 23:59:59'),
                 ],
                 'assignment' => [
                     'sitsref' => 'ABC102_A_SEM1_2022/23_ABC10202_001_0_0_1',
@@ -231,12 +232,12 @@ class export_grades_task_test extends advanced_testcase {
                     'duedate' => strtotime('10/12/2023 16:00:00'),
                     'reattempt' => '0',
                     'sequence' => '001',
-                    'assessmentcode' => 'ABC10202'
+                    'assessmentcode' => 'ABC10202',
                 ],
                 'unitleader' => [
                     'firstname' => 'Teacher',
                     'lastname' => 'Test',
-                    'email' => 'teacher.test@example.com'
+                    'email' => 'teacher.test@example.com',
                 ],
                 'grades' => [
                     [
@@ -248,7 +249,7 @@ class export_grades_task_test extends advanced_testcase {
                         'response' => [
                             'response' => 'FAILED',
                             'message' => 'Module not found in SITS',
-                        ]
+                        ],
                     ],
                     [
                         'firstname' => 'Steve',
@@ -259,15 +260,15 @@ class export_grades_task_test extends advanced_testcase {
                         'response' => [
                             'response' => 'FAILED',
                             'message' => 'Module not found in SITS',
-                        ]
-                    ]
+                        ],
+                    ],
                 ],
                 'response' => [
                     'sitsref' => 'ABC102_A_SEM1_2022/23_ABC10202_001_0_0_1',
                     'status' => 'FAILED',
                     'message' => 'Module not found in SITS',
-                    'errorcode' => '1'
-                ]
+                    'errorcode' => '1',
+                ],
             ],
             'module instance not in sits' => [
                 'module' => [
@@ -278,7 +279,7 @@ class export_grades_task_test extends advanced_testcase {
                     'customfield_module_code' => 'ABC102',
                     'customfield_template_applied' => 1,
                     'startdate' => strtotime('21/09/2023 00:00:00'),
-                    'enddate' => strtotime('20/12/2023 23:59:59')
+                    'enddate' => strtotime('20/12/2023 23:59:59'),
                 ],
                 'assignment' => [
                     'sitsref' => 'ABC102_A_SEM1_2022/23_ABC10202_001_0_0_1',
@@ -287,12 +288,12 @@ class export_grades_task_test extends advanced_testcase {
                     'duedate' => strtotime('10/12/2023 16:00:00'),
                     'reattempt' => '0',
                     'sequence' => '001',
-                    'assessmentcode' => 'ABC10202'
+                    'assessmentcode' => 'ABC10202',
                 ],
                 'unitleader' => [
                     'firstname' => 'Teacher',
                     'lastname' => 'Test',
-                    'email' => 'teacher.test@example.com'
+                    'email' => 'teacher.test@example.com',
                 ],
                 'grades' => [
                     [
@@ -304,7 +305,7 @@ class export_grades_task_test extends advanced_testcase {
                         'response' => [
                             'response' => 'FAILED',
                             'message' => 'Module instance not found in SITS',
-                        ]
+                        ],
                     ],
                     [
                         'firstname' => 'Steve',
@@ -315,15 +316,15 @@ class export_grades_task_test extends advanced_testcase {
                         'response' => [
                             'response' => 'FAILED',
                             'message' => 'Module instance not found in SITS',
-                        ]
-                    ]
+                        ],
+                    ],
                 ],
                 'response' => [
                     'sitsref' => 'ABC102_A_SEM1_2022/23_ABC10202_001_0_0_1',
                     'status' => 'FAILED',
                     'message' => 'Module instance not found in SITS',
-                    'errorcode' => '2'
-                ]
+                    'errorcode' => '2',
+                ],
             ],
             'assessment not found in sits' => [
                 'module' => [
@@ -334,7 +335,7 @@ class export_grades_task_test extends advanced_testcase {
                     'customfield_module_code' => 'ABC102',
                     'customfield_template_applied' => 1,
                     'startdate' => strtotime('21/09/2023 00:00:00'),
-                    'enddate' => strtotime('20/12/2023 23:59:59')
+                    'enddate' => strtotime('20/12/2023 23:59:59'),
                 ],
                 'assignment' => [
                     'sitsref' => 'ABC102_A_SEM1_2022/23_ABC10202_001_0_0_1',
@@ -343,12 +344,12 @@ class export_grades_task_test extends advanced_testcase {
                     'duedate' => strtotime('10/12/2023 16:00:00'),
                     'reattempt' => '0',
                     'sequence' => '001',
-                    'assessmentcode' => 'ABC10202'
+                    'assessmentcode' => 'ABC10202',
                 ],
                 'unitleader' => [
                     'firstname' => 'Teacher',
                     'lastname' => 'Test',
-                    'email' => 'teacher.test@example.com'
+                    'email' => 'teacher.test@example.com',
                 ],
                 'grades' => [
                     [
@@ -360,7 +361,7 @@ class export_grades_task_test extends advanced_testcase {
                         'response' => [
                             'response' => 'FAILED',
                             'message' => 'Assessment not found in SITS',
-                        ]
+                        ],
                     ],
                     [
                         'firstname' => 'Steve',
@@ -371,15 +372,15 @@ class export_grades_task_test extends advanced_testcase {
                         'response' => [
                             'response' => 'FAILED',
                             'message' => 'Assessment not found in SITS',
-                        ]
-                    ]
+                        ],
+                    ],
                 ],
                 'response' => [
                     'sitsref' => 'ABC102_A_SEM1_2022/23_ABC10202_001_0_0_1',
                     'status' => 'FAILED',
                     'message' => 'Assessment not found in SITS',
-                    'errorcode' => '3'
-                ]
+                    'errorcode' => '3',
+                ],
             ],
             'Module assessment link not found in SITS' => [
                 'module' => [
@@ -390,7 +391,7 @@ class export_grades_task_test extends advanced_testcase {
                     'customfield_module_code' => 'ABC102',
                     'customfield_template_applied' => 1,
                     'startdate' => strtotime('21/09/2023 00:00:00'),
-                    'enddate' => strtotime('20/12/2023 23:59:59')
+                    'enddate' => strtotime('20/12/2023 23:59:59'),
                 ],
                 'assignment' => [
                     'sitsref' => 'ABC102_A_SEM1_2022/23_ABC10202_001_0_0_1',
@@ -399,12 +400,12 @@ class export_grades_task_test extends advanced_testcase {
                     'duedate' => strtotime('10/12/2023 16:00:00'),
                     'reattempt' => '0',
                     'sequence' => '001',
-                    'assessmentcode' => 'ABC10202'
+                    'assessmentcode' => 'ABC10202',
                 ],
                 'unitleader' => [
                     'firstname' => 'Teacher',
                     'lastname' => 'Test',
-                    'email' => 'teacher.test@example.com'
+                    'email' => 'teacher.test@example.com',
                 ],
                 'grades' => [
                     [
@@ -416,7 +417,7 @@ class export_grades_task_test extends advanced_testcase {
                         'response' => [
                             'response' => 'FAILED',
                             'message' => 'Module assessment link not found in SITS',
-                        ]
+                        ],
                     ],
                     [
                         'firstname' => 'Steve',
@@ -427,15 +428,15 @@ class export_grades_task_test extends advanced_testcase {
                         'response' => [
                             'response' => 'FAILED',
                             'message' => 'Module assessment link not found in SITS',
-                        ]
-                    ]
+                        ],
+                    ],
                 ],
                 'response' => [
                     'sitsref' => 'ABC102_A_SEM1_2022/23_ABC10202_001_0_0_1',
                     'status' => 'FAILED',
                     'message' => 'Module assessment link not found in SITS',
-                    'errorcode' => '4'
-                ]
+                    'errorcode' => '4',
+                ],
             ],
             'Student and assessment validation failures' => [
                 'module' => [
@@ -446,7 +447,7 @@ class export_grades_task_test extends advanced_testcase {
                     'customfield_module_code' => 'ABC102',
                     'customfield_template_applied' => 1,
                     'startdate' => strtotime('21/09/2023 00:00:00'),
-                    'enddate' => strtotime('20/12/2023 23:59:59')
+                    'enddate' => strtotime('20/12/2023 23:59:59'),
                 ],
                 'assignment' => [
                     'sitsref' => 'ABC102_A_SEM1_2022/23_ABC10202_001_0_0_1',
@@ -455,12 +456,12 @@ class export_grades_task_test extends advanced_testcase {
                     'duedate' => strtotime('10/12/2023 16:00:00'),
                     'reattempt' => '0',
                     'sequence' => '001',
-                    'assessmentcode' => 'ABC10202'
+                    'assessmentcode' => 'ABC10202',
                 ],
                 'unitleader' => [
                     'firstname' => 'Teacher',
                     'lastname' => 'Test',
-                    'email' => 'teacher.test@example.com'
+                    'email' => 'teacher.test@example.com',
                 ],
                 'grades' => [
                     [
@@ -472,7 +473,7 @@ class export_grades_task_test extends advanced_testcase {
                         'response' => [
                             'response' => 'FAILED',
                             'message' => 'Student code not found in SITS',
-                        ]
+                        ],
                     ],
                     [
                         'firstname' => 'Steve',
@@ -483,7 +484,7 @@ class export_grades_task_test extends advanced_testcase {
                         'response' => [
                             'response' => 'FAILED',
                             'message' => 'Student pathway route not found in SITS',
-                        ]
+                        ],
                     ],
                     [
                         'firstname' => 'Raginhild',
@@ -494,7 +495,7 @@ class export_grades_task_test extends advanced_testcase {
                         'response' => [
                             'response' => 'FAILED',
                             'message' => 'Student module link not found in SITS',
-                        ]
+                        ],
                     ],
                     [
                         'firstname' => 'Tara',
@@ -505,7 +506,7 @@ class export_grades_task_test extends advanced_testcase {
                         'response' => [
                             'response' => 'FAILED',
                             'message' => 'Invalid assessment result entered',
-                        ]
+                        ],
                     ],
                     [
                         'firstname' => 'Maia',
@@ -516,7 +517,7 @@ class export_grades_task_test extends advanced_testcase {
                         'response' => [
                             'response' => 'FAILED',
                             'message' => 'Invalid assessment result entered',
-                        ]
+                        ],
                     ],
                     [
                         'firstname' => 'Amadi',
@@ -527,7 +528,7 @@ class export_grades_task_test extends advanced_testcase {
                         'response' => [
                             'response' => 'FAILED',
                             'message' => 'Student assessment record not found in SITS',
-                        ]
+                        ],
                     ],
                     [
                         'firstname' => 'Lark',
@@ -538,7 +539,7 @@ class export_grades_task_test extends advanced_testcase {
                         'response' => [
                             'response' => 'FAILED',
                             'message' => 'Student assessment record already has a mark in SITS',
-                        ]
+                        ],
                     ],
                     [
                         'firstname' => 'Noe',
@@ -549,15 +550,15 @@ class export_grades_task_test extends advanced_testcase {
                         'response' => [
                             'response' => 'FAILED',
                             'message' => 'Error uploading the assessment result',
-                        ]
-                    ]
+                        ],
+                    ],
                 ],
                 'response' => [
                     'sitsref' => 'ABC102_A_SEM1_2022/23_ABC10202_001_0_0_1',
                     'status' => 'SUCCESS',
                     'message' => '',
-                    'errorcode' => ''
-                ]
+                    'errorcode' => '',
+                ],
             ],
             'Student and reassessment validation failures' => [
                 'module' => [
@@ -568,7 +569,7 @@ class export_grades_task_test extends advanced_testcase {
                     'customfield_module_code' => 'ABC102',
                     'customfield_template_applied' => 1,
                     'startdate' => strtotime('21/09/2023 00:00:00'),
-                    'enddate' => strtotime('20/12/2023 23:59:59')
+                    'enddate' => strtotime('20/12/2023 23:59:59'),
                 ],
                 'assignment' => [
                     'sitsref' => 'ABC102_A_SEM1_2022/23_ABC10202_002_0_0_1',
@@ -577,12 +578,12 @@ class export_grades_task_test extends advanced_testcase {
                     'duedate' => strtotime('10/12/2023 16:00:00'),
                     'reattempt' => '1',
                     'sequence' => '002',
-                    'assessmentcode' => 'ABC10202'
+                    'assessmentcode' => 'ABC10202',
                 ],
                 'unitleader' => [
                     'firstname' => 'Teacher',
                     'lastname' => 'Test',
-                    'email' => 'teacher.test@example.com'
+                    'email' => 'teacher.test@example.com',
                 ],
                 'grades' => [
                     [
@@ -594,7 +595,7 @@ class export_grades_task_test extends advanced_testcase {
                         'response' => [
                             'response' => 'FAILED',
                             'message' => 'Student re-assessment record not found in SITS',
-                        ]
+                        ],
                     ],
                     [
                         'firstname' => 'Lark',
@@ -605,7 +606,7 @@ class export_grades_task_test extends advanced_testcase {
                         'response' => [
                             'response' => 'FAILED',
                             'message' => 'Student re-assessment record already has a mark in SITS',
-                        ]
+                        ],
                     ],
                     [
                         'firstname' => 'Noe',
@@ -616,15 +617,15 @@ class export_grades_task_test extends advanced_testcase {
                         'response' => [
                             'response' => 'FAILED',
                             'message' => 'Error uploading the re-assessment result',
-                        ]
-                    ]
+                        ],
+                    ],
                 ],
                 'response' => [
                     'sitsref' => 'ABC102_A_SEM1_2022/23_ABC10202_002_0_0_1',
                     'status' => 'SUCCESS',
                     'message' => '',
-                    'errorcode' => ''
-                ]
+                    'errorcode' => '',
+                ],
             ],
             'Student and assessment mixed response' => [
                 'module' => [
@@ -635,7 +636,7 @@ class export_grades_task_test extends advanced_testcase {
                     'customfield_module_code' => 'ABC102',
                     'customfield_template_applied' => 1,
                     'startdate' => strtotime('21/09/2023 00:00:00'),
-                    'enddate' => strtotime('20/12/2023 23:59:59')
+                    'enddate' => strtotime('20/12/2023 23:59:59'),
                 ],
                 'assignment' => [
                     'sitsref' => 'ABC102_A_SEM1_2022/23_ABC10202_001_0_0_1',
@@ -644,12 +645,12 @@ class export_grades_task_test extends advanced_testcase {
                     'duedate' => strtotime('10/12/2023 16:00:00'),
                     'reattempt' => '0',
                     'sequence' => '001',
-                    'assessmentcode' => 'ABC10202'
+                    'assessmentcode' => 'ABC10202',
                 ],
                 'unitleader' => [
                     'firstname' => 'Teacher',
                     'lastname' => 'Test',
-                    'email' => 'teacher.test@example.com'
+                    'email' => 'teacher.test@example.com',
                 ],
                 'grades' => [
                     [
@@ -661,7 +662,7 @@ class export_grades_task_test extends advanced_testcase {
                         'response' => [
                             'response' => 'SUCCESS',
                             'message' => '',
-                        ]
+                        ],
                     ],
                     [
                         'firstname' => 'Steve',
@@ -672,7 +673,7 @@ class export_grades_task_test extends advanced_testcase {
                         'response' => [
                             'response' => 'FAILED',
                             'message' => 'Student pathway route not found in SITS',
-                        ]
+                        ],
                     ],
                     [
                         'firstname' => 'Raginhild',
@@ -683,7 +684,7 @@ class export_grades_task_test extends advanced_testcase {
                         'response' => [
                             'response' => 'SUCCESS',
                             'message' => '',
-                        ]
+                        ],
                     ],
                     [
                         'firstname' => 'Tara',
@@ -694,7 +695,7 @@ class export_grades_task_test extends advanced_testcase {
                         'response' => [
                             'response' => 'FAILED',
                             'message' => 'Invalid assessment result entered',
-                        ]
+                        ],
                     ],
                     [
                         'firstname' => 'Maia',
@@ -705,7 +706,7 @@ class export_grades_task_test extends advanced_testcase {
                         'response' => [
                             'response' => 'FAILED',
                             'message' => 'Invalid assessment result entered',
-                        ]
+                        ],
                     ],
                     [
                         'firstname' => 'Amadi',
@@ -716,7 +717,7 @@ class export_grades_task_test extends advanced_testcase {
                         'response' => [
                             'response' => 'SUCCESS',
                             'message' => '',
-                        ]
+                        ],
                     ],
                     [
                         'firstname' => 'Lark',
@@ -727,7 +728,7 @@ class export_grades_task_test extends advanced_testcase {
                         'response' => [
                             'response' => 'SUCCESS',
                             'message' => '',
-                        ]
+                        ],
                     ],
                     [
                         'firstname' => 'Noe',
@@ -738,16 +739,16 @@ class export_grades_task_test extends advanced_testcase {
                         'response' => [
                             'response' => 'SUCCESS',
                             'message' => '',
-                        ]
-                    ]
+                        ],
+                    ],
                 ],
                 'response' => [
                     'sitsref' => 'ABC102_A_SEM1_2022/23_ABC10202_001_0_0_1',
                     'status' => 'SUCCESS',
                     'message' => '',
-                    'errorcode' => ''
-                ]
-            ]
+                    'errorcode' => '',
+                ],
+            ],
         ];
     }
 }

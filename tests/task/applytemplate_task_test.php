@@ -75,7 +75,7 @@ class applytemplate_task_test extends advanced_testcase {
                     'visible' => 0, // Initially the course should be hidden until the template has been applied.
                     'customfield_pagetype' => $pagetype,
                     'customfield_academic_year' => $session,
-                    'customfield_templateapplied' => 0
+                    'customfield_templateapplied' => 0,
                 ]);
                 $targetcourses[$key][] = $course;
             }
@@ -108,7 +108,9 @@ class applytemplate_task_test extends advanced_testcase {
         $firstcourse = reset($solcourses); // Get the course that has had the template applied.
         foreach ($targetcourses['2020/21_module'] as $key => $module) {
             $labelintemplates = $DB->get_record('label', [
-                'course' => $module->id, 'name' => 'Label from Template template_2020/21_module.']);
+                'course' => $module->id,
+                'name' => 'Label from Template template_2020/21_module.',
+            ]);
             // The visibility has changed, so get updated record.
             $updatedcourse = $DB->get_record('course', ['id' => $module->id]);
             $targetcourses['2020/21_module'][$key] = $updatedcourse;
@@ -129,7 +131,9 @@ class applytemplate_task_test extends advanced_testcase {
         $this->assertCount(3, $solcourses);
         foreach ($targetcourses['2020/21_module'] as $key => $module) {
             $labelintemplates = $DB->get_record('label', [
-                'course' => $module->id, 'name' => 'Label from Template template_2020/21_module.']);
+                'course' => $module->id,
+                'name' => 'Label from Template template_2020/21_module.',
+            ]);
             // The visibility has changed, so get updated record.
             $updatedcourse = $DB->get_record('course', ['id' => $module->id]);
             $targetcourses['2020/21_module'][$key] = $updatedcourse;
@@ -195,17 +199,17 @@ Template course_2021/22 has been applied to 2021/22_course_2
             'shortname' => $idnumber,
             'customfield_pagetype' => 'module',
             'customfield_academic_year' => '2021/22',
-            'customfield_templateapplied' => 0
+            'customfield_templateapplied' => 0,
         ]);
         if ($hasactivities) {
             // Add a couple of labels.
             $this->getDataGenerator()->create_module('label', [
                 'course' => $course->id,
-                'intro' => "Label 1 on course."
+                'intro' => "Label 1 on course.",
             ]);
             $this->getDataGenerator()->create_module('label', [
                 'course' => $course->id,
-                'intro' => "Label 2 on course."
+                'intro' => "Label 2 on course.",
             ]);
         }
         if ($hasusers) {
@@ -226,32 +230,32 @@ Template course_2021/22 has been applied to 2021/22_course_2
      *
      * @return array
      */
-    public function preventapplytemplate_provider(): array {
+    public static function preventapplytemplate_provider(): array {
         return [
             'visible' => [
                 'visible' => 1,
                 'hasactivities' => 0,
                 'hasusers' => 0,
-                'message' => "Course visible. Cannot apply template."
+                'message' => "Course visible. Cannot apply template.",
             ],
             'hasactivities' => [
                 'visible' => 0,
                 'hasactivities' => 1,
                 'hasusers' => 0,
-                'message' => "Course has been edited. Cannot apply template."
+                'message' => "Course has been edited. Cannot apply template.",
             ],
             'hasusers' => [
                 'visible' => 0,
                 'hasactivities' => 0,
                 'hasusers' => 1,
-                'message' => 'Enrolments already exist. Cannot apply template.'
+                'message' => 'Enrolments already exist. Cannot apply template.',
             ],
             'all' => [
                 'visible' => 1,
                 'hasactivities' => 1,
                 'hasusers' => 1,
-                'message' => "Course visible. Cannot apply template."
-            ]
+                'message' => "Course visible. Cannot apply template.",
+            ],
         ];
     }
 }

@@ -54,7 +54,7 @@ class solassign_filter_form extends moodleform {
                 global $DB;
                 $course = $DB->get_record('course', ['id' => $value]);
                 return $course->shortname . ': ' . $course->fullname;
-            }
+            },
         ];
         $mform->addElement('autocomplete', 'selectedcourses',
             new lang_string('selectcourses', 'local_solsits'),

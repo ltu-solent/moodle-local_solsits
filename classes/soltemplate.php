@@ -58,19 +58,19 @@ class soltemplate extends persistent {
                 'default' => self::MODULE,
                 'options' => [
                     self::MODULE,
-                    self::COURSE
-                ]
+                    self::COURSE,
+                ],
             ],
             'courseid' => [
                 'type' => PARAM_INT,
             ],
             'session' => [
-                'type' => PARAM_TEXT
+                'type' => PARAM_TEXT,
             ],
             'enabled' => [
                 'type' => PARAM_BOOL,
-                'default' => false
-            ]
+                'default' => false,
+            ],
         ];
     }
 

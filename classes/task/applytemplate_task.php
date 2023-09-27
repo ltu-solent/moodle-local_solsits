@@ -123,24 +123,24 @@ class applytemplate_task extends scheduled_task {
 
                 // Readd manual enrolment method.
                 $plugin = enrol_get_plugin('manual');
-                $instance = $DB->get_record('enrol', array('courseid' => $course->id, 'enrol' => 'manual'), '*');
+                $instance = $DB->get_record('enrol', ['courseid' => $course->id, 'enrol' => 'manual'], '*');
 
                 if (!$instance) {
-                    $fields = array(
+                    $fields = [
                         'status'          => '0',
                         'roleid'          => '5',
                         'enrolperiod'     => '0',
                         'expirynotify'    => '0',
                         'notifyall'       => '0',
-                        'expirythreshold' => '86400'
-                    );
+                        'expirythreshold' => '86400',
+                    ];
                     $instance = $plugin->add_instance($course, $fields);
                 }
 
                 // Mark the solcourse record as templated.
                 mtrace(get_string('templateapplied', 'local_solsits', [
                     'templatekey' => $templatekey,
-                    'courseidnumber' => $course->idnumber
+                    'courseidnumber' => $course->idnumber,
                 ]));
             }
         }

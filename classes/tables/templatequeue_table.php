@@ -60,7 +60,7 @@ class templatequeue_table extends table_sql {
             'pagetype',
             'session',
             'allocatedtemplate',
-            'info'
+            'info',
         ];
 
         $columnheadings = [
@@ -74,7 +74,7 @@ class templatequeue_table extends table_sql {
             new lang_string('pagetype', 'local_solsits'),
             new lang_string('session', 'local_solsits'),
             new lang_string('allocatedtemplate', 'local_solsits'),
-            new lang_string('info', 'local_solsits')
+            new lang_string('info', 'local_solsits'),
         ];
         $this->define_columns($columns);
         $this->define_headers($columnheadings);

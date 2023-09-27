@@ -56,14 +56,14 @@ class soltemplate_form extends persistent_form {
         $mform->addHelpButton('pagetype', 'pagetype', 'local_solsits');
 
         $options = [
-            '' => new lang_string('selectasession', 'local_solsits')
+            '' => new lang_string('selectasession', 'local_solsits'),
         ] + helper::get_session_menu();
 
         $mform->addElement('select', 'session', new lang_string('session', 'local_solsits'), $options);
         $mform->addRule('session', get_string('required'), 'required', null, 'client');
 
         $options = [
-            '' => new lang_string('selectatemplate', 'local_solsits')
+            '' => new lang_string('selectatemplate', 'local_solsits'),
         ] + helper::get_templates_menu();
         $mform->addElement('select', 'courseid', new lang_string('templatecourse', 'local_solsits'), $options);
         $mform->addRule('courseid', get_string('required'), 'required', null, 'client');
@@ -88,7 +88,7 @@ class soltemplate_form extends persistent_form {
             'pagetype = :pagetype AND session = :session',
             [
                 'pagetype' => $data->pagetype,
-                'session' => $data->session
+                'session' => $data->session,
             ]
         );
         if ($existing) {

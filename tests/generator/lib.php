@@ -72,7 +72,7 @@ class local_solsits_generator extends component_generator_base {
             'sequence' => '001',
             'usermodified' => $USER->id,
             'timecreated' => time(),
-            'timemodified' => time()
+            'timemodified' => time(),
         ], (array)$record);
 
         $assignment = new sitsassign(0, $record);
@@ -111,7 +111,7 @@ class local_solsits_generator extends component_generator_base {
             'message' => '',
             'response' => null,
             'timecreated' => time(),
-            'timemodified' => time()
+            'timemodified' => time(),
         ], (array)$record);
         $insertid = $DB->insert_record('local_solsits_assign_grades', $record);
         $record->id = $insertid;

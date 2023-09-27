@@ -43,7 +43,7 @@ function xmldb_local_solsits_install() {
         'period_code',
         'related_courses',
         'subject_area',
-        'templateapplied'
+        'templateapplied',
     ];
     foreach ($fields as $field) {
         \local_solsits\helper::create_sits_coursecustomfields($field);
@@ -81,7 +81,8 @@ function xmldb_local_solsits_install() {
         $existing = $DB->get_record('role_capabilities', [
             'contextid' => $context->id,
             'roleid' => $cap->roleid,
-            'capability' => $cap->capability]);
+            'capability' => $cap->capability,
+        ]);
         if (!$existing) {
             $DB->insert_record('role_capabilities', $cap);
             // Trigger capability_assigned event.
@@ -92,8 +93,8 @@ function xmldb_local_solsits_install() {
                 'other' => [
                     'capability' => $cap->capability,
                     'oldpermission' => CAP_INHERIT,
-                    'permission' => $cap->permission
-                ]
+                    'permission' => $cap->permission,
+                ],
             ])->trigger();
 
             // Reset any cache of this role, including MUC.

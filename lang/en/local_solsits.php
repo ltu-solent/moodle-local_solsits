@@ -104,6 +104,7 @@ $string['invalidcourseid'] = 'Invalid courseid';
 $string['invalidpagetype'] = 'Invalid pagetype';
 $string['invalidsession'] = 'Invalid session';
 $string['invalidstudent'] = 'Student IDNumber invalid of {$a->idnumber} for {$a->firstname} {$a->lastname}';
+$string['invalidtemplateid'] = 'Invalid template id';
 
 $string['keynotset'] = 'AIS key not set';
 

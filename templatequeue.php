@@ -38,7 +38,7 @@ $selectedcourses = optional_param_array('selectedcourses', [], PARAM_INT);
 $params = [
     'pagetype' => $pagetype,
     'session' => $session,
-    'selectedcourses' => $selectedcourses
+    'selectedcourses' => $selectedcourses,
 ];
 
 $PAGE->set_context($context);

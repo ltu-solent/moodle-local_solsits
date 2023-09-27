@@ -51,11 +51,11 @@ class soltemplate_test extends advanced_testcase {
         $courses = [
             'module' => [],
             'course' => [],
-            'noneoftheabove' => []
+            'noneoftheabove' => [],
         ];
         $sessions = [
             '2021/22',
-            '2022/23'
+            '2022/23',
         ];
         // Create 5 modules, 5 courses, 5 something elses.
         foreach ($courses as $key => $empty) {

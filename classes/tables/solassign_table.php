@@ -62,7 +62,7 @@ class solassign_table extends table_sql {
             'grademarkexempt',
             'availablefrom',
             'timemodified',
-            'actions'
+            'actions',
         ];
 
         $columnheadings = [
@@ -78,7 +78,7 @@ class solassign_table extends table_sql {
             new lang_string('grademarkexempt', 'local_solsits'),
             new lang_string('availablefrom', 'local_solsits'),
             new lang_string('timemodified', 'local_solsits'),
-            new lang_string('actions', 'local_solsits')
+            new lang_string('actions', 'local_solsits'),
         ];
         $this->define_columns($columns);
         $this->define_headers($columnheadings);

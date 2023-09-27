@@ -40,7 +40,7 @@ echo $OUTPUT->header();
 $params = [
     'selectedcourses' => [],
     'currentcourses' => true,
-    'showerrorsonly' => false
+    'showerrorsonly' => false,
 ];
 
 $filterform = new \local_solsits\forms\solassign_filter_form(null);

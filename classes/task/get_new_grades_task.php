@@ -75,7 +75,7 @@ class get_new_grades_task extends scheduled_task {
                     'itemmodule' => 'assign',
                     'idnumber' => '',
                     'locked' => $lastruntime,
-                    'locktime' => 0
+                    'locktime' => 0,
                 ]
             );
         if (!$assignids) {
@@ -116,7 +116,7 @@ class get_new_grades_task extends scheduled_task {
             LIMIT 1', [
                 'itemmodule' => 'assign',
                 'iteminstance' => $cm->instance,
-                'locked' => $lastruntime
+                'locked' => $lastruntime,
             ]);
         $students = get_role_users(
             5,
@@ -133,7 +133,8 @@ class get_new_grades_task extends scheduled_task {
                 mtrace(get_string('invalidstudent', 'local_solsits', [
                     'firstname' => $student->firstname,
                     'lastname' => $student->lastname,
-                    'idnumber' => $student->idnumber]));
+                    'idnumber' => $student->idnumber,
+                ]));
                 continue;
             }
             $grade = $this->user_grade($allgrades, $student, $releasedby->scaleid);
@@ -153,7 +154,7 @@ class get_new_grades_task extends scheduled_task {
                 'sitsref' => $cm->idnumber,
                 'graderid' => $releasedby->id,
                 'grade' => $grade,
-                'studentidnumber' => $student->idnumber
+                'studentidnumber' => $student->idnumber,
             ];
             if ($isqueued) {
                 mtrace(get_string('gradequeued', 'local_solsits', $tracedata));

@@ -26,8 +26,7 @@
 use local_solsits\sitsassign;
 
 defined('MOODLE_INTERNAL') || die();
-
-// require_once($CFG->dirroot . '/lib/behat/classes/util.php');
+global $CFG;
  /**
   * Generator class
   */

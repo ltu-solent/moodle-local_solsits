@@ -225,7 +225,9 @@ class helper_test extends advanced_testcase {
      */
     public function test_convert_grade() {
         $this->resetAfterTest();
-        $this->create_solent_gradescales();
+        /** @var local_solsits_generator $ssdg */
+        $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
+        $ssdg->create_solent_gradescales();
         $scaleid = get_config('local_solsits', 'grademarkscale');
         $match = [-1, 0, 1, 15, 20, 35, 42, 45, 48, 52, 55, 58, 62, 65, 68, 74, 83, 92, 100];
         for ($x = 0; $x < 19; $x++) {
@@ -271,7 +273,9 @@ class helper_test extends advanced_testcase {
      */
     public function test_badassignalerts($coursedata, $assigndata, $response, $alertcount) {
         $this->resetAfterTest();
-        $this->create_solent_gradescales();
+        /** @var local_solsits_generator $ssdg */
+        $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
+        $ssdg->create_solent_gradescales();
         $this->setAdminUser();
 
         $course = $this->getDataGenerator()->create_course($coursedata);

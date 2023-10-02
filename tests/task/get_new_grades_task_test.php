@@ -87,7 +87,7 @@ class get_new_grades_task_test extends advanced_testcase {
             'lastname' => 'Leader',
         ]);
         $this->getDataGenerator()->enrol_user($moduleleader->id, $course->id, 'editingteacher');
-        $this->create_solent_gradescales();
+        $dg->create_solent_gradescales();
 
         $config = get_config('local_solsits');
 
@@ -208,7 +208,7 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
             'lastname' => 'Leader',
         ]);
         $this->getDataGenerator()->enrol_user($moduleleader->id, $course->id, 'editingteacher');
-        $this->create_solent_gradescales();
+        $dg->create_solent_gradescales();
 
         $config = get_config('local_solsits');
 
@@ -486,7 +486,7 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
             'lastname' => 'Leader',
         ]);
         $this->getDataGenerator()->enrol_user($moduleleader->id, $course->id, 'editingteacher');
-        $this->create_solent_gradescales();
+        $dg->create_solent_gradescales();
 
         $config = get_config('local_solsits');
 
@@ -549,7 +549,9 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
             'lastname' => 'Leader',
         ]);
         $this->getDataGenerator()->enrol_user($moduleleader->id, $course->id, 'editingteacher');
-        $this->create_solent_gradescales();
+        /** @var local_solsits_generator $dg */
+        $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
+        $dg->create_solent_gradescales();
 
         $config = get_config('local_solsits');
         // We don't allow idnumbers for formative assignments.
@@ -609,7 +611,9 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
             'lastname' => 'Leader',
         ]);
         $this->getDataGenerator()->enrol_user($moduleleader->id, $course->id, 'editingteacher');
-        $this->create_solent_gradescales();
+        /** @var local_solsits_generator $dg */
+        $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
+        $dg->create_solent_gradescales();
 
         $config = get_config('local_solsits');
 

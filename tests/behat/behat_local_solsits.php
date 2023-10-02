@@ -23,9 +23,11 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+global $CFG;
 require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
 
 use Behat\Gherkin\Node\TableNode;
+use local_solsits\generator;
 
 /**
  * Behat steps for local solsits
@@ -41,23 +43,42 @@ class behat_local_solsits extends behat_base {
      */
     public function the_following_sitsassign_exists(TableNode $data) {
         global $DB;
-        $sitsassign = $data->getRowsHash();
+        $assigndata = $data->getRowsHash();
 
-        if (!isset($sitsassign['course'])) {
+        if (!isset($assigndata['course'])) {
             throw new Exception('The course shortname must be provided in the course field');
         }
-        $course = $DB->get_record('course', ['shortname' => $sitsassign['course']], '*', MUST_EXIST);
-        $sitsassign['courseid'] = $course->id;
-        unset($sitsassign['course']);
+        $course = $DB->get_record('course', ['shortname' => $assigndata['course']], '*', MUST_EXIST);
+        $assigndata['courseid'] = $course->id;
+        unset($assigndata['course']);
 
-        if (!isset($sitsassign['sitsref'])) {
+        if (!isset($assigndata['sitsref'])) {
             throw new Exception('The sitsref must be specified');
         }
         // Get the cmid for the assignment by using the idnumber.
-        $cm = $DB->get_record('course_modules', ['idnumber' => $sitsassign['sitsref']]);
-        $sitsassign['cmid'] = $cm->id;
-
+        $cm = $DB->get_record('course_modules', ['idnumber' => $assigndata['sitsref']]);
+        if ($cm) {
+            $assigndata['cmid'] = $cm->id;
+        }
+        /** @var local_solsits_generator $ssdg */
         $ssdg = behat_util::get_data_generator()->get_plugin_generator('local_solsits');
-        $ssdg->create_sits_assign($sitsassign);
+        $sitsassign = $ssdg->create_sits_assign($assigndata);
+        if (!$cm) {
+            // Create the assignment activity if it doesn't already exist.
+            $sitsassign->create_assignment();
+        }
+    }
+
+    /**
+     * Set up gradescales for Solent
+     *
+     * @Given /^the solent gradescales are setup$/
+     * @return void
+     */
+    public function the_solent_gradescales_are_setup() {
+        /** @var local_solsits_generator $ssdg */
+        $ssdg = behat_util::get_data_generator()->get_plugin_generator('local_solsits');
+        // Set them up, if they don't already exist.
+        $ssdg->create_solent_gradescales();
     }
 }

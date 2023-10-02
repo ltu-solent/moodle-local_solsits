@@ -66,15 +66,15 @@ class export_grades_task_test extends advanced_testcase {
     public function test_task_execute($module, $assignment, $unitleader, $grades, $response): void {
         global $DB;
         $this->resetAfterTest();
-        $this->create_solent_gradescales();
+        /** @var local_solsits_generator $dg */
+        $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
+        $dg->create_solent_gradescales();
         set_config('default', 1, 'assignfeedback_misconduct');
         set_config('ais_exportgrades_url', 'https://example.com', 'local_solsits');
         set_config('ais_exportgrades_endpoint', '/api/Results/upload', 'local_solsits');
         set_config('ais_exportgrades_key', 'RANDOM##1234', 'local_solsits');
         $config = get_config('local_solsits');
         $this->setAdminUser();
-        /** @var local_solsits_generator $dg */
-        $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
 
         $course = $this->getDataGenerator()->create_course($module);
         $unitleaderuser = $this->getDataGenerator()->create_user($unitleader);

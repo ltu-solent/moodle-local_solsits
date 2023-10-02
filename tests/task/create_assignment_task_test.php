@@ -56,7 +56,7 @@ class create_assignment_task_test extends advanced_testcase {
         /** @var local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         set_config('maxassignments', 10, 'local_solsits');
-        $this->create_solent_gradescales();
+        $dg->create_solent_gradescales();
         $this->setAdminUser();
 
         $course = $this->getDataGenerator()->create_course();
@@ -129,7 +129,7 @@ No assignments found to process.
         /** @var local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         set_config('maxassignments', 10, 'local_solsits');
-        $this->create_solent_gradescales();
+        $dg->create_solent_gradescales();
         $this->setAdminUser();
 
         $course = $this->getDataGenerator()->create_course();
@@ -184,7 +184,7 @@ New assignment successfully created: SITS10
         /** @var local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         set_config('maxassignments', 1, 'local_solsits');
-        $this->create_solent_gradescales();
+        $dg->create_solent_gradescales();
         $this->setAdminUser();
 
         $course = $this->getDataGenerator()->create_course();

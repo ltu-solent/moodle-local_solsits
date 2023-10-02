@@ -590,7 +590,7 @@ class sitsassign_test extends advanced_testcase {
         $this->setAdminUser();
         /** @var local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
-        $this->create_solent_gradescales();
+        $dg->create_solent_gradescales();
         $config = get_config('local_solsits');
         set_config('default', 1, 'assignfeedback_misconduct');
 
@@ -760,6 +760,8 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_ABC10
      * @return void
      */
     private function set_settings() {
-        $this->create_solent_gradescales();
+        /** @var local_solsits_generator $ssdg */
+        $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
+        $ssdg->create_solent_gradescales();
     }
 }

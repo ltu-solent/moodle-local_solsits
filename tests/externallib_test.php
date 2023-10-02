@@ -28,6 +28,7 @@ namespace local_solsits;
 use context_module;
 use externallib_advanced_testcase;
 use local_solsits\task\task_trait;
+use local_solsits_generator;
 use mod_assign_testable_assign;
 
 defined('MOODLE_INTERNAL') || die();
@@ -255,7 +256,9 @@ class externallib_test extends externallib_advanced_testcase {
             'customfield_templateapplied' => 1,
         ]);
         // Need this for creating the assign activities.
-        $this->create_solent_gradescales();
+        /** @var local_solsits_generator $ssdg */
+        $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
+        $ssdg->create_solent_gradescales();
 
         if ($expectederror) {
             $this->expectException($expectederror);

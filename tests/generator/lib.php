@@ -134,6 +134,7 @@ class local_solsits_generator extends component_generator_base {
                 'scale' => 'N, S, F3, F2, F1, D3, D2, D1, C3, C2, C1, B3, B2, B1, A4, A3, A2, A1',
             ]);
             set_config('grademarkscale', $solentscale->id, 'local_solsits');
+            set_config('grademarkscale', $solentscale->id, 'local_quercus_tasks');
         }
         if (!$DB->record_exists('scale', ['name' => 'Solent numeric'])) {
             $solentnumeric = $dg->create_scale([
@@ -145,6 +146,7 @@ class local_solsits_generator extends component_generator_base {
                         '81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100',
             ]);
             set_config('grademarkexemptscale', $solentnumeric->id, 'local_solsits');
+            set_config('grademarkexemptscale', $solentnumeric->id, 'local_quercus_tasks');
         }
     }
 }

@@ -589,12 +589,12 @@ class sitsassign extends persistent {
 
         $sql = "SELECT sag.id, sa.sitsref, sa.reattempt, sa.sequence, sag.response,
             stu.id studentid, stu.idnumber studentidnumber, stu.firstname studentfirstname, stu.lastname studentlastname,
-            lead.firstname leaderfirstname, lead.lastname leaderlastname, lead.email leaderemail,
+            leader.firstname leaderfirstname, leader.lastname leaderlastname, leader.email leaderemail,
             cfmod.value modulecode, c.fullname moduletitle, cfay.value academic_year, c.shortname moduleinstanceid,
             a.name assessment_name, a.duedate, sag.converted_grade, a.id assignid
             FROM {local_solsits_assign_grades} sag
             JOIN {user} stu ON stu.id = sag.studentid
-            JOIN {user} lead ON lead.id = sag.graderid
+            JOIN {user} leader ON leader.id = sag.graderid
             JOIN {local_solsits_assign} sa ON sa.id = sag.solassignmentid
             JOIN {course_modules} cm ON cm.id = sa.cmid
             JOIN {assign} a ON a.id = cm.instance

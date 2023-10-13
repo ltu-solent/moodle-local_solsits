@@ -76,7 +76,7 @@ class ais_client extends curl {
      */
     public function export_grades($grades) {
         $export = json_encode($grades);
-        $endpoint = get_config('local_solsits', 'endpoint') ?? '';
+        $endpoint = get_config('local_solsits', 'ais_exportgrades_endpoint') ?? '';
         $fullpath = "{$this->url}{$endpoint}";
         $this->setopt([
             'CURLOPT_RETURNTRANSFER' => 1, // Post will return false on error, or the response on success.

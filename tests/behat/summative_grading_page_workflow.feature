@@ -41,7 +41,7 @@ Feature: The ability to release grades depends on permissions and workflow statu
     And the following "mod_assign > submissions" exist:
       | assign                | user      | onlinetext                   |
       | SITS1                 | student1  | I'm the student1 submission  |
-    And the following sits assignment exists:
+    And the following SITS assignment exists:
       | sitsref         | SITS1         |
       | course          | C1            |
       | title           | ASSIGN1       |
@@ -84,7 +84,7 @@ Feature: The ability to release grades depends on permissions and workflow statu
     And the following "mod_assign > submissions" exist:
       | assign                | user      | onlinetext                   |
       | SITS1                 | student1  | I'm the student1 submission  |
-    And the following sits assignment exists:
+    And the following SITS assignment exists:
       | sitsref         | SITS1         |
       | course          | C1            |
       | title           | ASSIGN1       |

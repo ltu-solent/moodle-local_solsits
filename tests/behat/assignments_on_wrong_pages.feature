@@ -49,7 +49,7 @@ Feature: Guidance message is displayed if assignment is on the wrong course
     Given the following "activities" exist:
       | activity | name           | course                | idnumber                             |
       | assign   | SITS1          | ABC101_A_SEM1_2023/24 | ABC101_A_SEM1_2023/24_ABC10101_001_0 |
-    And the following sits assignment exists:
+    And the following SITS assignment exists:
       | sitsref         | ABC101_A_SEM1_2023/24_ABC10101_001_0 |
       | course          | ABC101_A_SEM1_2023/24                |
       | title           | SITS1                                |

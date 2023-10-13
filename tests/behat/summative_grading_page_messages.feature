@@ -49,7 +49,7 @@ Feature: Guidance message is displayed to those who can view the grading page
     And the following "mod_assign > submissions" exist:
       | assign                | user      | onlinetext                   |
       | SITS1                 | student1  | I'm the student1 submission  |
-    And the following sits assignment exists:
+    And the following SITS assignment exists:
       | sitsref         | SITS1         |
       | course          | C1            |
       | title           | ASSIGN1       |
@@ -97,7 +97,7 @@ Feature: Guidance message is displayed to those who can view the grading page
       | assign                               | user      | onlinetext                  |
       | AAP601_A_SEM1_2023/24_ABC10101_001_0 | student1  | I'm the student1 submission |
       | AAP601_A_SEM1_2023/24_ABC10101_001_1 | student1  | I'm the student1 submission |
-    And the following sits assignment exists:
+    And the following SITS assignment exists:
       | sitsref         | AAP601_A_SEM1_2023/24_ABC10101_001_0 |
       | course          | C1                                   |
       | title           | CGI Production - Portfolio 1 (100%)  |
@@ -109,7 +109,7 @@ Feature: Guidance message is displayed to those who can view the grading page
       | availablefrom   | 0                                    |
       | reattempt       | 0                                    |
       | grademarkexempt | 0                                    |
-    And the following sits assignment exists:
+    And the following SITS assignment exists:
       | sitsref         | AAP601_A_SEM1_2023/24_ABC10101_001_1                |
       | course          | C1                                                  |
       | title           | CGI Production - Portfolio 1 (100%) First Reattempt |
@@ -149,7 +149,7 @@ Feature: Guidance message is displayed to those who can view the grading page
     And the following "mod_assign > submissions" exist:
       | assign                | user      | onlinetext                   |
       | SITS1                 | student1  | I'm the student1 submission  |
-    And the following sits assignment exists:
+    And the following SITS assignment exists:
       | sitsref         | SITS1         |
       | course          | C1            |
       | title           | ASSIGN1       |

@@ -20,7 +20,7 @@ Feature: Display SITS assignment data in the settings page, if available
       | assign   | SITS1          | C1     | SITS1      |
       | assign   | SITS2          | C1     | SITS2      |
       | assign   | Quercus1       | C1     | Quercus1   |
-    And the following sits assignment exists:
+    And the following SITS assignment exists:
       | sitsref         | SITS1         |
       | course          | C1            |
       | title           | ASSIGN1       |
@@ -32,7 +32,7 @@ Feature: Display SITS assignment data in the settings page, if available
       | availablefrom   | 0             |
       | reattempt       | 0             |
       | grademarkexempt | 0             |
-    And the following sits assignment exists:
+    And the following SITS assignment exists:
       | sitsref         | SITS2          |
       | course          | C1             |
       | title           | ASSIGN2        |

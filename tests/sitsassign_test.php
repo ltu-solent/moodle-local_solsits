@@ -31,6 +31,7 @@ use context_module;
 use local_solsits\task\task_trait;
 use mod_assign_test_generator;
 use mod_assign_testable_assign;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -646,13 +647,15 @@ class sitsassign_test extends advanced_testcase {
 
         $students = [];
         $grades = [];
-        for ($x = 0; $x < 19; $x++) {
+        for ($x = 0; $x < 20; $x++) {
             // Student needs to have a numeric idnumber for grades to be uploaded to sits.
             $students[$x] = $this->getDataGenerator()->create_user(['idnumber' => '200000' . $x]);
             $this->getDataGenerator()->enrol_user($students[$x]->id, $course->id, 'student');
             // Mimic grademark scale with various values so we can test convert_grade.
             if ($x < 19) {
                 $grades[$x]['grade'] = (float)$x;
+                $this->add_submission($students[$x], $assign, 'My submission');
+                $this->submit_for_grading($students[$x], $assign);
             } else {
                 $grades[$x]['grade'] = 0;
             }
@@ -668,7 +671,7 @@ class sitsassign_test extends advanced_testcase {
         $this->mark_assignments($students, $grades, $assignexported, $moduleleader, ASSIGN_MARKING_WORKFLOW_STATE_RELEASED);
         $this->setAdminUser();
         $insertedgrades = [];
-        for ($x = 0; $x < 19; $x++) {
+        for ($x = 0; $x < 20; $x++) {
             // Spoof already exported grades.
             $insertedgrades[] = $dg->create_assign_grade([
                 'solassignmentid' => $sitsassignexported->get('id'),
@@ -709,6 +712,8 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_ABC10
 Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_ABC10102_001_0_0_1, Grader id: ' . $moduleleader->id .
         ', Grade: 100, Student idnumber: 20000018
 Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_ABC10102_001_0_0_1, Grader id: ' . $moduleleader->id .
+        ', Grade: 0, Student idnumber: 20000019
+Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_ABC10102_001_0_0_1, Grader id: ' . $moduleleader->id .
         ', Grade: 1, Student idnumber: 2000002
 Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_ABC10102_001_0_0_1, Grader id: ' . $moduleleader->id .
         ', Grade: 15, Student idnumber: 2000003
@@ -730,9 +735,9 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_ABC10
         $waiting = sitsassign::get_retry_list();
         $this->assertCount(1, $waiting);
         $export = $sitsassign->get_queued_grades_for_export();
-        $this->assertCount(19, $export['grades']);
+        $this->assertCount(20, $export['grades']);
         $queuedgrades = $DB->get_records('local_solsits_assign_grades', ['solassignmentid' => $sitsassign->get('id')]);
-        $this->assertCount(19, $queuedgrades);
+        $this->assertCount(20, $queuedgrades);
         $this->assertEquals($sitsassign->get('title'), $export['assignment']['assignmenttitle']);
         $this->assertEquals($sitsassign->get('sitsref'), $export['assignment']['sitsref']);
         $this->assertEquals($moduleleader->firstname, $export['unitleader']['firstname']);
@@ -749,6 +754,15 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_ABC10
                     $this->assertEquals($exportgrade['result'], $queuedgrade->converted_grade);
                     $this->assertEquals($misconductstring, $exportgrade['misconduct']);
                     // Check time submitted.
+                    if ($x > 18) {
+                        $this->assertEquals(get_string('notsubmitted', 'local_solsits'), $exportgrade['submissiontime']);
+                    } else {
+                        $submission = $DB->get_record('assign_submission', [
+                            'userid' => $students[$x]->id,
+                            'assignment' => $assign->get_instance()->id,
+                        ]);
+                        $this->assertEquals(date('d/m/Y H:i:s', $submission->timemodified), $exportgrade['submissiontime']);
+                    }
                 }
             }
         }

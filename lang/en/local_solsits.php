@@ -133,6 +133,7 @@ $string['noselection'] = 'No selection';
 $string['notemplate'] = 'No template';
 $string['notenabled'] = 'Not enabled';
 $string['notset'] = 'Not set';
+$string['notsubmitted'] = 'Not submitted';
 $string['notvisible'] = 'Not visible';
 
 $string['pagetype'] = 'Page type';

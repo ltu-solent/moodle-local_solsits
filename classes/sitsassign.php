@@ -651,6 +651,9 @@ class sitsassign extends persistent {
                 $misconductstring = get_string('yes');
             }
             $submissiontime = date('d/m/Y H:i:s', $studentgrades[$markedassignment->studentid]->submissiontime);
+            if ($studentgrades[$markedassignment->studentid]->submissionstatus != ASSIGN_SUBMISSION_STATUS_SUBMITTED) {
+                $submissiontime = get_string('notsubmitted', 'local_solsits');
+            }
             $gradeitem = [
                 'firstname' => $markedassignment->studentfirstname,
                 'lastname' => $markedassignment->studentlastname,
@@ -685,7 +688,8 @@ class sitsassign extends persistent {
                            ag.grader,
                            ag.grade,
                            ag.attemptnumber,
-                           s.timemodified submissiontime
+                           s.timemodified submissiontime,
+                           s.status submissionstatus
                       FROM {assign_grades} ag, {assign_submission} s
                      WHERE s.assignment = :assignid
                        AND s.userid = ag.userid

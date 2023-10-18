@@ -48,6 +48,11 @@ if ($filterdata = $filterform->get_data()) {
     $params['currentcourses'] = $filterdata->currentcourses;
     $params['selectedcourses'] = $filterdata->selectedcourses;
     $params['showerrorsonly'] = $filterdata->showerrorsonly;
+} else {
+    $params['selectedcourses'] = optional_param_array('selectedcourses', [], PARAM_INT);
+    $params['currentcourses'] = optional_param('currentcourses', true, PARAM_BOOL);
+    $params['showerrorsonly'] = optional_param('showerrorsonly', false, PARAM_BOOL);
+    $filterform->set_data($params);
 }
 
 $filterform->display();

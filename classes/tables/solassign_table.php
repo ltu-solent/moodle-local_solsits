@@ -84,7 +84,17 @@ class solassign_table extends table_sql {
         $this->define_headers($columnheadings);
         $this->no_sorting('actions');
         $this->sortable(true, 'sitsref', SORT_ASC);
-        $this->define_baseurl(new moodle_url('/local/solsits/manageassignments.php'));
+        $urlparams = [
+            'currentcourses' => $filters['currentcourses'],
+            'showonlyerrors' => $filters['showerrorsonly'],
+        ];
+        $sc = [];
+        $baseurl = new moodle_url('/local/solsits/manageassignments.php', $urlparams);
+        foreach ($filters['selectedcourses'] as $key => $selectedcourse) {
+            $sc['selectedcourses[' . $key . ']'] = $selectedcourse;
+        }
+        $baseurl->params($sc);
+        $this->define_baseurl($baseurl);
         $wherestring = '1=1';
         // Do left joins in case the course or activities have been deleted.
         $from = "{local_solsits_assign} ssa

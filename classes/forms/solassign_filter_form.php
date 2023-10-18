@@ -45,7 +45,7 @@ class solassign_filter_form extends moodleform {
         $mform = $this->_form;
 
         $mform->addElement('header', 'filterassignmentshdr', new lang_string('filterassignments', 'local_solsits'));
-        $mform->setExpanded('filterassignmentshdr', false);
+        $mform->setExpanded('filterassignmentshdr', true);
         $options = [
             'multiple' => true,
             'noselectionstring' => get_string('noselection', 'local_solsits'),

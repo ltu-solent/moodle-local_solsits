@@ -551,14 +551,17 @@ class helper {
 
         if ($assignpartcount == 2 && $coursepartcount > 2) {
             // This very much looks like a Quercus Assignment on a SITS course.
-            $alerts[] = new \core\output\notification(
-                get_string('quercusassignmentonsitscourse', 'local_solsits', [
-                    'assignidnumber' => $cm->idnumber,
-                    'courseidnumber' => $course->idnumber,
-                ]),
-                \core\notification::ERROR
-            );
-
+            // But we have an exception for SPAN1_2022/23.
+            $isspan1exception = (strpos($course->idnumber, 'SPAN1_2022/23') > 0);
+            if (!$isspan1exception) {
+                $alerts[] = new \core\output\notification(
+                    get_string('quercusassignmentonsitscourse', 'local_solsits', [
+                        'assignidnumber' => $cm->idnumber,
+                        'courseidnumber' => $course->idnumber,
+                    ]),
+                    \core\notification::ERROR
+                );
+            }
         }
         // The SITS assignment idnumber (sitsref) should match with the courseid in sits assign table.
         $issitsassign = sitsassign::get_record(['sitsref' => $cm->idnumber, 'courseid' => $course->id]);

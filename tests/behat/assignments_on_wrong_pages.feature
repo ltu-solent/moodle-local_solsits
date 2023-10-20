@@ -6,22 +6,25 @@ Feature: Guidance message is displayed if assignment is on the wrong course
 
   Background:
     Given the following "courses" exist:
-    | fullname                | shortname             | category | idnumber              |
-    | Quercus course (ABC101) | ABC101_123456789      | 0        | ABC101_123456789      |
-    | SITS course (ABC101)    | ABC101_A_SEM1_2023/24 | 0        | ABC101_A_SEM1_2023/24 |
-    | SITS Course (ABC101)    | ABC101_A_SEM1_2024/25 | 0        | ABC101_A_SEM1_2024/25 |
+    | fullname                | shortname              | category | idnumber               |
+    | Quercus course (ABC101) | ABC101_123456789       | 0        | ABC101_123456789       |
+    | SITS course (ABC101)    | ABC101_A_SEM1_2023/24  | 0        | ABC101_A_SEM1_2023/24  |
+    | SITS Course (ABC101)    | ABC101_A_SEM1_2024/25  | 0        | ABC101_A_SEM1_2024/25  |
+    | SITS Course (ABC102)    | ABC102_A_SPAN1_2022/23 | 0        | ABC102_A_SPAN1_2022/23 |
     And the following "users" exist:
     | username      | firstname    | lastname | email                |
     | teacher1      | Teacher      | 1        | teacher1@example.com |
     | student1      | Student      | 1        | student1@example.com |
     And the following "course enrolments" exist:
-    | user          | course                | role           |
-    | teacher1      | ABC101_123456789      | editingteacher |
-    | student1      | ABC101_123456789      | student        |
-    | teacher1      | ABC101_A_SEM1_2023/24 | editingteacher |
-    | student1      | ABC101_A_SEM1_2023/24 | student        |
-    | teacher1      | ABC101_A_SEM1_2024/25 | editingteacher |
-    | student1      | ABC101_A_SEM1_2024/25 | student        |
+    | user          | course                 | role           |
+    | teacher1      | ABC101_123456789       | editingteacher |
+    | student1      | ABC101_123456789       | student        |
+    | teacher1      | ABC101_A_SEM1_2023/24  | editingteacher |
+    | student1      | ABC101_A_SEM1_2023/24  | student        |
+    | teacher1      | ABC101_A_SEM1_2024/25  | editingteacher |
+    | student1      | ABC101_A_SEM1_2024/25  | student        |
+    | teacher1      | ABC102_A_SPAN1_2022/23 | editingteacher |
+    | student1      | ABC102_A_SPAN1_2022/23 | student        |
     And I log in as "admin"
     And the following config values are set as admin:
     | config | value  | plugin |
@@ -29,12 +32,22 @@ Feature: Guidance message is displayed if assignment is on the wrong course
 
   Scenario: View Quercus assignment on SITS course error message
     Given the following "activities" exist:
-      | activity | name           | course                | idnumber   |
-      | assign   | Quercus        | ABC101_A_SEM1_2023/24 | PROJ_2022  |
+      | activity | name           | course                 | idnumber   |
+      | assign   | Quercus        | ABC101_A_SEM1_2023/24  | PROJ_2022  |
     When I am on the "PROJ_2022" Activity page logged in as teacher1
     Then I should see "The Quercus assignment (PROJ_2022) should not be on the Gateway module (ABC101_A_SEM1_2023/24)"
     When I am on the "PROJ_2022" Activity page logged in as student1
     Then I should not see "The Quercus assignment (PROJ_2022) should not be on the Gateway module (ABC101_A_SEM1_2023/24)"
+
+  Scenario: View Quercus assignment on SITS SPAN1_2022/23 course no error message for anyone
+    Given the following "activities" exist:
+      | activity | name           | course                 | idnumber   |
+      | assign   | Quercus span   | ABC102_A_SPAN1_2022/23 | PROJ1_2022 |
+    When I am on the "PROJ1_2022" Activity page logged in as teacher1
+    Then I should not see "The Quercus assignment (PROJ1_2022) should not be on the Gateway module (ABC102_A_SPAN1_2022/23)"
+#    And I should see "woowoo"
+    When I am on the "PROJ1_2022" Activity page logged in as student1
+    Then I should not see "The Quercus assignment (PROJ1_2022) should not be on the Gateway module (ABC102_A_SPAN1_2022/23)"
 
   Scenario: View wrong SITS assignment on SITS course error message
     Given the following "activities" exist:

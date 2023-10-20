@@ -147,7 +147,7 @@ No assignments found to process.
         }
         // Make this into a regex because the order returned by postgres seems unpredictable.
         $this->expectOutputRegex("/^(No assignments found to process\.)\s" .
-            "(New assignment successfully created: SITS[0-9]+)\s+){10}$/");
+            "((New assignment successfully created: SITS[0-9]+)\s+){10}$/");
         $this->execute_task('\local_solsits\task\create_assignment_task');
 
         // Now setting the due date to something valid, so they will now be created.

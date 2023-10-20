@@ -76,19 +76,13 @@ class create_assignment_task_test extends advanced_testcase {
                 'courseid' => $course->id,
             ]);
         }
-        $expectedoutput = 'New assignment successfully created: SITS1
-New assignment successfully created: SITS2
-New assignment successfully created: SITS3
-New assignment successfully created: SITS4
-New assignment successfully created: SITS5
-New assignment successfully created: SITS6
-New assignment successfully created: SITS7
-New assignment successfully created: SITS8
-New assignment successfully created: SITS9
-New assignment successfully created: SITS10
-';
-        $this->expectOutputString($expectedoutput);
+        $this->expectOutputRegex("/^(?!No assignments found to process\.\s)" .
+            "((New assignment successfully created: SITS[0-9]+)\s+){10}$/");
         $this->execute_task('\local_solsits\task\create_assignment_task');
+        for ($x = 0; $x < 10; $x++) {
+            $sitsassign = new sitsassign($assignments[$x]->get('id'));
+            $this->assertGreaterThan(0, $sitsassign->get('cmid'));
+        }
     }
 
     /**
@@ -151,27 +145,23 @@ No assignments found to process.
                 'duedate' => 0,
             ]);
         }
-        $expectedoutput = 'No assignments found to process.
-New assignment successfully created: SITS1
-New assignment successfully created: SITS2
-New assignment successfully created: SITS3
-New assignment successfully created: SITS4
-New assignment successfully created: SITS5
-New assignment successfully created: SITS6
-New assignment successfully created: SITS7
-New assignment successfully created: SITS8
-New assignment successfully created: SITS9
-New assignment successfully created: SITS10
-';
-        $this->expectOutputString($expectedoutput);
+        // Make this into a regex because the order returned by postgres seems unpredictable.
+        $this->expectOutputRegex("/^(No assignments found to process\.)\s" .
+            "(New assignment successfully created: SITS[0-9]+)\s+){10}$/");
         $this->execute_task('\local_solsits\task\create_assignment_task');
+
         // Now setting the due date to something valid, so they will now be created.
         for ($x = 0; $x < 10; $x++) {
             $sitsassign = new sitsassign($assignments[$x]->get('id'));
+            $this->assertEquals(0, $sitsassign->get('cmid'));
             $sitsassign->set('duedate', strtotime('+1 week'));
             $sitsassign->save();
         }
         $this->execute_task('\local_solsits\task\create_assignment_task');
+        for ($x = 0; $x < 10; $x++) {
+            $sitsassign = new sitsassign($assignments[$x]->get('id'));
+            $this->assertGreaterThan(0, $sitsassign->get('cmid'));
+        }
     }
 
     /**
@@ -180,6 +170,7 @@ New assignment successfully created: SITS10
      * @return void
      */
     public function test_maxassignments() {
+        global $DB;
         $this->resetAfterTest();
         /** @var local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
@@ -205,24 +196,31 @@ New assignment successfully created: SITS10
                 'courseid' => $course->id,
             ]);
         }
-        $expectedoutput = 'New assignment successfully created: SITS1
-New assignment successfully created: SITS2
-New assignment successfully created: SITS3
-New assignment successfully created: SITS4
-New assignment successfully created: SITS5
-New assignment successfully created: SITS6
-New assignment successfully created: SITS7
-New assignment successfully created: SITS8
-New assignment successfully created: SITS9
-New assignment successfully created: SITS10
-No assignments found to process.
-';
-        $this->expectOutputString($expectedoutput);
+
+        $this->expectOutputRegex("/^((New assignment successfully created: SITS[0-9]+)\s+){10}" .
+            "(No assignments found to process\.\s)$/");
+
+        $count = $DB->count_records('local_solsits_assign', ['cmid' => 0]);
+        $this->assertEquals(10, $count);
+
         $this->execute_task('\local_solsits\task\create_assignment_task'); // 1.
+        $count = $DB->count_records('local_solsits_assign', ['cmid' => 0]);
+        $this->assertEquals(9, $count);
+
         set_config('maxassignments', 4, 'local_solsits');
+
         $this->execute_task('\local_solsits\task\create_assignment_task'); // 5.
+        $count = $DB->count_records('local_solsits_assign', ['cmid' => 0]);
+        $this->assertEquals(5, $count);
+
         $this->execute_task('\local_solsits\task\create_assignment_task'); // 9.
+        $count = $DB->count_records('local_solsits_assign', ['cmid' => 0]);
+        $this->assertEquals(1, $count);
+
         $this->execute_task('\local_solsits\task\create_assignment_task'); // 10.
+        $count = $DB->count_records('local_solsits_assign', ['cmid' => 0]);
+        $this->assertEquals(0, $count);
+
         $this->execute_task('\local_solsits\task\create_assignment_task'); // No more.
     }
 }

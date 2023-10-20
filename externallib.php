@@ -76,14 +76,10 @@ class local_solsits_external extends external_api {
         foreach ($params['assignments'] as $assignment) {
             $assignment = (object)$assignment;
             if ($DB->record_exists('local_solsits_assign', ['sitsref' => $assignment->sitsref])) {
-                throw new invalid_parameter_exception(
-                    get_string('error:sitsrefinuse', 'local_solsits', $assignment->sitsref)
-                );
+                throw new moodle_exception('error:sitsrefinuse', 'local_solsits', null, $assignment->sitsref);
             }
             if (!$DB->record_exists('course', ['id' => $assignment->courseid])) {
-                throw new invalid_parameter_exception(
-                    get_string('error:coursenotexist', 'local_solsits', $assignment->courseid)
-                );
+                throw new moodle_exception('error:coursenotexist', 'local_solsits', null, $assignment->courseid);
             }
             $context = context_course::instance($assignment->courseid, IGNORE_MISSING);
             self::validate_context($context);
@@ -180,17 +176,13 @@ class local_solsits_external extends external_api {
         foreach ($params['assignments'] as $assignment) {
             $assignment = (object)$assignment;
             if (!$DB->record_exists('local_solsits_assign', ['sitsref' => $assignment->sitsref])) {
-                throw new invalid_parameter_exception(
-                    get_string('error:sitsrefnotexist', 'local_solsits', $assignment->sitsref)
-                );
+                throw new moodle_exception('error:sitsrefnotexist', 'local_solsits', null, $assignment->sitsref);
             }
             // We don't ever want to change the courseid, but we need it for context, so check that sitsref and courseid
             // match.
             $sitsassign = sitsassign::get_record(['sitsref' => $assignment->sitsref]);
             if (isset($assignment->courseid) && $assignment->courseid != $sitsassign->get('courseid')) {
-                throw new invalid_parameter_exception(
-                    get_string('error:courseiddoesnotmatch', 'local_solsits')
-                );
+                throw new moodle_exception('error:courseiddoesnotmatch', 'local_solsits');
             } else {
                 $assignment->courseid = $sitsassign->get('courseid');
             }

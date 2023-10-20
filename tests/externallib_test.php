@@ -228,8 +228,61 @@ class externallib_test extends externallib_advanced_testcase {
         $this->assertEquals($course->id, $sitsassign->get('courseid'));
 
         // Now try to add an assignment with the same sitsref: Fail.
-        $this->expectException('invalid_parameter_exception');
+        $this->expectException('moodle_exception');
+        $this->expectExceptionMessage(get_string('error:sitsrefinuse', 'local_solsits', $assign['sitsref']));
         \local_solsits_external::add_assignments([$assign]);
+    }
+
+    /**
+     * Try updating an existing assignment with the wrong courseid
+     * @covers \local_solsits_external::update_assignments
+     *
+     * @return void
+     */
+    public function test_wrong_courseid_update_assignment() {
+        $this->resetAfterTest();
+        $assign = [
+            'sitsref' => 'AAP502_A_SEM1_2023/24_AAP50201_001_0',
+            'title' => 'CGI Production - Portfolio 1 (100%)',
+            'weighting' => '50',
+            'duedate' => strtotime('+2 weeks 16:00'),
+            'grademarkexempt' => false,
+            'availablefrom' => 0,
+            'reattempt' => 0,
+            'assessmentcode' => 'AAP50201',
+            'assessmentname' => 'Project 1',
+            'sequence' => '001',
+        ];
+        $courseidnumber = 'AAP502_A_SEM1_2023/24';
+
+        $course = $this->getDataGenerator()->create_course([
+            'shortname' => $courseidnumber,
+            'idnumber' => $courseidnumber,
+        ]);
+        $wrongcourse = $this->getDataGenerator()->create_course();
+        $assign['courseid'] = $course->id;
+        $this->setAdminUser();
+        // First time of trying: Success.
+        \local_solsits_external::add_assignments([$assign]);
+        $sitsassign = sitsassign::get_record(['sitsref' => $assign['sitsref']]);
+        $this->assertEquals($assign['sitsref'], $sitsassign->get('sitsref'));
+        $this->assertEquals($assign['title'], $sitsassign->get('title'));
+        $this->assertEquals($assign['weighting'], $sitsassign->get('weighting'));
+        $this->assertEquals($assign['duedate'], $sitsassign->get('duedate'));
+        $this->assertEquals($assign['grademarkexempt'], $sitsassign->get('grademarkexempt'));
+        $this->assertEquals($assign['availablefrom'], $sitsassign->get('availablefrom'));
+        $this->assertEquals($assign['reattempt'], $sitsassign->get('reattempt'));
+        $this->assertEquals($assign['assessmentcode'], $sitsassign->get('assessmentcode'));
+        $this->assertEquals($assign['assessmentname'], $sitsassign->get('assessmentname'));
+        $this->assertEquals($assign['sequence'], $sitsassign->get('sequence'));
+        $this->assertEquals(0, $sitsassign->get('cmid'));
+        $this->assertEquals($course->id, $sitsassign->get('courseid'));
+
+        // Now try to update the assignment with the wrong courseid: Fail.
+        $assign['courseid'] = $wrongcourse->id;
+        $this->expectException('moodle_exception');
+        $this->expectExceptionMessage(get_string('error:courseiddoesnotmatch', 'local_solsits'));
+        \local_solsits_external::update_assignments([$assign]);
     }
 
     /**
@@ -371,7 +424,7 @@ class externallib_test extends externallib_advanced_testcase {
                     'sequence' => '001',
                 ],
                 'courseidnumber' => 'AAP502_A_SEM1_2023/24',
-                'expectederror' => 'invalid_parameter_exception',
+                'expectederror' => 'moodle_exception',
                 'cmexists' => false,
             ],
             'Existing sits assignment - Course Module exists' => [

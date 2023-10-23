@@ -144,6 +144,38 @@ if ($hassiteconfig) {
         )
     );
 
+    $name = 'local_solsits/assignmentwarning_hidden';
+    $title = new lang_string('assignmentwarning_hidden', 'local_solsits');
+    $description = new lang_string('assignmentwarning_hidden_desc', 'local_solsits');
+    $settings->add(
+        new admin_setting_configtextarea($name, $title, $description,
+        '<p><strong>Warning</strong>This is a Summative assignment and it has been hidden.</p>' .
+        '<p>Your students will not be able to see their grades or feedback; please make visible again.</p>'
+        )
+    );
+
+    $name = 'local_solsits/assignmentwarning_wrongsection';
+    $title = new lang_string('assignmentwarning_wrongsection', 'local_solsits');
+    $description = new lang_string('assignmentwarning_wrongsection_desc', 'local_solsits');
+    $settings->add(
+        new admin_setting_configtextarea($name, $title, $description,
+        '<p><strong>Warning</strong>This is a Summative assignment and it has been moved out of the Assignments section.</p>' .
+        '<p>Moving assignments where students don\'t expect can be confusing. Please contact Guided.Learning to move it back</p>'
+        )
+    );
+
+    $name = 'local_solsits/assignmentwarning_body';
+    $title = new lang_string('assignmentwarning_body', 'local_solsits');
+    $description = new lang_string('assignmentwarning_body_desc', 'local_solsits');
+    $settings->add(
+        new admin_setting_configtextarea($name, $title, $description,
+        '<p>Dear {MODULELEADER}</p>' .
+        '<p>Changes have recently been made to {ASSIGNMENTLINK} ({IDNUMBER}) on {COURSELINK}.' .
+        'Please note these changes can affect access and Marks Uploads. See below for details.</p>' .
+        '<p>Kind regards, Guided Learning</p>'
+        )
+    );
+
     $name = 'local_solsits/marksuploadssettings';
     $title = new lang_string('marksuploadssettings', 'local_solsits');
     $description = '';

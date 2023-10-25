@@ -325,11 +325,10 @@ class helper {
         // Update in upgrade.php script transfers capabilities from local/quercus_tasks:releasegrades.
         $hascapability = has_capability('local/solsits:releasegrades', $context);
         $locked = $DB->get_field_select('grade_items', 'locked', 'itemmodule = ? AND iteminstance = ?', ['assign', $cm->instance]);
-        $gradingpanel = ($PAGE->pagetype == 'mod-assign-gradingpanel');
+        $gradingpanel = in_array($PAGE->pagetype, ['mod-assign-grader', 'site-index', 'mod-assign-gradingpanel']);
         if ($hascapability && $locked == 0 && !$gradingpanel) {
             return true;
-        }
-        if ($locked != 0) {
+        } else if ($locked != 0) {
             return true;
         }
         return false;

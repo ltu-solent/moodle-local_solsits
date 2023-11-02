@@ -331,7 +331,17 @@ class sitsassign_test extends advanced_testcase {
         $oldsitsassign = $ssdg->create_sits_assign($oldassign);
 
         // Run create assignment method.
-        $result = $oldsitsassign->create_assignment();
+        $oldsitsassign->create_assignment();
+
+        if ($oldassign['duedate'] > 0) {
+            // Change an assignment setting, to make sure it doesn't get overwritten when the update comes.
+            $cmid = $oldsitsassign->get('cmid');
+            [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'assign');
+            $context = context_module::instance($cmid);
+            $assignrecord = $DB->get_record('assign', ['id' => $cm->instance]);
+            $assignrecord->markingallocation = 1;
+            $DB->update_record('assign', $assignrecord);
+        }
 
         // Delete the course after creating the assignment to leave a stranded record.
         if ($coursedeleted) {
@@ -378,6 +388,8 @@ class sitsassign_test extends advanced_testcase {
         } else {
             $this->assertEquals($oldavailablefrom, $assignment->get_instance()->allowsubmissionsfromdate);
         }
+
+        $this->assertEquals(1, $assignment->get_instance()->markingallocation);
 
         $gradingduedate = helper::set_time($newduedate, '16:00', "+{$config->gradingdueinterval} week");
         $this->assertEquals($gradingduedate, $assignment->get_instance()->gradingduedate);

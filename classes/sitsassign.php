@@ -30,6 +30,7 @@ use context_module;
 use core\persistent;
 use core_date;
 use DateTime;
+use grade_item;
 use lang_string;
 use mod_assign_external;
 use plagiarism_plugin_turnitin;
@@ -298,6 +299,8 @@ class sitsassign extends persistent {
      */
     public function update_assignment() {
         global $DB;
+        $config = get_config('local_solsits');
+
         if ($this->get('duedate') == 0) {
             // It should only get here is the cmid has been set, which means that previously the assignment
             // was created.
@@ -319,21 +322,40 @@ class sitsassign extends persistent {
             }
             return false;
         }
-        // Don't think I need to prepare formdata as this might try to change some settings we can't change once
-        // an assignment has been created.
-        // But include it for now because it does set up some values we need.
-        $this->prepare_formdata();
-        [$course, $cm] = get_course_and_cm_from_cmid($this->get('cmid'), 'assign');
-        $cmcontext = $cm->context;
-        $assignment = new assign($cmcontext, null, null);
-        // This should also update the calendar. So all done.
-        $this->formdata->instance = $cm->instance;
-        $this->formdata->coursemodule = $cm->id;
 
-        $this->formdata->completionexpected = $this->formdata->duedate;
-        $updated = $assignment->update_instance($this->formdata);
+        // Do manual changes rather than update_instance as this requires more formdata.
+        [$course, $cm] = get_course_and_cm_from_cmid($this->get('cmid'), 'assign');
+        $this->formdata = $DB->get_record('assign', ['id' => $cm->instance]);
+        $this->formdata->name = $this->get('title');
+        $this->calculatedates();
+        $gradeitem = grade_item::fetch([
+            'itemtype' => 'mod',
+            'itemmodule' => $cm->modname,
+            'iteminstance' => $cm->instance,
+            'itemnumber' => 0,
+            'courseid' => $course->id,
+        ]);
+        // We only want to update the grade scale if there have been no submissions.
+        if (!$gradeitem->has_grades()) {
+            if ($this->get('grademarkexempt')) {
+                $this->formdata->grade = $config->grademarkexemptscale * -1;
+            } else {
+                $this->formdata->grade = $config->grademarkscale * -1;
+            }
+        }
+        $DB->update_record('assign', $this->formdata);
+        $completion = new stdClass();
+        $completion->id = $this->get('cmid');
+        $completion->completionexpected = $this->formdata->duedate;
+        $DB->update_record('course_modules', $completion);
+
+        $assign = $DB->get_record('assign', ['id' => $cm->instance]);
+        // Get fresh, rather than cached.
+        $cm = $DB->get_record('course_modules', ['id' => $this->get('cmid')]);
+        $cm->modname = 'assign';
+        course_module_calendar_event_update_process($assign, $cm);
         rebuild_course_cache($course->id);
-        return $updated;
+        return true;
     }
 
     /**

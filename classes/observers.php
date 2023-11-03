@@ -116,10 +116,15 @@ class observers {
             $body .= $problemtext;
         }
         $recipients = [
-            core_user::get_user_by_username('admin'),
-            core_user::get_user_by_username('guidedlearning'),
             $triggerer,
         ];
+        $extras = ['admin', 'guidedlearning'];
+        foreach ($extras as $extra) {
+            $recep = core_user::get_user_by_username($extra);
+            if ($recep) {
+                $recipients[] = $recep;
+            }
+        }
         $noreply = core_user::get_noreply_user();
         foreach ($recipients as $recipient) {
             email_to_user($recipient, $noreply, $subject, html_to_text($body), $body);

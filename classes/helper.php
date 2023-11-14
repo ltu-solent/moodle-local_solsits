@@ -200,6 +200,8 @@ class helper {
         $data->shortname = $shortname;
         $data->type = $data->type ?? 'text';
         $data->configdata = $data->configdata ?? $configdatavisible;
+        $data->description = '';
+        $data->descriptionformat = 0;
         $field = new field(0, $data);
         $field->save();
     }

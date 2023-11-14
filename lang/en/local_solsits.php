@@ -85,6 +85,7 @@ $string['error:usersenrolledalready'] = 'Enrolments already exist. Cannot apply 
 $string['exportgradestask'] = 'Export grades to SITS';
 $string['externaldate'] = 'External date';
 
+$string['failure'] = 'Failure';
 $string['filter'] = 'Filter';
 $string['filterassignments'] = 'Filter assignments';
 
@@ -193,6 +194,7 @@ $string['startdate'] = 'Start date';
 $string['status'] = 'Status';
 $string['studentidnotexists'] = 'Studentid user does not exist';
 $string['studentidnotset'] = 'Studentid not set';
+$string['success'] = 'Success';
 
 $string['targetsection'] = 'Assignment section';
 $string['targetsection_desc'] = 'Which section No. should assignments be created in?';

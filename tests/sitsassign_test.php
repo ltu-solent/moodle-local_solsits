@@ -781,6 +781,61 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_ABC10
     }
 
     /**
+     * Get a list of assignments for exporting grades
+     *
+     * @return void
+     */
+    public function test_get_retry_list() {
+        global $DB;
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        /** @var local_solsits_generator $dg */
+        $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
+        $dg->create_solent_gradescales();
+        $config = get_config('local_solsits');
+        set_config('default', 1, 'assignfeedback_misconduct');
+
+        // The module needs SITS data as this is used in the grade export.
+        $course = $this->getDataGenerator()->create_course([
+            'shortname' => 'ABC101_A_S1_2022/23',
+            'idnumber' => 'ABC101_A_S1_2022/23',
+            'customfield_academic_year' => '2022/23',
+            'customfield_module_code' => 'ABC101',
+        ]);
+
+        $teacher = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'editingteacher');
+        $students = [];
+        for ($x = 0; $x < 5; $x++) {
+            $students[$x] = $this->getDataGenerator()->create_user();
+            $this->getDataGenerator()->enrol_user($students[$x]->id, $course->id, 'student');
+        }
+
+        $sitsassigns = [];
+        for ($x = 0; $x < 5; $x++) {
+            $sa = $dg->create_sits_assign([
+                'courseid' => $course->id,
+            ]);
+            $sa->create_assignment();
+            $sitsassigns[$x] = $sa;
+            foreach ($students as $student) {
+                $dg->create_assign_grade([
+                    'solassignmentid' => $sa->get('id'),
+                    'graderid' => $teacher->id,
+                    'studentid' => $student->id,
+                    'converted_grade' => (60 + $x),
+                ]);
+            }
+        }
+        $retrylist = sitsassign::get_retry_list(1);
+        $this->assertCount(1, $retrylist);
+        $retrylist = sitsassign::get_retry_list(5);
+        $this->assertCount(5, $retrylist);
+        $retrylist = sitsassign::get_retry_list(6);
+        $this->assertCount(5, $retrylist);
+    }
+
+    /**
      * Settings required to create an assignment
      *
      * @return void

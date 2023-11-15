@@ -63,11 +63,14 @@ class export_grades_task extends scheduled_task {
      */
     public function execute() {
         global $DB;
-        $retrylist = sitsassign::get_retry_list();
+        $maxassignments = get_config('local_solsits', 'maxassignments') ?? 1;
+
+        $retrylist = sitsassign::get_retry_list($maxassignments);
         if (empty($retrylist)) {
             mtrace("No grades to export to SITS");
             return;
         }
+        // In the test, mock get_client and set the response to whatever we want.
         $client = $this->get_client();
         foreach ($retrylist as $sitsassignid) {
             $sitsassign = new sitsassign($sitsassignid);

@@ -663,18 +663,24 @@ class sitsassign extends persistent {
                 // Already exported, don't do again.
                 continue;
             }
-            $misconduct = $DB->get_record('assignfeedback_misconduct', [
-                'assignment' => $cm->instance,
-                'grade' => $studentgrades[$markedassignment->studentid]->id,
-            ]);
             $misconductstring = get_string('no');
+            if (isset($studentgrades[$markedassignment->studentid])) {
+                $misconduct = $DB->get_record('assignfeedback_misconduct', [
+                    'assignment' => $cm->instance,
+                    'grade' => $studentgrades[$markedassignment->studentid]->id,
+                ]);
+            }
             $misconduct = $misconduct->misconduct ?? 0;
             if ($misconduct == 1) {
                 $misconductstring = get_string('yes');
             }
-            $submissiontime = date('d/m/Y H:i:s', $studentgrades[$markedassignment->studentid]->submissiontime);
-            if ($studentgrades[$markedassignment->studentid]->submissionstatus != ASSIGN_SUBMISSION_STATUS_SUBMITTED) {
-                $submissiontime = get_string('notsubmitted', 'local_solsits');
+
+            $submissiontime = get_string('notsubmitted', 'local_solsits');
+            if (isset($studentgrades[$markedassignment->studentid])) {
+                $submissiontime = date('d/m/Y H:i:s', $studentgrades[$markedassignment->studentid]->submissiontime);
+                if ($studentgrades[$markedassignment->studentid]->submissionstatus != ASSIGN_SUBMISSION_STATUS_SUBMITTED) {
+                    $submissiontime = get_string('notsubmitted', 'local_solsits');
+                }
             }
             $gradeitem = [
                 'firstname' => $markedassignment->studentfirstname,

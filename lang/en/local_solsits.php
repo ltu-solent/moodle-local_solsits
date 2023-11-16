@@ -178,6 +178,15 @@ $string['showerrorsonly_help'] = 'The following errors are identified:<ol><li>Br
     <li>Invisible course or activity</li>
     </ol>';
 $string['sits'] = 'SITS';
+$string['sitsassign:cannotdelete'] = 'Cannot delete SITS assignment {$a}';
+$string['sitsassign:cannotrecreate'] = 'Cannot recreate SITS assignment {$a} without first deleting the activity.';
+$string['sitsassign:confirmdelete'] = 'Confirm deletion of {$a}';
+$string['sitsassign:confirmdeletebody'] = 'Confirm deletion of {$a}.<br />Note: This only deletes the sitsassign record, the activity will remain, and will need to be manually deleted, if it hasn\'t already.';
+$string['sitsassign:confirmrecreate'] = 'Confirm recreation of {$a}';
+$string['sitsassign:confirmrecreatebody'] = 'Confirm recreation of {$a}.<br />Note: This resets the course_module id to zero so that the assignment creation task can reprocess it. It will take a few minutes.';
+$string['sitsassign:deleted'] = 'SITS assignment {$a} has been deleted.';
+$string['sitsassign:recreate'] = 'Recreate';
+$string['sitsassign:recreated'] = 'SITS assignment {$a} has been queued to be recreated. It will take a few minutes to process.';
 $string['sitsreattempt'] = 'Re-attempt';
 $string['sitsreference'] = 'SITS reference';
 $string['sitsdatadesc'] = '<div class="alert alert-info">These are the data received from SITS and are used for diagnostic purposes only.</div>';

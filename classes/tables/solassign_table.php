@@ -86,7 +86,7 @@ class solassign_table extends table_sql {
         $this->sortable(true, 'sitsref', SORT_ASC);
         $urlparams = [
             'currentcourses' => $filters['currentcourses'],
-            'showonlyerrors' => $filters['showerrorsonly'],
+            'showerrorsonly' => $filters['showerrorsonly'],
         ];
         $sc = [];
         $baseurl = new moodle_url('/local/solsits/manageassignments.php', $urlparams);
@@ -133,16 +133,29 @@ class solassign_table extends table_sql {
      * @return string HTML for row's column value
      */
     public function col_actions($row) {
-        $html = '';
+        $links = [];
+        $params = ['id' => $row->id];
+        if ($row->cmid > 0) {
+            try {
+                [$course, $cm] = get_course_and_cm_from_cmid($row->cmid, 'assign');
+            } catch (Exception $ex) {
+                // Only allow actions if the assignment has already been deleted.
+                $params['action'] = 'delete';
+                $delete = new moodle_url('/local/solsits/manageassignments.php', $params);
+                $links[] = html_writer::link($delete, get_string('delete'));
 
-        $params['action'] = 'delete';
-        $delete = new moodle_url('/local/solsits/editassign.php', $params);
-        $html .= " " . html_writer::link($delete, get_string('delete'));
+                $params['action'] = 'recreate';
+                $recreate = new moodle_url('/local/solsits/manageassignments.php', $params);
+                $links[] = html_writer::link($recreate, get_string('recreate', 'local_solsits'));
+            }
+        } else {
+            // Only allow delete if the assignment has not yet been created.
+            $params['action'] = 'delete';
+            $delete = new moodle_url('/local/solsits/manageassignments.php', $params);
+            $links[] = html_writer::link($delete, get_string('delete'));
+        }
 
-        $params['action'] = 'recreate';
-        $recreate = new moodle_url('/local/solsits/editassign.php', $params);
-        $html .= " | " . html_writer::link($recreate, get_string('recreate', 'local_solsits'));
-        return $html;
+        return join(" | ", $links);
     }
 
     /**

@@ -158,7 +158,7 @@ $string['reattempt3'] = 'Third reattempt';
 $string['reattempt4'] = 'Fourth reattempt';
 $string['reattempt5'] = 'Fifth reattempt';
 $string['reattempt6'] = 'Sixth reattempt';
-$string['recreate'] = 'Recreate Assignment activity';
+$string['recreate'] = 'Recreate assignment activity';
 $string['releasedate'] = 'Grades cannot be released until {$a->date} ({$a->days} days after the board has passed).';
 
 $string['quercus'] = 'Quercus';

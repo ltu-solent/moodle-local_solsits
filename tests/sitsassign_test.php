@@ -179,13 +179,15 @@ class sitsassign_test extends advanced_testcase {
             $this->assertEquals($cutoffdate, $assignment->get_instance()->cutoffdate);
             $this->assertEquals(1, $cm->visible);
             $this->assertEquals(2, $cm->completion);
+            $this->assertEquals('', $assignment->get_instance()->intro);
         } else {
             $cutoffdate = helper::set_time($duedate, '16:00', "+{$config->cutoffintervalsecondplus} week");
             $this->assertEquals($cutoffdate, $assignment->get_instance()->cutoffdate);
             $this->assertEquals(0, $cm->visible);
             $this->assertEquals(0, $cm->completion);
+            $this->assertEquals(get_config('local_solsits', 'assignmentmessage_studentreattempt'), $assignment->get_instance()->intro);
         }
-        $this->assertEquals($duedate, $cm->completionexpected);
+        $this->assertEquals(0, $cm->completionexpected);
         // Check it's in section 1.
         $this->assertEquals($config->targetsection, $cm->sectionnum);
         // Check which grade scale is being used.

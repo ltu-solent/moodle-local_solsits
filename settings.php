@@ -144,6 +144,17 @@ if ($hassiteconfig) {
         )
     );
 
+    $name = 'local_solsits/assignmentmessage_studentreattempt';
+    $title = new lang_string('assignmentmessage_studentreattempt', 'local_solsits');
+    $description = new lang_string('assignmentmessage_studentreattempt_desc', 'local_solsits');
+    $settings->add(
+        new admin_setting_configtextarea(
+            $name, $title, $description,
+            'Note: You only need to submit to this assignment if you have been asked to do so. If you are not sure, please ' .
+            'speak to your Module leader.'
+        )
+    );
+
     $name = 'local_solsits/assignmentwarning_hidden';
     $title = new lang_string('assignmentwarning_hidden', 'local_solsits');
     $description = new lang_string('assignmentwarning_hidden_desc', 'local_solsits');

@@ -327,6 +327,9 @@ class sitsassign extends persistent {
         [$course, $cm] = get_course_and_cm_from_cmid($this->get('cmid'), 'assign');
         $this->formdata = $DB->get_record('assign', ['id' => $cm->instance]);
         $this->formdata->name = $this->get('title');
+        if ($this->get('reattempt') > 0 && $this->formdata->intro == '') {
+            $this->formdata->intro = $config->assignmentmessage_studentreattempt ?? '';
+        }
         $this->calculatedates();
         $gradeitem = grade_item::fetch([
             'itemtype' => 'mod',
@@ -346,7 +349,7 @@ class sitsassign extends persistent {
         $DB->update_record('assign', $this->formdata);
         $completion = new stdClass();
         $completion->id = $this->get('cmid');
-        $completion->completionexpected = $this->formdata->duedate;
+        $completion->completionexpected = 0;
         $DB->update_record('course_modules', $completion);
 
         $assign = $DB->get_record('assign', ['id' => $cm->instance]);
@@ -395,7 +398,7 @@ class sitsassign extends persistent {
         $module->groupingid = 0;
         $module->completiongradeitemnumber = null;
         $module->completionview = 0;
-        $module->completionexpected = $this->formdata->duedate;
+        $module->completionexpected = 0;
         $module->showdescription = 1;
         $module->availability = null;
         $module->deletioninprogress = 0;
@@ -465,7 +468,12 @@ class sitsassign extends persistent {
         }
         $this->formdata->course = $this->get('courseid');
         $this->formdata->name = $this->get('title');
-        $this->formdata->intro = '';
+        if ($this->get('reattempt') > 0) {
+            $desc = $config->assignmentmessage_studentreattempt ?? '';
+            $this->formdata->intro = $desc;
+        } else {
+            $this->formdata->intro = '';
+        }
         $this->formdata->introformat = FORMAT_HTML;
         $this->formdata->alwaysshowdescription = 1;
         // Any submission plugins enabled? Default 0.
@@ -552,6 +560,7 @@ class sitsassign extends persistent {
         if (!$exists) {
             return false;
         }
+        $grade->timemodified = time();
         return $DB->update_record('local_solsits_assign_grades', $grade);
     }
 

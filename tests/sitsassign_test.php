@@ -185,7 +185,10 @@ class sitsassign_test extends advanced_testcase {
             $this->assertEquals($cutoffdate, $assignment->get_instance()->cutoffdate);
             $this->assertEquals(0, $cm->visible);
             $this->assertEquals(0, $cm->completion);
-            $this->assertEquals(get_config('local_solsits', 'assignmentmessage_studentreattempt'), $assignment->get_instance()->intro);
+            $this->assertEquals(
+                get_config('local_solsits', 'assignmentmessage_studentreattempt'),
+                $assignment->get_instance()->intro
+            );
         }
         $this->assertEquals(0, $cm->completionexpected);
         // Check it's in section 1.

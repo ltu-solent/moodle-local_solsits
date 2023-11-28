@@ -62,16 +62,18 @@ class export_grades_task extends scheduled_task {
      * @return void
      */
     public function execute() {
-        global $DB;
-        $maxassignments = get_config('local_solsits', 'maxassignments') ?? 1;
+        $config = get_config('local_solsits');
+        $maxassignments = isset($config->marksuploads_maxassignments) ? $config->marksuploads_maxassignments : 1;
+        $batchgrades = isset($config->marksuploads_batchgrades) ? $config->marksuploads_batchgrades : -1;
+        // In the test, mock get_client and set the response to whatever we want.
+        $client = $this->get_client();
 
         $retrylist = sitsassign::get_retry_list($maxassignments);
         if (empty($retrylist)) {
             mtrace("No grades to export to SITS");
             return;
         }
-        // In the test, mock get_client and set the response to whatever we want.
-        $client = $this->get_client();
+
         foreach ($retrylist as $sitsassignid) {
             $sitsassign = new sitsassign($sitsassignid);
             if (!$sitsassign) {
@@ -81,51 +83,76 @@ class export_grades_task extends scheduled_task {
             [$course, $cm] = get_course_and_cm_from_cmid($sitsassign->get('cmid'));
             mtrace("Begin Marks upload {$course->shortname} and assignment {$sitsassign->get('sitsref')}");
             $grades = $sitsassign->get_queued_grades_for_export();
-            // Post grades to SITS and receive response.
-            $response = $client->export_grades($grades);
-            if (!$response) {
-                mtrace("Error! unable to export grades for {$sitsassign->get('sitsref')}");
+            if (count($grades['grades']) == 0) {
                 continue;
             }
-            // Update grade records with individual responses.
-            $response = json_decode($response);
-            $sitsref = $response->sitsref;
-            // Check we're getting the correct assignment info back.
-            if ($sitsref != $sitsassign->get('sitsref')) {
-                mtrace("Something has gone horribly wrong with {$sitsref} trying to update {$sitsassign->get('sitsref')}");
-                continue;
+            // The batch is the number of grades to export.
+            if ($batchgrades == -1) {
+                $batchgrades = count($grades['grades']);
             }
-            $grades = $response->grades;
-            if ($response->status == 'FAILED') {
-                mtrace("- FAILED ($response->errorcode). {$response->message}");
-            }
-            foreach ($grades as $grade) {
-                $gradeitem = $sitsassign->get_grade($grade->moodlestudentid);
-                if (!$gradeitem) {
-                    // This shouldn't happen.
-                    mtrace("Grade item not found for userid({$grade->moodlestudentid}) in local_solsits_assign_grades");
-                    continue;
-                }
-                $gradeitem->message = $grade->message;
-                $gradeitem->response = $grade->response;
-                $sitsassign->update_grade($gradeitem);
-                $student = $DB->get_record('user', ['id' => $grade->moodlestudentid]);
-                if ($response->status == 'FAILED') {
-                    // Don't output individual results.
-                    continue;
-                }
-                if ($grade->response == 'SUCCESS') {
-                    mtrace("- {$student->firstname} {$student->lastname} " .
-                    "({$student->idnumber}): SUCCESS");
-                } else if ($grade->response == 'FAILED') {
-                    mtrace("- {$student->firstname} {$student->lastname} " .
-                    "({$student->idnumber}): FAILED - {$grade->message}");
-                } else {
-                    mtrace("An invalid response was received {$grade->response}");
-                }
+            $batches = array_chunk($grades['grades'], $batchgrades);
+            foreach ($batches as $batch) {
+                $grades['grades'] = $batch;
+                $this->export_grades($grades, $client, $sitsassign);
             }
             mtrace("End Marks upload {$course->shortname} and assignment {$sitsassign->get('sitsref')}");
         }
         \core\task\manager::clear_static_caches();
+    }
+
+    /**
+     * Export grades (or subset) for assignment
+     *
+     * @param array $grades
+     * @param ais_client $client
+     * @param sitsassign $sitsassign
+     * @return boolean
+     */
+    private function export_grades(array $grades, ais_client $client, sitsassign $sitsassign): bool {
+        global $DB;
+        // Post grades to SITS and receive response.
+        $response = $client->export_grades($grades);
+        if (!$response) {
+            mtrace("Error! unable to export grades for {$sitsassign->get('sitsref')}");
+            return false;
+        }
+        // Update grade records with individual responses.
+        $response = json_decode($response);
+        $sitsref = $response->sitsref;
+        // Check we're getting the correct assignment info back.
+        if ($sitsref != $sitsassign->get('sitsref')) {
+            mtrace("Something has gone horribly wrong with {$sitsref} trying to update {$sitsassign->get('sitsref')}");
+            return false;
+        }
+        $grades = $response->grades;
+        if ($response->status == 'FAILED') {
+            mtrace("- FAILED ($response->errorcode). {$response->message}");
+        }
+        foreach ($grades as $grade) {
+            $gradeitem = $sitsassign->get_grade($grade->moodlestudentid);
+            if (!$gradeitem) {
+                // This shouldn't happen.
+                mtrace("Grade item not found for userid({$grade->moodlestudentid}) in local_solsits_assign_grades");
+                continue;
+            }
+            $gradeitem->message = $grade->message;
+            $gradeitem->response = $grade->response;
+            $sitsassign->update_grade($gradeitem);
+            $student = $DB->get_record('user', ['id' => $grade->moodlestudentid]);
+            if ($response->status == 'FAILED') {
+                // Don't output individual results.
+                continue;
+            }
+            if ($grade->response == 'SUCCESS') {
+                mtrace("- {$student->firstname} {$student->lastname} " .
+                "({$student->idnumber}): SUCCESS");
+            } else if ($grade->response == 'FAILED') {
+                mtrace("- {$student->firstname} {$student->lastname} " .
+                "({$student->idnumber}): FAILED - {$grade->message}");
+            } else {
+                mtrace("An invalid response was received {$grade->response}");
+            }
+        }
+        return true;
     }
 }

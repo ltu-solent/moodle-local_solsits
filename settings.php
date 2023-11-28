@@ -222,6 +222,26 @@ if ($hassiteconfig) {
     $settings->add(new admin_setting_description($name, '', $description));
     $PAGE->requires->js_call_amd('local_solsits/ais-testconnection', 'init');
 
+    $name = 'local_solsits/marksuploads_maxassignments';
+    $title = new lang_string('marksuploads_maxassignments', 'local_solsits');
+    $description = new lang_string('marksuploads_maxassignments_desc', 'local_solsits');
+    $options = array_combine(range(1, 10), range(1, 10));
+    $settings->add(new admin_setting_configselect($name, $title, $description, 1, $options));
+
+    $name = 'local_solsits/marksuploads_batchgrades';
+    $title = new lang_string('marksuploads_batchgrades', 'local_solsits');
+    $description = new lang_string('marksuploads_batchgrades_desc', 'local_solsits');
+    $options = [
+        '-1' => get_string('allgrades', 'local_solsits'),
+        '25' => '25',
+        '50' => '50',
+        '75' => '75',
+        '100' => '100',
+        '125' => '125',
+        '150' => '150',
+    ];
+    $settings->add(new admin_setting_configselect($name, $title, $description, '-1', $options));
+
     $ADMIN->add('local_solsitscat', $settings);
 
     $name = 'local_solsits/managetemplates';

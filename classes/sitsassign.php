@@ -657,6 +657,7 @@ class sitsassign extends persistent {
                 'assignid' => $firstrecord->assignid,
                 'reattempt' => $firstrecord->reattempt,
                 'sequence' => $firstrecord->sequence,
+                'page' => get_string('poft', 'local_solsits', ['page' => '1', 'total' => '1']),
             ],
             'unitleader' => [
                 'firstname' => $firstrecord->leaderfirstname,

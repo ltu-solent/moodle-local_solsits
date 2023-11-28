@@ -156,6 +156,7 @@ $string['pagetype_help'] = 'Is this template for a Course or a Module';
 $string['passfail'] = 'Pass/Fail';
 $string['passfailscale'] = 'Pass/Fail scale';
 $string['pluginname'] = 'SOL-SITS Integration';
+$string['poft'] = '{$a->page} of {$a->total}';
 
 $string['reattempt'] = 'Re-attempt';
 $string['reattempt0'] = 'First attempt';

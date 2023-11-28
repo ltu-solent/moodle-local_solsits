@@ -91,7 +91,11 @@ class export_grades_task extends scheduled_task {
                 $batchgrades = count($grades['grades']);
             }
             $batches = array_chunk($grades['grades'], $batchgrades);
+            $pagetotal = count($batches);
+            $pagecount = 0;
             foreach ($batches as $batch) {
+                $pagecount++;
+                $grades['assignment']['page'] = get_string('poft', 'local_solsits', ['page' => $pagecount, 'total' => $pagetotal]);
                 $grades['grades'] = $batch;
                 $this->export_grades($grades, $client, $sitsassign);
             }

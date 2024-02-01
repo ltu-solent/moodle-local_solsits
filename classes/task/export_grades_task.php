@@ -65,8 +65,6 @@ class export_grades_task extends scheduled_task {
         $config = get_config('local_solsits');
         $maxassignments = isset($config->marksuploads_maxassignments) ? $config->marksuploads_maxassignments : 1;
         $batchgrades = isset($config->marksuploads_batchgrades) ? $config->marksuploads_batchgrades : -1;
-        // In the test, mock get_client and set the response to whatever we want.
-        $client = $this->get_client();
 
         $retrylist = sitsassign::get_retry_list($maxassignments);
         if (empty($retrylist)) {
@@ -97,6 +95,8 @@ class export_grades_task extends scheduled_task {
                 $pagecount++;
                 $grades['assignment']['page'] = get_string('poft', 'local_solsits', ['page' => $pagecount, 'total' => $pagetotal]);
                 $grades['grades'] = $batch;
+                // In the test, mock get_client and set the response to whatever we want.
+                $client = $this->get_client();
                 $this->export_grades($grades, $client, $sitsassign);
             }
             mtrace("End Marks upload {$course->shortname} and assignment {$sitsassign->get('sitsref')}");
@@ -115,13 +115,21 @@ class export_grades_task extends scheduled_task {
     private function export_grades(array $grades, ais_client $client, sitsassign $sitsassign): bool {
         global $DB;
         // Post grades to SITS and receive response.
+        $start = time();
         $response = $client->export_grades($grades);
+        $totaltime = time() - $start;
+        mtrace("Request took {$totaltime} seconds");
         if (!$response) {
             mtrace("Error! unable to export grades for {$sitsassign->get('sitsref')}");
             return false;
         }
         // Update grade records with individual responses.
-        $response = json_decode($response);
+        if ($client->errno == 0) {
+            $response = json_decode($response);
+        } else {
+            mtrace("The following error has been received: {$client->error} ({$client->errno})");
+            return false;
+        }
         $sitsref = $response->sitsref;
         // Check we're getting the correct assignment info back.
         if ($sitsref != $sitsassign->get('sitsref')) {

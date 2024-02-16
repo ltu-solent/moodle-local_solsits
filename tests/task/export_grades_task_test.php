@@ -100,7 +100,8 @@ class export_grades_task_test extends advanced_testcase {
         if (count($grades) == 0) {
             $expectedoutput = "No grades to export to SITS\n";
         } else {
-            $expectedoutput = "Begin Marks upload {$module['idnumber']} and assignment {$assignment['sitsref']}\n";
+            $expectedoutput = "Begin Marks upload {$module['idnumber']} and assignment {$assignment['sitsref']}\n" .
+                "Request took 0 seconds\n";
         }
         if ($response['status'] == 'FAILED') {
             $expectedoutput .= "- FAILED ({$response['errorcode']}). {$response['message']}\n";

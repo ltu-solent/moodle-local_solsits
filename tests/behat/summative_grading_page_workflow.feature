@@ -13,18 +13,26 @@ Feature: The ability to release grades depends on permissions and workflow statu
       | moduleleader1 | Moduleleader | 1        | moduleleader1@example.com |
       | teacher1      | Teacher      | 1        | teacher1@example.com      |
       | student1      | Student      | 1        | student1@example.com      |
+      | student2      | Student      | 2        | student2@example.com      |
+      | external1     | External     | Examiner | ee1@example.com           |
     And the following "roles" exist:
-      | shortname    | name          | archetype      |
-      | moduleleader | Module leader | editingteacher |
+      | shortname    | name              | archetype      |
+      | moduleleader | Module leader     | editingteacher |
+      | ee           | External examiner | teacher        |
     And I log in as "admin"
     And I set the following system permissions of "Module leader" role:
-      | capability                  | permission |
-      | local/solsits:releasegrades | Allow      |
+      | capability                           | permission |
+      | local/solsits:releasegrades          | Allow      |
+    And I set the following system permissions of "External examiner" role:
+      | capability                           | permission |
+      | local/solsits:submissionsselectusers | Allow      |
     And the following "course enrolments" exist:
       | user          | course | role           |
       | moduleleader1 | C1     | moduleleader   |
       | teacher1      | C1     | editingteacher |
       | student1      | C1     | student        |
+      | student2      | C1     | student        |
+      | external1     | C1     | ee             |
     And the following config values are set as admin:
       | config | value  | plugin |
       | theme  | solent |        |
@@ -110,3 +118,61 @@ Feature: The ability to release grades depends on permissions and workflow statu
     And I am on the "SITS1" "assign activity" page
     And I follow "View all submissions"
     Then I should not see "Grades for this assignment have been released and locked."
+
+  Scenario: Teacher cannot select individual submissions without selecting all
+    Given the following "activity" exists:
+      | activity                            | assign |
+      | name                                | SITS1  |
+      | course                              | C1     |
+      | idnumber                            | SITS1  |
+      | assignsubmission_onlinetext_enabled | 1      |
+      | markingworkflow                     | 1      |
+    And the following "mod_assign > submissions" exist:
+      | assign                | user      | onlinetext                   |
+      | SITS1                 | student1  | I'm the student1 submission  |
+      | SITS1                 | student2  | I'm the student2 submission  |
+    And the following SITS assignment exists:
+      | sitsref         | SITS1         |
+      | course          | C1            |
+      | title           | ASSIGN1       |
+      | weighting       | 50            |
+      | duedate         | ## 5 May 2023 16:00:00 ## |
+      | assessmentcode  | PROJ1         |
+      | assessmentname  | Project 1     |
+      | sequence        | 001           |
+      | availablefrom   | 0             |
+      | reattempt       | 0             |
+      | grademarkexempt | 0             |
+    And I am on the "SITS1" Activity page logged in as teacher1
+    And I follow "View all submissions"
+    When I click on "Select Student 1" "checkbox"
+    Then the field "Select Student 2" matches value "checked"
+
+  Scenario: External Examiner CAN select individual submissions without selecting all
+    Given the following "activity" exists:
+      | activity                            | assign |
+      | name                                | SITS1  |
+      | course                              | C1     |
+      | idnumber                            | SITS1  |
+      | assignsubmission_onlinetext_enabled | 1      |
+      | markingworkflow                     | 1      |
+    And the following "mod_assign > submissions" exist:
+      | assign                | user      | onlinetext                   |
+      | SITS1                 | student1  | I'm the student1 submission  |
+      | SITS1                 | student2  | I'm the student2 submission  |
+    And the following SITS assignment exists:
+      | sitsref         | SITS1         |
+      | course          | C1            |
+      | title           | ASSIGN1       |
+      | weighting       | 50            |
+      | duedate         | ## 5 May 2023 16:00:00 ## |
+      | assessmentcode  | PROJ1         |
+      | assessmentname  | Project 1     |
+      | sequence        | 001           |
+      | availablefrom   | 0             |
+      | reattempt       | 0             |
+      | grademarkexempt | 0             |
+    And I am on the "SITS1" Activity page logged in as external1
+    And I follow "View all submissions"
+    When I click on "Select Student 1" "checkbox"
+    Then the field "Select Student 2" does not match value "checked"

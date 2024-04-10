@@ -52,4 +52,10 @@ $capabilities = [
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => [],
     ],
+    'local/solsits:submissionsselectusers' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [],
+        'riskbitmask' => RISK_DATALOSS,
+    ],
 ];

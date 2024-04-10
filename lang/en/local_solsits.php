@@ -207,6 +207,7 @@ $string['solsits:manageassignments'] = 'Manage SITS assignments';
 $string['solsits:managetemplates'] = 'Manage Templates';
 $string['solsits:registersitscourse'] = 'Register SITS course';
 $string['solsits:releasegrades'] = 'Release grades';
+$string['solsits:submissionsselectusers'] = 'Allow user to bulk select individual submissions';
 $string['startdate'] = 'Start date';
 $string['status'] = 'Status';
 $string['studentidnotexists'] = 'Studentid user does not exist';

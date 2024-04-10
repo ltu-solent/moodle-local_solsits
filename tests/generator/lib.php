@@ -34,7 +34,7 @@ class local_solsits_generator extends component_generator_base {
     /**
      * How many assignment have been created.
      *
-     * @var integer
+     * @var int
      */
     public $assigncount = 0;
 

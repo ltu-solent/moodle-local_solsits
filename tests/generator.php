@@ -31,6 +31,9 @@ global $CFG;
 use stdClass;
 use mod_assign_testable_assign;
 
+/**
+ * A trait to help along the generator
+ */
 trait generator {
     /**
      * Creates a template course and registers it as a soltemplate

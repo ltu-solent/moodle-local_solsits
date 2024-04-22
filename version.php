@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2024021801;
+$plugin->version   = 2024021802;
 $plugin->release   = 'v4.1-r3';
 $plugin->requires  = 2022112800;
 $plugin->component = 'local_solsits';

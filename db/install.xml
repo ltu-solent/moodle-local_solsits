@@ -11,7 +11,7 @@
                 <FIELD NAME="cmid" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false"/>
                 <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false"/>
                 <FIELD NAME="reattempt" TYPE="int" LENGTH="2" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="0 for initial, 1, 2 for reattempt" DEFAULT="0" />
-                <FIELD NAME="title" SEQUENCE="false" TYPE="char" LENGTH="100" NOTNULL="true" />
+                <FIELD NAME="title" SEQUENCE="false" TYPE="char" LENGTH="255" NOTNULL="true" />
                 <FIELD NAME="weighting" SEQUENCE="false" TYPE="int" NOTNULL="true" LENGTH="3" UNSIGNED="true" DEFAULT="100" />
                 <FIELD NAME="duedate" SEQUENCE="false" TYPE="int" NOTNULL="true" UNSIGNED="true" LENGTH="10" />
                 <FIELD NAME="grademarkexempt" SEQUENCE="false" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="0" />

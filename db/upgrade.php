@@ -232,5 +232,14 @@ function xmldb_local_solsits_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2023040508, 'local', 'solsits');
     }
 
+    if ($oldversion < 2024021802) {
+        $table = new xmldb_table('local_solsits_assign');
+        $field = new xmldb_field('title', XMLDB_TYPE_CHAR, 255, null, true, false, null, null);
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->change_field_type($table, $field);
+        }
+        upgrade_plugin_savepoint(true, 2024021802, 'local', 'solsits');
+    }
+
     return true;
 }

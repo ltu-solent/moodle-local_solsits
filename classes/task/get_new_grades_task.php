@@ -125,6 +125,11 @@ class get_new_grades_task extends scheduled_task {
             'u.id, u.lastname, u.firstname, idnumber', 'idnumber, u.lastname, u.firstname'
         );
         $allgrades = mod_assign_external::get_grades([$assignid]);
+        if (empty($allgrades['assignments'])) {
+            // There are no grades for this assignment, so do nothing.
+            mtrace("No grades for {$sitsassign->get('sitsref')}");
+            return;
+        }
         // Returns an array of assignments, pick off the first (and only) one.
         $allgrades = reset($allgrades['assignments']);
         foreach ($students as $student) {

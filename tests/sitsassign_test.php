@@ -295,7 +295,8 @@ class sitsassign_test extends advanced_testcase {
             'Long title' => [
                 'sitsassign' => [
                     'sitsref' => 'AAP502_A_SEM1_2023/24_AAP50201_001_0',
-                    'title' => 'Communication  Reflective and Professional Practic - Personal Reflective Document (50%) First Reattempt',
+                    'title' => 'Communication  Reflective and Professional Practic - ' .
+                        'Personal Reflective Document (50%) First Reattempt',
                     'weighting' => '50',
                     'duedate' => strtotime('+2 weeks 16:00'),
                     'grademarkexempt' => false,

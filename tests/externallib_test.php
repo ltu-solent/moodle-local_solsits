@@ -180,10 +180,12 @@ class externallib_test extends externallib_advanced_testcase {
                 'courseidnumber' => 'AAP502_A_SEM1_2023/24',
                 'expectederror' => 'invalid_parameter_exception',
             ],
+            // Max length 255.
             'Long title' => [
                 'assign' => [
                     'sitsref' => 'AAP502_A_SEM1_2023/24_AAP50201_001_0',
-                    'title' => 'Communication  Reflective and Professional Practic - Personal Reflective Document (50%) First Reattempt',
+                    'title' => 'Communication  Reflective and Professional Practic - ' .
+                        'Personal Reflective Document (50%) First Reattempt',
                     'weighting' => '50',
                     'duedate' => strtotime('+2 weeks 16:00'),
                     'grademarkexempt' => false,

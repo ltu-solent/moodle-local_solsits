@@ -117,6 +117,12 @@ if ($hassiteconfig) {
     $options = array_combine(range(1, 30), range(1, 30));
     $settings->add(new admin_setting_configselect($name, $title, $description, 1, $options));
 
+    $name = 'local_solsits/limittoyears';
+    $title = new lang_string('limittoyears', 'local_solsits');
+    $description = new lang_string('limittoyears_desc', 'local_solsits');
+    $options = \local_solsits\helper::get_session_menu();
+    $settings->add(new admin_setting_configmultiselect($name, $title, $description, [], $options));
+
     // Assignment message settings.
     $name = 'local_solsits/assignmentmessagesettings';
     $title = new lang_string('assignmentmessagesettings', 'local_solsits');

@@ -147,7 +147,7 @@ class sitsassign extends persistent {
      */
     public static function get_create_list($limit = 10) {
         global $DB;
-
+        $config = get_config('local_solsits');
         $sql = "SELECT cf.id, cf.shortname
             FROM {customfield_field} cf
             JOIN {customfield_category} cat ON cat.id = cf.categoryid AND cat.name = 'Student Records System'
@@ -156,10 +156,21 @@ class sitsassign extends persistent {
         $params = [
             'fieldid' => $templateappliedfield->id,
         ];
+        // If limittoyears is empty, then there is no restriction.
+        $wheres = '';
+        $limittoyears = isset($config->limittoyears) ? explode(',', $config->limittoyears) : [];
+        if (!empty($limittoyears)) {
+            $limitsql = [];
+            foreach ($limittoyears as $k => $year) {
+                $limitsql[] = $DB->sql_like('sitsref', ':limit' . $k, false, false);
+                $params['limit' . $k] = '%' . $year . '%';
+            }
+            $wheres = ' AND (' . join(' OR ', $limitsql) . ') ';
+        }
         $sql = "SELECT ssa.*
         FROM {local_solsits_assign} ssa
         JOIN {customfield_data} cfd ON cfd.instanceid = ssa.courseid AND cfd.fieldid = :fieldid
-        WHERE ssa.cmid = 0 AND cfd.value = '1' AND ssa.duedate > 0";
+        WHERE ssa.cmid = 0 AND cfd.value = '1' AND ssa.duedate > 0 {$wheres}";
 
         $records = $DB->get_records_sql($sql, $params, 0, $limit);
         return $records;

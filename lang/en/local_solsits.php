@@ -120,6 +120,8 @@ $string['invalidtemplateid'] = 'Invalid template id';
 $string['keynotset'] = 'AIS key not set';
 
 $string['lastmodified'] = 'Last modified';
+$string['limittoyears'] = 'Limit assignment creation';
+$string['limittoyears_desc'] = 'Limit assignment creation to these selected years (multiselect). If none are selected, ALL years will be processed.';
 
 $string['manageassignments'] = 'Manage assignments';
 $string['managetemplates'] = 'Manage templates';

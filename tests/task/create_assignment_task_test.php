@@ -223,4 +223,80 @@ No assignments found to process.
 
         $this->execute_task('\local_solsits\task\create_assignment_task'); // No more.
     }
+
+    /**
+     * Test limiting assignment creation to specified years
+     *
+     * @return void
+     */
+    public function test_limittoyears() {
+        global $DB;
+        $this->resetAfterTest();
+        /** @var local_solsits_generator $dg */
+        $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
+        set_config('maxassignments', 1, 'local_solsits');
+        $dg->create_solent_gradescales();
+        $this->setAdminUser();
+
+        $course = $this->getDataGenerator()->create_course();
+        $handler = \core_customfield\handler::get_handler('core_course', 'course');
+        $customfields = $handler->get_instance_data($course->id, true);
+        $context = $handler->get_instance_context($course->id);
+        foreach ($customfields as $key => $customfield) {
+            if ($customfield->get_field()->get('shortname') == 'templateapplied') {
+                $customfield->set('value', 1);
+                $customfield->set('contextid', $context->id);
+                $customfield->save();
+            }
+        }
+        $limittoyears = [];
+        set_config('limittoyears', join(',', $limittoyears), 'local_solsits');
+        $assignments = [];
+        $assignments['2019/20'][] = $dg->create_sits_assign([
+            'courseid' => $course->id,
+            'sitsref' => "ABC101_A_SEM1_2019/20_ABC10101_001_0",
+            'assessmentcode' => "ABC10101",
+        ]);
+        $expectedoutput = "New assignment successfully created: ABC101_A_SEM1_2019/20_ABC10101_001_0\n";
+        $asscount = 1;
+        // This always starts 2020/21, and ends at the current year + 1.
+        $years = \local_solsits\helper::get_session_menu();
+        foreach ($years as $year) {
+            for ($x = 0; $x < 5; $x++) {
+                $sitsref = "ABC10{$x}_A_SEM1_{$year}_ABC10{$x}01_001_0";
+                $assignments[$year][$x] = $dg->create_sits_assign([
+                    'courseid' => $course->id,
+                    'sitsref' => $sitsref,
+                    'assessmentcode' => "ABC10{$x}01",
+                ]);
+                $asscount++;
+                $expectedoutput .= "New assignment successfully created: {$sitsref}\n";
+            }
+            $expectedoutput .= "No assignments found to process.\n";
+        }
+        $this->expectOutputString($expectedoutput);
+        $count = $DB->count_records('local_solsits_assign', ['cmid' => 0]);
+        $this->assertEquals($asscount, $count);
+        // This will pick off the first item, because limittoyears is empty,
+        // and because we're only processing one assignment at a time.
+        $this->execute_task('\local_solsits\task\create_assignment_task');
+        $count = $DB->count_records('local_solsits_assign', ['cmid' => 0]);
+        $asscount = $asscount - 1;
+        $this->assertEquals($asscount, $count);
+
+        // Loop through each year, picking off 5 each time.
+        set_config('maxassignments', 5, 'local_solsits');
+        foreach ($years as $year) {
+            $limittoyears[] = $year;
+            set_config('limittoyears', join(',', $limittoyears), 'local_solsits');
+            $this->execute_task('\local_solsits\task\create_assignment_task');
+            $count = $DB->count_records('local_solsits_assign', ['cmid' => 0]);
+            $asscount = $asscount - 5;
+            $this->assertEquals($asscount, $count);
+            // Running the task again will not change the count.
+            $this->execute_task('\local_solsits\task\create_assignment_task');
+            $count = $DB->count_records('local_solsits_assign', ['cmid' => 0]);
+            $this->assertEquals($asscount, $count);
+        }
+    }
 }

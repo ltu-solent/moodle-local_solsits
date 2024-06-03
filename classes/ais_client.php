@@ -51,6 +51,26 @@ class ais_client extends curl {
     private $key;
 
     /**
+     * MUP success
+     */
+    public const SUCCESS = 'SUCCESS';
+
+    /**
+     * MUP Failure
+     */
+    public const FAILED = 'FAILED';
+
+    /**
+     * MUP timedout
+     */
+    public const TIMEOUT = 'Timeout';
+
+    /**
+     * MUP unknown error
+     */
+    public const UNKNOWN = 'Unknown';
+
+    /**
      * Constructor setting url for this client.
      *
      * @param array $settings

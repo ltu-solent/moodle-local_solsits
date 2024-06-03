@@ -141,6 +141,7 @@ $string['maxassignments_desc'] = 'Maximum number of assignments to create in a s
 $string['maxtemplates'] = 'Max templates';
 $string['maxtemplates_desc'] = 'Maximum number of courses to apply templates to in a single run.';
 $string['modifiedby'] = 'Modified by';
+$string['muptimeoutmessage'] = 'Check with Registry. The results may have been successfully uploaded.';
 
 $string['newsavedtemplate'] = 'New template saved';
 $string['newsoltemplate'] = 'New template';

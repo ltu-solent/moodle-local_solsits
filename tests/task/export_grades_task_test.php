@@ -106,6 +106,9 @@ class export_grades_task_test extends advanced_testcase {
         if ($response['status'] == 'FAILED') {
             $expectedoutput .= "- FAILED ({$response['errorcode']}). {$response['message']}\n";
         }
+        if ($response['sitsref'] == '') {
+            $expectedoutput .= "Sitsref not returned in result. Presumed timeout.\n";
+        }
 
         foreach ($grades as $grade) {
             $student = $this->getDataGenerator()->create_user([
@@ -170,8 +173,13 @@ class export_grades_task_test extends advanced_testcase {
         // Check the status in the response has been saved.
         foreach ($response['grades'] as $gradeitem) {
             $grade = $sitsassign->get_grade($gradeitem['moodlestudentid']);
-            $this->assertEquals($gradeitem['message'], $grade->message);
-            $this->assertEquals($gradeitem['response'], $grade->response);
+            if (empty($response['sitsref'])) {
+                $this->assertEquals(ais_client::TIMEOUT, $grade->response);
+                $this->assertEquals(get_string('muptimeoutmessage', 'local_solsits'), $grade->message);
+            } else {
+                $this->assertEquals($gradeitem['message'], $grade->message);
+                $this->assertEquals($gradeitem['response'], $grade->response);
+            }
         }
     }
 
@@ -746,6 +754,73 @@ class export_grades_task_test extends advanced_testcase {
                 'response' => [
                     'sitsref' => 'ABC102_A_SEM1_2022/23_ABC10202_001_0_0_1',
                     'status' => 'SUCCESS',
+                    'message' => '',
+                    'errorcode' => '',
+                ],
+            ],
+            'MUP timeout' => [
+                'module' => [
+                    'shortname' => 'ABC102_A_SEM1_2023/24',
+                    'idnumber' => 'ABC102_A_SEM1_2023/24',
+                    'fullname' => 'Making Widgets',
+                    'customfield_academic_year' => '2023/24',
+                    'customfield_module_code' => 'ABC102',
+                    'customfield_template_applied' => 1,
+                    'startdate' => strtotime('21/09/2023 00:00:00'),
+                    'enddate' => strtotime('20/12/2023 23:59:59'),
+                ],
+                'assignment' => [
+                    'sitsref' => 'ABC102_A_SEM1_2022/23_ABC10202_002_0_0_1',
+                    'assessmentname' => 'Tweak a widget',
+                    'assignmenttitle' => 'Tweak a widget 100%',
+                    'duedate' => strtotime('10/12/2023 16:00:00'),
+                    'reattempt' => '1',
+                    'sequence' => '002',
+                    'assessmentcode' => 'ABC10202',
+                ],
+                'unitleader' => [
+                    'firstname' => 'Teacher',
+                    'lastname' => 'Test',
+                    'email' => 'teacher.test@example.com',
+                ],
+                'grades' => [
+                    [
+                        'firstname' => 'Amadi',
+                        'lastname' => 'Muhammad',
+                        'studentidnumber' => '99000062',
+                        'grade' => 13,
+                        'misconduct' => 0,
+                        'response' => [
+                            'response' => 'FAILED',
+                            'message' => 'Student re-assessment record not found in SITS',
+                        ],
+                    ],
+                    [
+                        'firstname' => 'Lark',
+                        'lastname' => 'Adamić',
+                        'studentidnumber' => '99000063',
+                        'grade' => 14,
+                        'misconduct' => 0,
+                        'response' => [
+                            'response' => 'FAILED',
+                            'message' => 'Student re-assessment record already has a mark in SITS',
+                        ],
+                    ],
+                    [
+                        'firstname' => 'Noe',
+                        'lastname' => 'Naoumov',
+                        'studentidnumber' => '99000064',
+                        'grade' => 15,
+                        'misconduct' => 0,
+                        'response' => [
+                            'response' => 'FAILED',
+                            'message' => 'Error uploading the re-assessment result',
+                        ],
+                    ],
+                ],
+                'response' => [
+                    'sitsref' => '',
+                    'status' => '',
                     'message' => '',
                     'errorcode' => '',
                 ],

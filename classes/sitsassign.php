@@ -612,7 +612,7 @@ class sitsassign extends persistent {
      * Get queued grades for export for this assignment.
      * Reads the local_solsits_assign_grades table for assignments that have not yet been exported.
      *
-     * @return array
+     * @return array ['module', 'assignment', 'unitleader', 'grades']
      */
     public function get_queued_grades_for_export(): array {
         global $DB;

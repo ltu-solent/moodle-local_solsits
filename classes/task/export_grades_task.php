@@ -107,7 +107,7 @@ class export_grades_task extends scheduled_task {
     /**
      * Export grades (or subset) for assignment
      *
-     * @param array $grades
+     * @param array $grades ['module', 'assignment', 'unitleader', 'grades']
      * @param ais_client $client
      * @param sitsassign $sitsassign
      * @return boolean
@@ -133,7 +133,22 @@ class export_grades_task extends scheduled_task {
         $sitsref = $response->sitsref;
         // Check we're getting the correct assignment info back.
         if ($sitsref != $sitsassign->get('sitsref')) {
-            mtrace("Something has gone horribly wrong with {$sitsref} trying to update {$sitsassign->get('sitsref')}");
+            if ($sitsref == '') {
+                mtrace("Sitsref not returned in result. Presumed timeout.");
+                foreach ($grades['grades'] as $grade) {
+                    $gradeitem = $sitsassign->get_grade($grade['moodlestudentid']);
+                    if (!$gradeitem) {
+                        // This shouldn't happen.
+                        mtrace("Grade item not found for userid({$grade['moodlestudentid']}) in local_solsits_assign_grades");
+                        continue;
+                    }
+                    $gradeitem->message = get_string('muptimeoutmessage', 'local_solsits');
+                    $gradeitem->response = ais_client::TIMEOUT;
+                    $sitsassign->update_grade($gradeitem);
+                }
+            } else {
+                mtrace("Something has gone horribly wrong with '{$sitsref}' trying to update {$sitsassign->get('sitsref')}");
+            }
             return false;
         }
         $grades = $response->grades;
@@ -151,14 +166,14 @@ class export_grades_task extends scheduled_task {
             $gradeitem->response = $grade->response;
             $sitsassign->update_grade($gradeitem);
             $student = $DB->get_record('user', ['id' => $grade->moodlestudentid]);
-            if ($response->status == 'FAILED') {
+            if ($response->status == ais_client::FAILED) {
                 // Don't output individual results.
                 continue;
             }
-            if ($grade->response == 'SUCCESS') {
+            if ($grade->response == ais_client::SUCCESS) {
                 mtrace("- {$student->firstname} {$student->lastname} " .
                 "({$student->idnumber}): SUCCESS");
-            } else if ($grade->response == 'FAILED') {
+            } else if ($grade->response == ais_client::FAILED) {
                 mtrace("- {$student->firstname} {$student->lastname} " .
                 "({$student->idnumber}): FAILED - {$grade->message}");
             } else {

@@ -152,6 +152,9 @@ class helper_test extends advanced_testcase {
         // Pretend I'm on a given page.
         $PAGE->set_cm($cm);
         $PAGE->set_url('/course/modedit.php', ['update' => $cm->id]);
+        $PAGE->set_course($course);
+        $contextrecord = \context_module::instance($cm->id);
+        $PAGE->set_context($contextrecord);
 
         $scales = helper::get_scales_menu($course->id);
         $this->assertSame($defaultscales, $scales);

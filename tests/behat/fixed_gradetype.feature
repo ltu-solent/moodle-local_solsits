@@ -15,7 +15,7 @@ Feature: Testing fixed_gradetype in local_solsits
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
     And the solent gradescales are setup
-  
+
   Scenario: Tutors cannot change Scale to Point when using Grademarkexempt
     Given the following SITS assignment exists:
       | sitsref         | SITS2          |

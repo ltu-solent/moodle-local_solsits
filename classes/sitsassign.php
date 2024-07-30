@@ -26,6 +26,7 @@
 namespace local_solsits;
 
 use assign;
+use context_course;
 use context_module;
 use core\persistent;
 use core_date;
@@ -105,6 +106,7 @@ class sitsassign extends persistent {
                 'type' => PARAM_BOOL,
                 'default' => 0,
             ],
+            // This isn't currently used, but could be set when creating all new assignments.
             'scale' => [
                 'type' => PARAM_ALPHANUMEXT,
                 'default' => '',
@@ -171,7 +173,6 @@ class sitsassign extends persistent {
         FROM {local_solsits_assign} ssa
         JOIN {customfield_data} cfd ON cfd.instanceid = ssa.courseid AND cfd.fieldid = :fieldid
         WHERE ssa.cmid = 0 AND cfd.value = '1' AND ssa.duedate > 0 {$wheres}";
-
         $records = $DB->get_records_sql($sql, $params, 0, $limit);
         return $records;
     }
@@ -185,6 +186,7 @@ class sitsassign extends persistent {
      */
     public static function coursemodule_form(\moodleform_mod $formwrapper, \MoodleQuickForm $mform) {
         global $DB;
+        $config = get_config('local_solsits');
         $cm = $formwrapper->get_coursemodule();
         if (!isset($cm) || $cm->modname != 'assign') {
             return;
@@ -199,7 +201,7 @@ class sitsassign extends persistent {
 
         $mform->addElement('html', new lang_string('sitsdatadesc', 'local_solsits'));
 
-        $mform->addElement('static', 'sits_ref', new lang_string('sitsreference', 'local_solsits'), $solassign->sitsref);
+        $mform->addElement('static', 'sits_sitsref', new lang_string('sitsreference', 'local_solsits'), $solassign->sitsref);
         $mform->addElement('static', 'sits_assessmentname',
             new lang_string('assessmentname', 'local_solsits'), $solassign->assessmentname);
         $mform->addElement('static', 'sits_assessmentcode',
@@ -213,6 +215,15 @@ class sitsassign extends persistent {
         $strftimedatetimeaccurate = '%d %B %Y, %I:%M:%S %p';
         $duedate = userdate($solassign->duedate, $strftimedatetimeaccurate);
         $mform->addElement('static', 'sits_duedate', new lang_string('duedate', 'local_solsits'), $duedate);
+
+        $scale = '';
+        $scales = helper::get_scales_menu();
+        if (isset($config->{$solassign->scale})) {
+            $scale = $scales[$config->{$solassign->scale}];
+        } else {
+            $scale = ucwords($solassign->scale);
+        }
+        $mform->addElement('static', 'sits_scale', new lang_string('scale', 'local_solsits'), $scale);
 
         $grademarkexempt = $solassign->grademarkexempt ? get_string('yes') : get_string('no');
         $mform->addElement('static', 'sits_grademarkexempt', new lang_string('grademarkexempt', 'local_solsits'), $grademarkexempt);
@@ -286,6 +297,13 @@ class sitsassign extends persistent {
             return false;
         }
 
+        // Use numeric scale by default for all new assignments.
+        if (empty($this->get('scale'))) {
+            $scale = $config->defaultscale ?? '';
+            $this->set('scale', $scale);
+            $this->save();
+        }
+
         $this->prepare_formdata();
         $course = get_course($this->get('courseid'));
         $modinfo = \prepare_new_moduleinfo_data($course, 'assign', $config->targetsection);
@@ -309,7 +327,7 @@ class sitsassign extends persistent {
      * @return bool false in an error occurs
      */
     public function update_assignment() {
-        global $DB;
+        global $CFG, $DB;
         $config = get_config('local_solsits');
 
         if ($this->get('duedate') == 0) {
@@ -342,31 +360,65 @@ class sitsassign extends persistent {
             $this->formdata->intro = $config->assignmentmessage_studentreattempt ?? '';
         }
         $this->calculatedates();
-        $gradeitem = grade_item::fetch([
-            'itemtype' => 'mod',
-            'itemmodule' => $cm->modname,
-            'iteminstance' => $cm->instance,
-            'itemnumber' => 0,
-            'courseid' => $course->id,
-        ]);
+
         // We only want to update the grade scale if there have been no submissions.
-        if (!$gradeitem->has_grades()) {
-            if ($this->get('grademarkexempt')) {
-                $this->formdata->grade = $config->grademarkexemptscale * -1;
+        // The integration doesn't currently set the scale, so we use a defaultscale.
+        // The defaultscale acts as a switch between the old scales and the new one.
+        if (!$this->has_grades()) {
+            $defaultscale = $config->defaultscale ?? '';
+            $scale = '';
+            // Only use grademark or grademarkexempt scales if there is no default scale.
+            if ($defaultscale == '') {
+                if ($this->get('grademarkexempt')) {
+                    $scale = 'grademarkexemptscale';
+                } else {
+                    $scale = 'grademarkscale';
+                }
+            }
+            // Scale has been set, so use this.
+            // Scale here is a string. This should be stored as a setting matching that string returning the scaleid.
+            if ($this->get('scale') != '') {
+                $scale = $this->get('scale');
+            }
+            if ($this->get('scale') == '' && $defaultscale != '') {
+                $scale = $defaultscale;
+                $this->set('scale', $defaultscale);
+                $this->save();
+            }
+            // The grade field in the assignment table is either a positive number representing a point
+            // grade, or a negative number representing the id of the scale being used.
+            // If the scaleid is 3, the grade field will be -3. The formula below (scale * -1) converts 3 to -3.
+            $scalesetting = $config->{$scale} ?? '';
+            $maxpoint = $CFG->gradepointdefault;
+            if ($scale == 'points') {
+                // The default for points is 100.
+                $this->formdata->grade = $maxpoint;
+            } else if ($scalesetting != '') {
+                $this->formdata->grade = $scalesetting * -1;
             } else {
+                // This is the ultimate fallback that matches the old behaviour.
                 $this->formdata->grade = $config->grademarkscale * -1;
             }
         }
+        // We're manually replicating the assign::update_instance function here,
+        // because there are some bits we don't need to do.
         $DB->update_record('assign', $this->formdata);
+
+        $context = context_module::instance($cm->id);
+        $assignobj = new assign($context, $cm, $course);
+        // Updating the gradebook updates the grade_item, which we depend on for knowing the gradetype
+        // being used - if there are grades we definitely don't want to reset those.
+        $assignobj->update_gradebook(false, $cm->id);
+
         $completion = new stdClass();
         $completion->id = $this->get('cmid');
         $completion->completionexpected = 0;
         $DB->update_record('course_modules', $completion);
 
-        $assign = $DB->get_record('assign', ['id' => $cm->instance]);
         // Get fresh, rather than cached.
         $cm = $DB->get_record('course_modules', ['id' => $this->get('cmid')]);
         $cm->modname = 'assign';
+        $assign = $DB->get_record('assign', ['id' => $cm->instance]);
         course_module_calendar_event_update_process($assign, $cm);
         rebuild_course_cache($course->id);
         return true;
@@ -465,6 +517,7 @@ class sitsassign extends persistent {
      * @return void
      */
     private function prepare_formdata() {
+        global $CFG;
         // Not all settings have a default setting override, so these need to be filled in as we're spoofing a
         // form submission.
         $this->set_defaultconfig();
@@ -489,11 +542,50 @@ class sitsassign extends persistent {
         $this->formdata->alwaysshowdescription = 1;
         // Any submission plugins enabled? Default 0.
         $this->formdata->nosubmissions = 0;
-        if ($this->get('grademarkexempt')) {
-            $this->formdata->grade = $config->grademarkexemptscale * -1;
+
+        $defaultscale = $config->defaultscale ?? '';
+        $scale = '';
+        // Only use grademark or grademarkexempt scales if there is no default scale.
+        if ($defaultscale == '') {
+            if ($this->get('grademarkexempt')) {
+                $scale = 'grademarkexemptscale';
+            } else {
+                $scale = 'grademarkscale';
+            }
+        }
+        // Scale has been set, so use this.
+        // Scale here is a string. This should be stored as a setting matching that string returning the scaleid.
+        if ($this->get('scale') != '') {
+            $scale = $this->get('scale');
+        }
+        if ($this->get('reattempt') > 0) {
+            $originalscale = $this->get_originalscale();
+            if ($originalscale != '') {
+                $scale = $originalscale;
+                $this->set('scale', $originalscale);
+                $this->save();
+            }
+        }
+        if ($this->get('scale') == '' && $defaultscale != '') {
+            $scale = $defaultscale;
+            // Should I set the scale in sitsassign table?
+            $this->set('scale', $defaultscale);
+            $this->save();
+        }
+        // The grade field in the assignment table is either a positive number representing a point
+        // grade, or a negative number representing the id of the scale being used.
+        // If the scale id is 3, the grade field will be -3. The formula below (scale * -1) converts 3 to -3.
+        $scalesetting = $config->{$scale} ?? '';
+        $maxpoint = $CFG->gradepointdefault;
+        if ($scale == 'points') {
+            $this->formdata->grade = $maxpoint;
+        } else if ($scalesetting != '') {
+            $this->formdata->grade = $scalesetting * -1;
         } else {
+            // This is the ultimate fallback that matches the old behaviour.
             $this->formdata->grade = $config->grademarkscale * -1;
         }
+
         $this->formdata->completionsubmit = 1;
         $this->formdata->revealidenties = 0;
         $this->formdata->coursemodule = '';
@@ -748,5 +840,64 @@ class sitsassign extends persistent {
                        AND ag.assignment = s.assignment
                   ORDER BY ag.assignment, ag.id";
         return $DB->get_records_sql($sql, $params);
+    }
+
+    /**
+     * If the assign_grades has grades. Note: using assign_grades rather than grade_grades
+     * as grade_grades only shows released grades.
+     *
+     * @return boolean
+     */
+    public function has_grades(): bool {
+        global $DB;
+        [$course, $cm] = get_course_and_cm_from_cmid($this->get('cmid'));
+        $params = [
+            'assignment' => $cm->instance,
+        ];
+        $count = $DB->count_records('assign_grades', $params);
+        return $count > 0;
+    }
+
+    /**
+     * If this is a reattempt, try to find the scale used for the first attempt.
+     *
+     * @return string
+     */
+    private function get_originalscale(): string {
+        global $DB;
+        // Find the original sitsref by replacing the final part of the current sitsref with zero.
+        $attemptpos = strrpos($this->get('sitsref'), '_');
+        if ($attemptpos === false) {
+            return '';
+        }
+        $originalsitsref = substr($this->get('sitsref'), 0, $attemptpos) . '_0';
+        $originalsitsassign = $DB->get_record('local_solsits_assign', ['sitsref' => $originalsitsref]);
+        if (!$originalsitsassign) {
+            return '';
+        }
+
+        try {
+            $context = context_course::instance($originalsitsassign->courseid);
+            [$course, $cm] = get_course_and_cm_from_cmid($originalsitsassign->cmid, 'assign');
+            $originalassign = new \assign($context, $cm, $course);
+            if (!$originalassign) {
+                return '';
+            }
+            // If a scale isn't being used on the original return nothing.
+            if (!$originalassign->get_grade_item()->scaleid) {
+                return '';
+            }
+            // Use the scale being used on the old assignment.
+            if ($originalsitsassign->grademarkexempt) {
+                $originalscale = 'grademarkexemptscale';
+            } else {
+                $originalscale = 'grademarkscale';
+            }
+            return $originalscale;
+        } catch (\Exception $ex) {
+            return '';
+        }
+
+        return '';
     }
 }

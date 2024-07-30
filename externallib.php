@@ -28,6 +28,7 @@ use local_solsits\sitsassign;
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/lib/externallib.php');
+require_once($CFG->dirroot . '/mod/assign/locallib.php');
 
 /**
  * External Webservice functions for local_solsits
@@ -83,6 +84,7 @@ class local_solsits_external extends external_api {
             }
             $context = context_course::instance($assignment->courseid, IGNORE_MISSING);
             self::validate_context($context);
+            $assignment = self::set_scale($assignment);
 
             // Check that the user has the permission to create the assignment with this method.
             // And all the core assign capabilities to add/update/delete.
@@ -190,6 +192,8 @@ class local_solsits_external extends external_api {
             $context = context_course::instance($assignment->courseid);
             self::validate_context($context);
 
+            $assignment = self::set_scale($assignment);
+
             // Check that the user has the permission to create the assignment with this method.
             // And all the core assign capabilities to add/update/delete.
             require_capability('local/solsits:manageassignments', $context);
@@ -236,6 +240,65 @@ class local_solsits_external extends external_api {
                         PARAM_INT, 'When the assignment is available to the student from', VALUE_OPTIONAL),
             ])
         );
+    }
+
+    /**
+     * Sets the scale depending on a number of conditions
+     *
+     * @param stdClass $assignment The assignment object from the ws.
+     * @return stdClass The assignment object updated with the scale.
+     */
+    private static function set_scale(stdClass $assignment): stdClass {
+        global $DB;
+        $config = get_config('local_solsits');
+        // For now, the scale isn't being set by AIS, so we're defaulting to defaultscale, if set.
+        // If we go live with defaultscale after an assignment has already been created, we don't want to
+        // change the scale, but maybe it's ok to set defaultscale.
+        // This will ultimately be handled by add_assignment or update_assignment functions.
+        $defaultscale = $config->defaultscale ?? '';
+        // Use numeric scale by default for all new assignments.
+        if (empty($assignment->scale)) {
+            $assignment->scale = $defaultscale;
+        }
+        // If this is not a reattempt, we're just going with whatever the default is.
+        if ($assignment->reattempt == 0) {
+            return $assignment;
+        }
+
+        // Find the original sitsref by replacing the final part of the current sitsref with zero.
+        $attemptpos = strrpos($assignment->sitsref, '_');
+        if ($attemptpos === false) {
+            return $assignment;
+        }
+        $originalsitsref = substr($assignment->sitsref, 0, $attemptpos) . '_0';
+        $originalsitsassign = $DB->get_record('local_solsits_assign', ['sitsref' => $originalsitsref]);
+        if (!$originalsitsassign) {
+            return $assignment;
+        }
+
+        try {
+            [$course, $cm] = get_course_and_cm_from_cmid($originalsitsassign->cmid, 'assign');
+            $context = context_module::instance($cm->id);
+            $originalassign = new \assign($context, $cm, $course);
+            if (!$originalassign) {
+                return $assignment;
+            }
+            // If a scale isn't being used on the original return the default.
+            if (!$originalassign->get_grade_item()->scaleid) {
+                return $assignment;
+            }
+            // Use the scale being used on the old assignment.
+            if ($originalsitsassign->grademarkexempt) {
+                $originalscale = 'grademarkexemptscale';
+            } else {
+                $originalscale = 'grademarkscale';
+            }
+            $assignment->scale = $originalscale;
+        } catch (Exception $ex) {
+            return $assignment;
+        }
+
+        return $assignment;
     }
 
     /**

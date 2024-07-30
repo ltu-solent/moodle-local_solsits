@@ -143,6 +143,7 @@ class get_new_grades_task extends scheduled_task {
                 continue;
             }
             $grade = $this->user_grade($allgrades, $student, $releasedby->scaleid);
+            // Grade -1 is "Not marked". Send this through as a zero to SITS.
             if ($grade == -1) {
                 $grade = 0;
             }
@@ -179,9 +180,10 @@ class get_new_grades_task extends scheduled_task {
         $grade = (string) 0;
         foreach ($allgrades['grades'] as $value) {
             if ($value['userid'] == $student->id) {
-                // This is stripping everything after the decimal point - grades in Moodle are stored as decimal numbers: 10.00.
-                // So this results in 10.
-                $grade = (string) helper::convert_grade($scaleid, substr($value['grade'], 0, strpos($value['grade'], ".")));
+                // Until we know if the integration and SITS can cope with decimal grades, use rounding half up.
+                // This will result in 49.4 -> 49; 49.5 -> 50; 49.9 -> 50.
+                $grade = (int) round($value['grade'], 0, PHP_ROUND_HALF_UP);
+                $grade = (string) helper::convert_grade($scaleid, $grade);
             }
         }
         return $grade;

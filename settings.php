@@ -58,8 +58,25 @@ if ($hassiteconfig) {
     $options = array_combine(range(1, 10), range(1, 10));
     $settings->add(new admin_setting_configselect($name, $title, $description, 1, $options));
 
+    $name = 'local_solsits/defaultscale';
+    $title = new lang_string('defaultscale', 'local_solsits');
+    $description = new lang_string('defaultscale_desc', 'local_solsits');
+    $default = '';
+    $options = [
+        '' => new lang_string('nodefaultscale', 'local_solsits'),
+        'points' => new lang_string('points', 'local_solsits'),
+        'grademarkscale' => new lang_string('grademarkscale', 'local_solsits'),
+        'grademarkexemptscale' => new lang_string('grademarkexemptscale', 'local_solsits'),
+        'numericscale' => new lang_string('numericscale', 'local_solsits'),
+    ];
+    $settings->add(new admin_setting_configselect($name, $title, $description, $default, $options));
+
     // Get available site scales.
-    $scaleoptions = get_scales_menu();
+    $scaleoptions = [
+        '' => new lang_string('selectascale', 'local_solsits'),
+    ] + get_scales_menu();
+
+    // Ensure any new scales that are introduced have a setting name that ends in "scale".
     $name = 'local_solsits/grademarkscale';
     $title = new lang_string('grademarkscale', 'local_solsits');
     $description = new lang_string('grademarkscale_desc', 'local_solsits');
@@ -69,6 +86,12 @@ if ($hassiteconfig) {
     $name = 'local_solsits/grademarkexemptscale';
     $title = new lang_string('grademarkexemptscale', 'local_solsits');
     $description = new lang_string('grademarkexemptscale_desc', 'local_solsits');
+    $default = '';
+    $settings->add(new admin_setting_configselect($name, $title, $description, $default, $scaleoptions));
+
+    $name = 'local_solsits/numericscale';
+    $title = new lang_string('numericscale', 'local_solsits');
+    $description = new lang_string('numericscale_desc', 'local_solsits');
     $default = '';
     $settings->add(new admin_setting_configselect($name, $title, $description, $default, $scaleoptions));
 

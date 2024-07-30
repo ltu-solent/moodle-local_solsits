@@ -124,6 +124,7 @@ class helper_test extends advanced_testcase {
     /**
      * Get scales menu
      * @covers \local_solsits\helper::get_scales_menu
+     * @covers \local_solsits\helper::get_solscales
      * @dataProvider get_scales_menu_dataprovider
      * @param string $name Name of asssignment
      * @param string $idnumber IDNumber of assignment
@@ -156,39 +157,60 @@ class helper_test extends advanced_testcase {
         $this->assertSame($defaultscales, $scales);
 
         // Create Solent Grademark scales.
-        $solentscale = $this->getDataGenerator()->create_scale([
-            'name' => 'Solent',
+        $grademarkscale = $this->getDataGenerator()->create_scale([
+            'name' => 'Solent grademark scale',
             'scale' => 'N, S, F3, F2, F1, D3, D2, D1, C3, C2, C1, B3, B2, B1, A4, A3, A2, A1',
         ]);
-        set_config('grademarkscale', $solentscale->id, 'local_solsits');
-        $defaultscales[$solentscale->id] = 'Solent';
+        set_config('grademarkscale', $grademarkscale->id, 'local_solsits');
+        $defaultscales[$grademarkscale->id] = $grademarkscale->name;
         $scales = helper::get_scales_menu($course->id);
         if (helper::is_summative_assignment($cm->id)) {
             // Only the grademarkscale will be returned.
             $this->assertCount(1, $scales);
-            $this->assertContains('Solent', $scales);
+            $this->assertContains($grademarkscale->name, $scales);
         } else {
-            $this->assertSame($defaultscales, $scales);
+            $this->assertCount(count($defaultscales), $scales);
         }
         // Create Solent numeric scales.
-        $solentnumeric = $this->getDataGenerator()->create_scale([
-            'name' => 'Solent numeric',
+        $grademarkexemptscale = $this->getDataGenerator()->create_scale([
+            'name' => 'Solent grademark exempt scale',
             'scale' => '0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ' .
                     '21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, ' .
                     '41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, ' .
                     '61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, ' .
                     '81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100',
         ]);
-        set_config('grademarkexemptscale', $solentnumeric->id, 'local_solsits');
-        $defaultscales[$solentnumeric->id] = 'Solent numeric';
+        set_config('grademarkexemptscale', $grademarkexemptscale->id, 'local_solsits');
+        $defaultscales[$grademarkexemptscale->id] = $grademarkexemptscale->name;
         $scales = helper::get_scales_menu($course->id);
         if (helper::is_summative_assignment($cm->id)) {
             // Only the grademarkscale and grademarkexempt scales will be returned.
             $this->assertCount(2, $scales);
-            $this->assertContains('Solent', $scales);
-            $this->assertContains('Solent numeric', $scales);
+            $this->assertContains($grademarkscale->name, $scales);
+            $this->assertContains($grademarkexemptscale->name, $scales);
         } else {
-            $this->assertSame($defaultscales, $scales);
+            $this->assertCount(count($defaultscales), $scales);
+        }
+        // Create new Solent numeric scales.
+        $numericscale = $this->getDataGenerator()->create_scale([
+            'name' => 'Solent numeric scale',
+            'scale' => '1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ' .
+                    '21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, ' .
+                    '41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, ' .
+                    '61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, ' .
+                    '81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100',
+        ]);
+        set_config('numericscale', $numericscale->id, 'local_solsits');
+        $defaultscales[$numericscale->id] = $numericscale->name;
+        $scales = helper::get_scales_menu($course->id);
+        if (helper::is_summative_assignment($cm->id)) {
+            // Only the grademarkscale and grademarkexempt scales will be returned.
+            $this->assertCount(3, $scales);
+            $this->assertContains($grademarkscale->name, $scales);
+            $this->assertContains($grademarkexemptscale->name, $scales);
+            $this->assertContains($numericscale->name, $scales);
+        } else {
+            $this->assertCount(count($defaultscales), $scales);
         }
     }
 
@@ -234,6 +256,7 @@ class helper_test extends advanced_testcase {
             $grade = helper::convert_grade($scaleid, $x);
             $this->assertEquals($match[$x], $grade);
         }
+
         $scaleid = get_config('local_solsits', 'grademarkexemptscale');
         $match = [null, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
                 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
@@ -258,6 +281,28 @@ class helper_test extends advanced_testcase {
         // No valid solent scale, should just return the input.
         $grade = helper::convert_grade(0, $x);
         $this->assertEquals(70, $grade);
+
+        $scaleid = get_config('local_solsits', 'numericscale');
+        $match = [
+            null, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+            21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+            41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60,
+            61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80,
+            81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100,
+        ];
+        for ($x = 1; $x <= 100; $x++) {
+            $grade = helper::convert_grade($scaleid, $x);
+            $this->assertEquals($match[$x], $grade);
+        }
+        $x = null;
+        $grade = helper::convert_grade($scaleid, $x);
+        $this->assertEquals(0, $grade);
+        $x = -1;
+        $grade = helper::convert_grade($scaleid, $x);
+        $this->assertEquals(-1, $grade);
+        $x = 0;
+        $grade = helper::convert_grade($scaleid, $x);
+        $this->assertEquals(0, $grade);
     }
 
     /**

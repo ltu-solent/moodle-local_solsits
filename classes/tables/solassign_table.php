@@ -29,6 +29,7 @@ use core_user;
 use Exception;
 use html_writer;
 use lang_string;
+use local_solsits\helper;
 use moodle_url;
 use table_sql;
 
@@ -40,6 +41,12 @@ require_once($CFG->libdir . '/tablelib.php');
  */
 class solassign_table extends table_sql {
     /**
+     * Scales available
+     *
+     * @var array
+     */
+    private array $scales;
+    /**
      * Constructor
      *
      * @param string $uniqueid
@@ -49,6 +56,7 @@ class solassign_table extends table_sql {
         global $DB;
         parent::__construct($uniqueid);
         $this->useridfield = 'modifiedby';
+        $this->scales = helper::get_scales_menu();
         $columns = [
             'id',
             'course',
@@ -59,6 +67,7 @@ class solassign_table extends table_sql {
             'weighting',
             'duedate',
             'visible',
+            'scale',
             'grademarkexempt',
             'availablefrom',
             'timemodified',
@@ -75,6 +84,7 @@ class solassign_table extends table_sql {
             new lang_string('weighting', 'local_solsits'),
             new lang_string('duedate', 'local_solsits'),
             new lang_string('visibility', 'local_solsits'),
+            new lang_string('scale', 'local_solsits'),
             new lang_string('grademarkexempt', 'local_solsits'),
             new lang_string('availablefrom', 'local_solsits'),
             new lang_string('timemodified', 'local_solsits'),
@@ -223,6 +233,23 @@ class solassign_table extends table_sql {
      */
     public function col_grademarkexempt($row) {
         return ($row->grademarkexempt) ? get_string('yes') : get_string('no');
+    }
+
+    /**
+     * Output scale used
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column
+     */
+    public function col_scale($row) {
+        $config = get_config('local_solsits');
+        if (empty($row->scale)) {
+            return '';
+        }
+        if (!isset($config->{$row->scale})) {
+            return ucwords($row->scale);
+        }
+        return ucwords($this->scales[$config->{$row->scale}]);
     }
 
     /**

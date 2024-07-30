@@ -57,6 +57,8 @@ class local_solsits_generator extends component_generator_base {
         global $USER;
         $this->assigncount++;
         $i = $this->assigncount;
+        $config = get_config('local_solsits');
+        $defaultscale = $config->defaultscale ?? '';
 
         $record = (object)array_merge([
             'sitsref' => "SITS{$i}",
@@ -68,7 +70,7 @@ class local_solsits_generator extends component_generator_base {
             'duedate' => strtotime('+1 week'),
             'availablefrom' => 0,
             'grademarkexempt' => false,
-            'scale' => 'grademark',
+            'scale' => $defaultscale,
             'assessmentcode' => 'assessment' . $i,
             'assessmentname' => 'Essay ' . $i,
             'sequence' => '001',
@@ -128,25 +130,37 @@ class local_solsits_generator extends component_generator_base {
     public function create_solent_gradescales() {
         global $DB;
         $dg = \testing_util::get_data_generator();
-        if (!$DB->record_exists('scale', ['name' => 'Solent'])) {
-            $solentscale = $dg->create_scale([
-                'name' => 'Solent',
+        if (!$DB->record_exists('scale', ['name' => 'Solent grademark scale'])) {
+            $grademarkscale = $dg->create_scale([
+                'name' => 'Solent grademark scale',
                 'scale' => 'N, S, F3, F2, F1, D3, D2, D1, C3, C2, C1, B3, B2, B1, A4, A3, A2, A1',
             ]);
-            set_config('grademarkscale', $solentscale->id, 'local_solsits');
-            set_config('grademarkscale', $solentscale->id, 'local_quercus_tasks');
+            set_config('grademarkscale', $grademarkscale->id, 'local_solsits');
+            set_config('grademarkscale', $grademarkscale->id, 'local_quercus_tasks');
         }
-        if (!$DB->record_exists('scale', ['name' => 'Solent numeric'])) {
-            $solentnumeric = $dg->create_scale([
-                'name' => 'Solent numeric',
+        if (!$DB->record_exists('scale', ['name' => 'Solent grademark exempt scale'])) {
+            $grademarkexemptscale = $dg->create_scale([
+                'name' => 'Solent grademark exempt scale',
                 'scale' => '0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ' .
                         '21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, ' .
                         '41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, ' .
                         '61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, ' .
                         '81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100',
             ]);
-            set_config('grademarkexemptscale', $solentnumeric->id, 'local_solsits');
-            set_config('grademarkexemptscale', $solentnumeric->id, 'local_quercus_tasks');
+            set_config('grademarkexemptscale', $grademarkexemptscale->id, 'local_solsits');
+            set_config('grademarkexemptscale', $grademarkexemptscale->id, 'local_quercus_tasks');
+        }
+        if (!$DB->record_exists('scale', ['name' => 'Solent numeric scale'])) {
+            $numericscale = $dg->create_scale([
+                'name' => 'Solent numeric scale',
+                'scale' => '1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ' .
+                        '21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, ' .
+                        '41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, ' .
+                        '61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, ' .
+                        '81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100',
+            ]);
+            // Don't create for Quercus as will not be used.
+            set_config('numericscale', $numericscale->id, 'local_solsits');
         }
     }
 }

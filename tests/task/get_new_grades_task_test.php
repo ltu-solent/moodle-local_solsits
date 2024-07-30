@@ -453,6 +453,100 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
     }
 
     /**
+     * Test processing grades using Points (/100)
+     *
+     * @return void
+     */
+    public function test_pointsbasedsystem() {
+        global $DB;
+        $this->resetAfterTest();
+        $config = get_config('local_solsits');
+        /** @var local_solsits_generator $dg */
+        $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
+        $dg->create_solent_gradescales();
+
+        $this->setAdminUser();
+        $course = $this->getDataGenerator()->create_course([
+            'shortname' => 'ABC101_A_SEM1_2022/23',
+            'idnumber' => 'ABC101_A_SEM1_2022/23',
+        ]);
+        $inputgrades = [
+            'input' => [-1 , 0, 39, 50, 59.4, 59.5, 59.6, 70, 71, 100],
+            'output' => [ 0, 0, 39, 50, 59  , 60  , 60  , 70, 71, 100],
+        ];
+        $inputcount = count($inputgrades['input']);
+        $students = [];
+        $grades = [];
+        for ($x = 0; $x < $inputcount; $x++) {
+            $students[$x] = $this->getDataGenerator()->create_user(['idnumber' => '200000' . $x]);
+            $this->getDataGenerator()->enrol_user($students[$x]->id, $course->id, 'student');
+            $grades[$x]['feedbackcomments'] = "Comment for {$x}. " . $this->getDataGenerator()->loremipsum;
+            $grades[$x]['feedbackmisconduct'] = random_int(0, 1);
+            $grades[$x]['grade'] = (float)$inputgrades['input'][$x];
+        }
+        $moduleleader = $this->getDataGenerator()->create_user([
+            'firstname' => 'Module',
+            'lastname' => 'Leader',
+        ]);
+        $this->getDataGenerator()->enrol_user($moduleleader->id, $course->id, 'editingteacher');
+        $assign = $this->create_instance($course, [
+            'blindmarking' => 1,
+            'idnumber' => 'ABC101_A_SEM1_2022/23_PROJ1_0_1',
+            'grade' => 100,
+        ]);
+        $sitsassign = $dg->create_sits_assign([
+            'cmid' => $assign->get_course_module()->id,
+            'courseid' => $course->id,
+            'scale' => 'points',
+        ]);
+        $this->mark_assignments($students, $grades, $assign, $moduleleader, ASSIGN_MARKING_WORKFLOW_STATE_RELEASED);
+        $this->setAdminUser();
+        foreach ($students as $student) {
+            // Test grade has been stored.
+            $studentgrade = $assign->get_user_grade($student->id, false);
+            $x = substr($student->idnumber, 6);
+            $this->assertEquals($grades[$x]['grade'], $studentgrade->grade);
+        }
+
+        $expectedoutput = 'Queued - Course: ABC101_A_SEM1_2022/23, Assignment code: ABC101_A_SEM1_2022/23_PROJ1_0_1, Grader id: ' .
+            $moduleleader->id . ', Grade: 0, Student idnumber: 2000000
+Queued - Course: ABC101_A_SEM1_2022/23, Assignment code: ABC101_A_SEM1_2022/23_PROJ1_0_1, Grader id: ' .
+            $moduleleader->id . ', Grade: 0, Student idnumber: 2000001
+Queued - Course: ABC101_A_SEM1_2022/23, Assignment code: ABC101_A_SEM1_2022/23_PROJ1_0_1, Grader id: ' .
+            $moduleleader->id . ', Grade: 39, Student idnumber: 2000002
+Queued - Course: ABC101_A_SEM1_2022/23, Assignment code: ABC101_A_SEM1_2022/23_PROJ1_0_1, Grader id: ' .
+            $moduleleader->id . ', Grade: 50, Student idnumber: 2000003
+Queued - Course: ABC101_A_SEM1_2022/23, Assignment code: ABC101_A_SEM1_2022/23_PROJ1_0_1, Grader id: ' .
+            $moduleleader->id . ', Grade: 59, Student idnumber: 2000004
+Queued - Course: ABC101_A_SEM1_2022/23, Assignment code: ABC101_A_SEM1_2022/23_PROJ1_0_1, Grader id: ' .
+            $moduleleader->id . ', Grade: 60, Student idnumber: 2000005
+Queued - Course: ABC101_A_SEM1_2022/23, Assignment code: ABC101_A_SEM1_2022/23_PROJ1_0_1, Grader id: ' .
+            $moduleleader->id . ', Grade: 60, Student idnumber: 2000006
+Queued - Course: ABC101_A_SEM1_2022/23, Assignment code: ABC101_A_SEM1_2022/23_PROJ1_0_1, Grader id: ' .
+            $moduleleader->id . ', Grade: 70, Student idnumber: 2000007
+Queued - Course: ABC101_A_SEM1_2022/23, Assignment code: ABC101_A_SEM1_2022/23_PROJ1_0_1, Grader id: ' .
+            $moduleleader->id . ', Grade: 71, Student idnumber: 2000008
+Queued - Course: ABC101_A_SEM1_2022/23, Assignment code: ABC101_A_SEM1_2022/23_PROJ1_0_1, Grader id: ' .
+            $moduleleader->id . ', Grade: 100, Student idnumber: 2000009
+';
+        $this->expectOutputString($expectedoutput);
+
+        $this->execute_task('\local_solsits\task\get_new_grades_task');
+        // Test grades have been prepared for export.
+        $queuedgrades = $DB->get_records('local_solsits_assign_grades', ['solassignmentid' => $sitsassign->get('id')]);
+        $this->assertCount($inputcount, $queuedgrades);
+
+        foreach ($queuedgrades as $queuedgrade) {
+            $student = $DB->get_record('user', ['id' => $queuedgrade->studentid]);
+            // Find x from idnumber.
+            $x = substr($student->idnumber, 6);
+
+            $convertedgrade = $inputgrades['output'][$x];
+            $this->assertEquals($convertedgrade, $queuedgrade->converted_grade);
+        }
+    }
+
+    /**
      * Test that marked, but not released grades are not exported
      *
      * @return void

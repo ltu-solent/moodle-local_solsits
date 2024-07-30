@@ -194,7 +194,11 @@ class sitsassign_test extends advanced_testcase {
         // Check it's in section 1.
         $this->assertEquals($config->targetsection, $cm->sectionnum);
         // Check which grade scale is being used.
+        // How to switch between using the grademark scales and the numeric gradescales?
         if ($assign->get('grademarkexempt')) {
+            // The grade field in the assignment table is either a positive number representing a point
+            // grade, or a negative number representing the id of the scale being used.
+            // If the scale id is 3, the grade field will be -3. The formula below converts 3 to -3.
             $this->assertEquals($assignment->get_instance()->grade, $config->grademarkexemptscale * -1);
         } else {
             $this->assertEquals($assignment->get_instance()->grade, $config->grademarkscale * -1);

@@ -29,6 +29,7 @@ use context_module;
 use externallib_advanced_testcase;
 use local_solsits\task\task_trait;
 use local_solsits_generator;
+use mod_assign_test_generator;
 use mod_assign_testable_assign;
 
 defined('MOODLE_INTERNAL') || die();
@@ -40,6 +41,7 @@ require_once($CFG->dirroot . '/local/solsits/tests/generator.php');
 require_once($CFG->dirroot . '/local/solsits/tests/task/task_trait.php');
 require_once($CFG->dirroot . '/local/solsits/externallib.php');
 require_once($CFG->dirroot . '/mod/assign/tests/fixtures/testable_assign.php');
+require_once($CFG->dirroot . '/mod/assign/tests/generator.php');
 
 /**
  * Test externallib functions
@@ -48,6 +50,7 @@ require_once($CFG->dirroot . '/mod/assign/tests/fixtures/testable_assign.php');
 class externallib_test extends externallib_advanced_testcase {
     use generator;
     use task_trait;
+    use mod_assign_test_generator;
 
     /**
      * Add assignments
@@ -57,16 +60,32 @@ class externallib_test extends externallib_advanced_testcase {
      * @param array $assign Assignment settings
      * @param string|null $courseidnumber Course idnumber. Null, if don't create.
      * @param string $expectederror The exception type exected, if error.
+     * @param bool $cmexists Create a cm for testing
      * @return void
      */
-    public function test_add_assignments($assign, $courseidnumber, $expectederror) {
+    public function test_add_assignments($assign, $courseidnumber, $expectederror, $cmexists = false) {
         $this->resetAfterTest();
+        /** @var local_solsits_generator $dg */
+        $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
+        $dg->create_solent_gradescales();
+        $config = get_config('local_solsits');
+        $defaultscale = $config->defaultscale ?? '';
         $course = null;
         if ($courseidnumber) {
             $course = $this->getDataGenerator()->create_course([
                 'shortname' => $courseidnumber,
                 'idnumber' => $courseidnumber,
             ]);
+            $handler = \core_customfield\handler::get_handler('core_course', 'course');
+            $customfields = $handler->get_instance_data($course->id, true);
+            $context = $handler->get_instance_context($course->id);
+            foreach ($customfields as $key => $customfield) {
+                if ($customfield->get_field()->get('shortname') == 'templateapplied') {
+                    $customfield->set('value', 1);
+                    $customfield->set('contextid', $context->id);
+                    $customfield->save();
+                }
+            }
             $assign['courseid'] = $course->id;
         }
         if ($expectederror) {
@@ -74,20 +93,141 @@ class externallib_test extends externallib_advanced_testcase {
         }
         $this->setAdminUser();
         \local_solsits_external::add_assignments([$assign]);
+        if ($cmexists) {
+            $this->execute_task('\local_solsits\task\create_assignment_task');
+            $sitsassign = sitsassign::get_record(['sitsref' => $assign['sitsref']]);
+            $this->assertTrue(helper::is_sits_assignment($sitsassign->get('cmid')));
+            $this->expectOutputRegex('/New assignment successfully created/');
+        }
         $sitsassign = sitsassign::get_record(['sitsref' => $assign['sitsref']]);
         $this->assertEquals($assign['sitsref'], $sitsassign->get('sitsref'));
         $this->assertEquals($assign['title'], $sitsassign->get('title'));
         $this->assertEquals($assign['weighting'], $sitsassign->get('weighting'));
         $this->assertEquals($assign['duedate'], $sitsassign->get('duedate'));
         $this->assertEquals($assign['grademarkexempt'], $sitsassign->get('grademarkexempt'));
+        $scale = $assign['scale'] ?? $defaultscale;
+        $this->assertEquals($scale, $sitsassign->get('scale'));
         $this->assertEquals($assign['availablefrom'], $sitsassign->get('availablefrom'));
         $this->assertEquals($assign['reattempt'], $sitsassign->get('reattempt'));
         $this->assertEquals($assign['assessmentcode'], $sitsassign->get('assessmentcode'));
         $this->assertEquals($assign['assessmentname'], $sitsassign->get('assessmentname'));
         $this->assertEquals($assign['sequence'], $sitsassign->get('sequence'));
-        $this->assertEquals(0, $sitsassign->get('cmid'));
         if ($courseidnumber) {
             $this->assertEquals($course->id, $sitsassign->get('courseid'));
+        }
+        if (!$cmexists) {
+            $this->assertEquals(0, $sitsassign->get('cmid'));
+            return;
+        }
+
+        // Check scale.
+        // Now check the actual coursemodule has been created with the correct scale.
+        $cm = get_coursemodule_from_id('assign', $sitsassign->get('cmid'));
+        $context = context_module::instance($cm->id);
+        $assign = new mod_assign_testable_assign($context, $cm, $course);
+        $gradeitem = $assign->get_grade_item();
+        $scale = $sitsassign->get('scale');
+        if ($scale == 'points') {
+            $this->assertEquals(GRADE_TYPE_VALUE, $gradeitem->gradetype);
+        } else {
+            $this->assertEquals(GRADE_TYPE_SCALE, $gradeitem->gradetype);
+            if ($sitsassign->get('grademarkexempt')) {
+                $scale = 'grademarkexemptscale';
+            } else {
+                $scale = 'grademarkscale';
+            }
+            $scaleid = $config->{$scale};
+            $this->assertEquals($scaleid, $gradeitem->scaleid);
+        }
+    }
+
+    /**
+     * Add assignments using points gradetype
+     * @covers \local_solsits_external::add_assignments
+     *
+     * @dataProvider add_assignments_provider
+     * @param array $assign Assignment settings
+     * @param string|null $courseidnumber Course idnumber. Null, if don't create.
+     * @param string $expectederror The exception type exected, if error.
+     * @param bool $cmexists Create a cm for testing
+     * @return void
+     */
+    public function test_add_assignments_points($assign, $courseidnumber, $expectederror, $cmexists) {
+        $this->resetAfterTest();
+        /** @var local_solsits_generator $dg */
+        $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
+        $dg->create_solent_gradescales();
+        set_config('defaultscale', 'points', 'local_solsits');
+        $config = get_config('local_solsits');
+        $defaultscale = $config->defaultscale ?? '';
+        $course = null;
+        if ($courseidnumber) {
+            $course = $this->getDataGenerator()->create_course([
+                'shortname' => $courseidnumber,
+                'idnumber' => $courseidnumber,
+            ]);
+            $handler = \core_customfield\handler::get_handler('core_course', 'course');
+            $customfields = $handler->get_instance_data($course->id, true);
+            $context = $handler->get_instance_context($course->id);
+            foreach ($customfields as $key => $customfield) {
+                if ($customfield->get_field()->get('shortname') == 'templateapplied') {
+                    $customfield->set('value', 1);
+                    $customfield->set('contextid', $context->id);
+                    $customfield->save();
+                }
+            }
+            $assign['courseid'] = $course->id;
+        }
+        if ($expectederror) {
+            $this->expectException($expectederror);
+        }
+        $this->setAdminUser();
+        \local_solsits_external::add_assignments([$assign]);
+        if ($cmexists) {
+            $this->execute_task('\local_solsits\task\create_assignment_task');
+            $sitsassign = sitsassign::get_record(['sitsref' => $assign['sitsref']]);
+            $this->assertTrue(helper::is_sits_assignment($sitsassign->get('cmid')));
+            $this->expectOutputRegex('/New assignment successfully created/');
+        }
+        $sitsassign = sitsassign::get_record(['sitsref' => $assign['sitsref']]);
+        $this->assertEquals($assign['sitsref'], $sitsassign->get('sitsref'));
+        $this->assertEquals($assign['title'], $sitsassign->get('title'));
+        $this->assertEquals($assign['weighting'], $sitsassign->get('weighting'));
+        $this->assertEquals($assign['duedate'], $sitsassign->get('duedate'));
+        $this->assertEquals($assign['grademarkexempt'], $sitsassign->get('grademarkexempt'));
+        $scale = $assign['scale'] ?? $defaultscale;
+        $this->assertEquals($scale, $sitsassign->get('scale'));
+        $this->assertEquals($assign['availablefrom'], $sitsassign->get('availablefrom'));
+        $this->assertEquals($assign['reattempt'], $sitsassign->get('reattempt'));
+        $this->assertEquals($assign['assessmentcode'], $sitsassign->get('assessmentcode'));
+        $this->assertEquals($assign['assessmentname'], $sitsassign->get('assessmentname'));
+        $this->assertEquals($assign['sequence'], $sitsassign->get('sequence'));
+        if ($courseidnumber) {
+            $this->assertEquals($course->id, $sitsassign->get('courseid'));
+        }
+        if (!$cmexists) {
+            $this->assertEquals(0, $sitsassign->get('cmid'));
+            return;
+        }
+
+        // Check scale.
+        // Now check the actual coursemodule has been created with the correct scale.
+        $cm = get_coursemodule_from_id('assign', $sitsassign->get('cmid'));
+        $context = context_module::instance($cm->id);
+        $assign = new mod_assign_testable_assign($context, $cm, $course);
+        $gradeitem = $assign->get_grade_item();
+        $scale = $sitsassign->get('scale');
+        if ($scale == 'points') {
+            $this->assertEquals(GRADE_TYPE_VALUE, $gradeitem->gradetype);
+        } else {
+            $this->assertEquals(GRADE_TYPE_SCALE, $gradeitem->gradetype);
+            if ($sitsassign->get('grademarkexempt')) {
+                $scale = 'grademarkexemptscale';
+            } else {
+                $scale = 'grademarkscale';
+            }
+            $scaleid = $config->{$scale};
+            $this->assertEquals($scaleid, $gradeitem->scaleid);
         }
     }
 
@@ -113,6 +253,7 @@ class externallib_test extends externallib_advanced_testcase {
                 ],
                 'courseidnumber' => 'AAP502_A_SEM1_2023/24',
                 'expectederror' => '',
+                'cmexists' => true,
             ],
             'No due date' => [
                 'assign' => [
@@ -129,6 +270,7 @@ class externallib_test extends externallib_advanced_testcase {
                 ],
                 'courseidnumber' => 'AAP502_A_SEM1_2023/24',
                 'expectederror' => '',
+                'cmexists' => false,
             ],
             'Course not exists' => [
                 'assign' => [
@@ -145,8 +287,27 @@ class externallib_test extends externallib_advanced_testcase {
                 ],
                 'courseidnumber' => null,
                 'expectederror' => 'invalid_parameter_exception',
+                'cmexists' => false,
             ],
             'With scale' => [
+                'assign' => [
+                    'sitsref' => 'AAP502_A_SEM1_2023/24_AAP50201_001_0',
+                    'title' => 'CGI Production - Portfolio 1 (50%)',
+                    'weighting' => '50',
+                    'duedate' => strtotime('+2 weeks 16:00'),
+                    'grademarkexempt' => false,
+                    'availablefrom' => 0,
+                    'reattempt' => 0,
+                    'assessmentcode' => 'AAP50201',
+                    'assessmentname' => 'Project 1',
+                    'sequence' => '001',
+                    'scale' => 'points',
+                ],
+                'courseidnumber' => 'AAP502_A_SEM1_2023/24',
+                'expectederror' => '',
+                'cmexists' => true,
+            ],
+            'With non-existent scale' => [
                 'assign' => [
                     'sitsref' => 'AAP502_A_SEM1_2023/24_AAP50201_001_0',
                     'title' => 'CGI Production - Portfolio 1 (50%)',
@@ -162,6 +323,7 @@ class externallib_test extends externallib_advanced_testcase {
                 ],
                 'courseidnumber' => 'AAP502_A_SEM1_2023/24',
                 'expectederror' => '',
+                'cmexists' => false,
             ],
             'With malformed scale' => [
                 'assign' => [
@@ -179,6 +341,7 @@ class externallib_test extends externallib_advanced_testcase {
                 ],
                 'courseidnumber' => 'AAP502_A_SEM1_2023/24',
                 'expectederror' => 'invalid_parameter_exception',
+                'cmexists' => false,
             ],
             // Max length 255.
             'Long title' => [
@@ -197,6 +360,7 @@ class externallib_test extends externallib_advanced_testcase {
                 ],
                 'courseidnumber' => 'AAP502_A_SEM1_2023/24',
                 'expectederror' => '',
+                'cmexists' => true,
             ],
         ];
     }
@@ -249,6 +413,100 @@ class externallib_test extends externallib_advanced_testcase {
         $this->expectException('moodle_exception');
         $this->expectExceptionMessage(get_string('error:sitsrefinuse', 'local_solsits', $assign['sitsref']));
         \local_solsits_external::add_assignments([$assign]);
+    }
+
+    /**
+     * Reattempts should use the same gradingtype (Point/Scale) as the original version.
+     * @covers \local_solsits_external::add_assignments
+     *
+     * @return void
+     */
+    public function test_reattempt_adopt_a_scale() {
+        global $DB;
+        $this->resetAfterTest();
+        /** @var local_solsits_generator $dg */
+        $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
+        $dg->create_solent_gradescales();
+        set_config('defaultscale', '', 'local_solsits');
+        $firstattempt = [
+            'sitsref' => 'AAP502_A_SEM1_2023/24_AAP50201_001_0',
+            'title' => 'CGI Production - Portfolio 1 (100%)',
+            'weighting' => '50',
+            'duedate' => strtotime('+2 weeks 16:00'),
+            'grademarkexempt' => false,
+            'availablefrom' => 0,
+            'reattempt' => 0,
+            'assessmentcode' => 'AAP50201',
+            'assessmentname' => 'Project 1',
+            'sequence' => '001',
+        ];
+
+        $courseidnumber = 'AAP502_A_SEM1_2023/24';
+        $course = $this->getDataGenerator()->create_course([
+            'shortname' => $courseidnumber,
+            'idnumber' => $courseidnumber,
+        ]);
+        $handler = \core_customfield\handler::get_handler('core_course', 'course');
+        $customfields = $handler->get_instance_data($course->id, true);
+        $context = $handler->get_instance_context($course->id);
+        foreach ($customfields as $key => $customfield) {
+            if ($customfield->get_field()->get('shortname') == 'templateapplied') {
+                $customfield->set('value', 1);
+                $customfield->set('contextid', $context->id);
+                $customfield->save();
+            }
+        }
+        $firstattempt['courseid'] = $course->id;
+        $this->setAdminUser();
+
+        \local_solsits_external::add_assignments([$firstattempt]);
+        // The previous scale can only be applied, if the assignment activity actually exists.
+        $this->execute_task('\local_solsits\task\create_assignment_task');
+
+        $sitsassign = sitsassign::get_record(['sitsref' => $firstattempt['sitsref']]);
+        $this->assertEquals($firstattempt['sitsref'], $sitsassign->get('sitsref'));
+        $this->assertEquals($firstattempt['title'], $sitsassign->get('title'));
+        $this->assertEquals($firstattempt['weighting'], $sitsassign->get('weighting'));
+        $this->assertEquals($firstattempt['duedate'], $sitsassign->get('duedate'));
+        $this->assertEquals($firstattempt['grademarkexempt'], $sitsassign->get('grademarkexempt'));
+        $this->assertEquals($firstattempt['availablefrom'], $sitsassign->get('availablefrom'));
+        $this->assertEquals($firstattempt['reattempt'], $sitsassign->get('reattempt'));
+        $this->assertEquals($firstattempt['assessmentcode'], $sitsassign->get('assessmentcode'));
+        $this->assertEquals($firstattempt['assessmentname'], $sitsassign->get('assessmentname'));
+        $this->assertEquals($firstattempt['sequence'], $sitsassign->get('sequence'));
+        $this->assertEquals('', $sitsassign->get('scale'));
+        $this->assertNotEquals(0, $sitsassign->get('cmid'));
+        $this->assertEquals($course->id, $sitsassign->get('courseid'));
+
+        // Now use Points.
+        set_config('defaultscale', 'points', 'local_solsits');
+
+        $secondattempt = [
+            'sitsref' => 'AAP502_A_SEM1_2023/24_AAP50201_001_1',
+            'title' => 'CGI Production - Portfolio 1 (100%) - Reattempt 1',
+            'weighting' => '50',
+            'duedate' => strtotime('+2 weeks 16:00'),
+            'grademarkexempt' => false,
+            'availablefrom' => 0,
+            'reattempt' => 1,
+            'assessmentcode' => 'AAP50201',
+            'assessmentname' => 'Project 1',
+            'sequence' => '001',
+            'courseid' => $course->id,
+        ];
+        \local_solsits_external::add_assignments([$secondattempt]);
+        $this->execute_task('\local_solsits\task\create_assignment_task');
+        $this->expectOutputString('New assignment successfully created: AAP502_A_SEM1_2023/24_AAP50201_001_0
+New assignment successfully created: AAP502_A_SEM1_2023/24_AAP50201_001_1
+');
+        $sitsassign = sitsassign::get_record(['sitsref' => $secondattempt['sitsref']]);
+        $this->assertEquals('grademarkscale', $sitsassign->get('scale'));
+        [$course, $cm] = get_course_and_cm_from_cmid($sitsassign->get('cmid'), 'assign');
+        $assign = new mod_assign_testable_assign($context, $cm, $course);
+        $gradeitem = $assign->get_grade_item();
+        $config = get_config('local_solsits');
+        $this->assertEquals(GRADE_TYPE_SCALE, $gradeitem->gradetype);
+        $this->assertEquals($config->grademarkscale, $gradeitem->scaleid);
     }
 
     /**
@@ -308,6 +566,7 @@ class externallib_test extends externallib_advanced_testcase {
      *
      * @param array $before Assignment configuration
      * @param array $after Assignment configuration with change
+     * @param string $afterscale Set a default scale after the assignment was created
      * @param string $courseidnumber
      * @param string $expectederror
      * @param boolean $cmexists
@@ -315,21 +574,28 @@ class externallib_test extends externallib_advanced_testcase {
      * @covers \local_solsits_external::update_assignments
      * @return void
      */
-    public function test_update_assignment($before, $after, $courseidnumber, $expectederror = '', $cmexists = false) {
+    public function test_update_assignment($before, $after, $afterscale, $courseidnumber, $expectederror = '', $cmexists = false) {
         $this->resetAfterTest();
         $this->setAdminUser();
-        $config = get_config('local_solsits');
         $course = $this->getDataGenerator()->create_course([
             'shortname' => $courseidnumber,
             'idnumber' => $courseidnumber,
-            'customfield_academic_year' => '2023/24',
-            'customfield_pagetype' => 'module',
-            'customfield_templateapplied' => 1,
         ]);
+        $handler = \core_customfield\handler::get_handler('core_course', 'course');
+        $customfields = $handler->get_instance_data($course->id, true);
+        $context = $handler->get_instance_context($course->id);
+        foreach ($customfields as $key => $customfield) {
+            if ($customfield->get_field()->get('shortname') == 'templateapplied') {
+                $customfield->set('value', 1);
+                $customfield->set('contextid', $context->id);
+                $customfield->save();
+            }
+        }
         // Need this for creating the assign activities.
         /** @var local_solsits_generator $ssdg */
         $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $ssdg->create_solent_gradescales();
+        $config = get_config('local_solsits');
 
         if ($expectederror) {
             $this->expectException($expectederror);
@@ -352,6 +618,8 @@ class externallib_test extends externallib_advanced_testcase {
                 $this->expectOutputRegex('/New assignment successfully created/');
             }
         }
+        set_config('defaultscale', $afterscale, 'local_solsits');
+        $config = get_config('local_solsits');
 
         // Run update assignment.
         \local_solsits_external::update_assignments([$after]);
@@ -362,6 +630,8 @@ class externallib_test extends externallib_advanced_testcase {
         $this->assertEquals($after['weighting'], $sitsassignafter->get('weighting'));
         $this->assertEquals($after['duedate'], $sitsassignafter->get('duedate'));
         $this->assertEquals($after['grademarkexempt'], $sitsassignafter->get('grademarkexempt'));
+        $scale = $after['scale'] ?? $afterscale;
+        $this->assertEquals($scale, $sitsassignafter->get('scale'));
         $this->assertEquals($after['availablefrom'], $sitsassignafter->get('availablefrom'));
         $this->assertEquals($after['reattempt'], $sitsassignafter->get('reattempt'));
         $this->assertEquals($after['assessmentcode'], $sitsassignafter->get('assessmentcode'));
@@ -377,6 +647,20 @@ class externallib_test extends externallib_advanced_testcase {
         $cm = get_coursemodule_from_id('assign', $sitsassignafter->get('cmid'));
         $context = context_module::instance($cm->id);
         $assign = new mod_assign_testable_assign($context, $cm, $course);
+        $gradeitem = $assign->get_grade_item();
+        $scale = $sitsassignafter->get('scale');
+        if ($scale == 'points') {
+            $this->assertEquals(GRADE_TYPE_VALUE, $gradeitem->gradetype);
+        } else {
+            $this->assertEquals(GRADE_TYPE_SCALE, $gradeitem->gradetype);
+            if ($sitsassignafter->get('grademarkexempt')) {
+                $scale = 'grademarkexemptscale';
+            } else {
+                $scale = 'grademarkscale';
+            }
+            $scaleid = $config->{$scale};
+            $this->assertEquals($scaleid, $gradeitem->scaleid);
+        }
 
         $duedate = helper::set_time($after['duedate']);
         $availablefrom = $after['availablefrom'] == 0 ? 0 : helper::set_time($after['availablefrom'], '');
@@ -387,7 +671,6 @@ class externallib_test extends externallib_advanced_testcase {
         $this->assertEquals($duedate, $assign->get_instance()->duedate);
         $this->assertEquals($availablefrom, $assign->get_instance()->allowsubmissionsfromdate);
         $this->assertEquals($gradingduedate, $assign->get_instance()->gradingduedate);
-
     }
 
     /**
@@ -423,6 +706,7 @@ class externallib_test extends externallib_advanced_testcase {
                     'assessmentname' => 'Project 1',
                     'sequence' => '001',
                 ],
+                'afterscale' => '',
                 'courseidnumber' => 'AAP502_A_SEM1_2023/24',
                 'expectederror' => '',
                 'cmexists' => false,
@@ -441,6 +725,7 @@ class externallib_test extends externallib_advanced_testcase {
                     'assessmentname' => 'Project 1',
                     'sequence' => '001',
                 ],
+                'afterscale' => '',
                 'courseidnumber' => 'AAP502_A_SEM1_2023/24',
                 'expectederror' => 'moodle_exception',
                 'cmexists' => false,
@@ -470,9 +755,230 @@ class externallib_test extends externallib_advanced_testcase {
                     'assessmentname' => 'Project 1',
                     'sequence' => '001',
                 ],
+                'afterscale' => '',
                 'courseidnumber' => 'AAP502_A_SEM1_2023/24',
                 'expectederror' => '',
                 'cmexists' => true,
+            ],
+            'Existing sits assignment - Change default scale' => [
+                'before' => [
+                    'sitsref' => 'AAP502_A_SEM1_2023/24_AAP50201_001_0',
+                    'title' => 'CGI Production - Portfolio 1 (50%)',
+                    'weighting' => '50',
+                    'duedate' => strtotime('+2 weeks 16:00'),
+                    'grademarkexempt' => false,
+                    'availablefrom' => 0,
+                    'reattempt' => 0,
+                    'assessmentcode' => 'AAP50201',
+                    'assessmentname' => 'Project 1',
+                    'sequence' => '001',
+                ],
+                'after' => [
+                    'sitsref' => 'AAP502_A_SEM1_2023/24_AAP50201_001_0',
+                    'title' => 'CGI Production - Portfolio 1 (100%)',
+                    'weighting' => '100',
+                    'duedate' => strtotime('+3 weeks 16:00'),
+                    'grademarkexempt' => false,
+                    'availablefrom' => 0,
+                    'reattempt' => 0,
+                    'assessmentcode' => 'AAP50201',
+                    'assessmentname' => 'Project 1',
+                    'sequence' => '001',
+                ],
+                'afterscale' => 'points',
+                'courseidnumber' => 'AAP502_A_SEM1_2023/24',
+                'expectederror' => '',
+                'cmexists' => true,
+            ],
+        ];
+    }
+
+    /**
+     * If an an assignment has grades already, don't change the gradetype or scale, but do apply other changes.
+     *
+     * @param array $before Assignment configuration
+     * @param array $after Assignment configuration with change
+     * @param string $courseidnumber
+     * @param string $expectederror
+     * @return void
+     * @dataProvider update_assignment_withgrades_provider
+     * @covers \local_solsits\sitsassign::update_assignment
+     */
+    public function test_update_assignment_withgrades($before, $after, $courseidnumber, $expectederror = '') {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $course = $this->getDataGenerator()->create_course([
+            'shortname' => $courseidnumber,
+            'idnumber' => $courseidnumber,
+        ]);
+        $teacher = $this->getDataGenerator()->create_and_enrol($course, 'editingteacher');
+        $student = $this->getDataGenerator()->create_and_enrol($course, 'student', [
+            'idnumber' => '2000001',
+        ]);
+        $handler = \core_customfield\handler::get_handler('core_course', 'course');
+        $customfields = $handler->get_instance_data($course->id, true);
+        $context = $handler->get_instance_context($course->id);
+        foreach ($customfields as $key => $customfield) {
+            if ($customfield->get_field()->get('shortname') == 'templateapplied') {
+                $customfield->set('value', 1);
+                $customfield->set('contextid', $context->id);
+                $customfield->save();
+            }
+        }
+        // Need this for creating the assign activities.
+        /** @var local_solsits_generator $ssdg */
+        $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
+        $ssdg->create_solent_gradescales();
+        $config = get_config('local_solsits');
+
+        if ($expectederror) {
+            $this->expectException($expectederror);
+        }
+
+        $before['courseid'] = $course->id;
+        // Create before sitsassign record.
+        \local_solsits_external::add_assignments([$before]);
+        $sitsassignbefore = sitsassign::get_record(['sitsref' => $before['sitsref']]);
+
+        $after['courseid'] = $course->id;
+        // Run create assignment task.
+
+        $this->execute_task('\local_solsits\task\create_assignment_task');
+        // Just check the assign course module has been created.
+        $sitsassignbefore = sitsassign::get_record(['sitsref' => $before['sitsref']]);
+        $this->assertTrue(helper::is_sits_assignment($sitsassignbefore->get('cmid')));
+        $this->expectOutputRegex('/New assignment successfully created/');
+
+        // Add grades to the assignment.
+        $cm = get_coursemodule_from_id('assign', $sitsassignbefore->get('cmid'));
+        $context = context_module::instance($cm->id);
+        $assign = new mod_assign_testable_assign($context, $cm, $course);
+        $beforegradetype = $assign->get_grade_item()->gradetype;
+        $students = [$student];
+        $grades = [
+            [
+                'grade' => '50',
+                'feedbackcomments' => 'Feedback comment',
+                'feedbackmisconduct' => 0,
+            ],
+        ];
+        // Add a submission and grade to prevent the grade scale being changed.
+        $this->add_submission($student, $assign, 'My submission');
+        $this->submit_for_grading($student, $assign);
+        $this->mark_assignments($students, $grades, $assign, $teacher, ASSIGN_MARKING_WORKFLOW_STATE_INMARKING);
+        $this->setAdminUser();
+        set_config('defaultscale', 'points', 'local_solsits');
+        $config = get_config('local_solsits');
+
+        // Run update assignment.
+        \local_solsits_external::update_assignments([$after]);
+        $sitsassignafter = sitsassign::get_record(['sitsref' => $after['sitsref']]);
+        // First check the sitsassign table update has happened.
+        $this->assertEquals($after['sitsref'], $sitsassignafter->get('sitsref'));
+        $this->assertEquals($after['title'], $sitsassignafter->get('title'));
+        $this->assertEquals($after['weighting'], $sitsassignafter->get('weighting'));
+        $this->assertEquals($after['duedate'], $sitsassignafter->get('duedate'));
+        $this->assertEquals($after['grademarkexempt'], $sitsassignafter->get('grademarkexempt'));
+        // There should be no change in the scale being used.
+        $this->assertEquals('points', $sitsassignafter->get('scale'));
+        $this->assertEquals($after['availablefrom'], $sitsassignafter->get('availablefrom'));
+        $this->assertEquals($after['reattempt'], $sitsassignafter->get('reattempt'));
+        $this->assertEquals($after['assessmentcode'], $sitsassignafter->get('assessmentcode'));
+        $this->assertEquals($after['assessmentname'], $sitsassignafter->get('assessmentname'));
+        $this->assertEquals($after['sequence'], $sitsassignafter->get('sequence'));
+        $this->assertEquals($course->id, $sitsassignafter->get('courseid'));
+
+        // Now check the actual coursemodule has been updated.
+        $cm = get_coursemodule_from_id('assign', $sitsassignafter->get('cmid'));
+        $context = context_module::instance($cm->id);
+        $assign = new mod_assign_testable_assign($context, $cm, $course);
+        $gradeitem = $assign->get_grade_item();
+        $this->assertEquals($beforegradetype, $gradeitem->gradetype);
+        if ($beforegradetype == GRADE_TYPE_SCALE) {
+            if ($sitsassignbefore->get('grademarkexempt')) {
+                $scale = 'grademarkexemptscale';
+            } else {
+                $scale = 'grademarkscale';
+            }
+            $scaleid = $config->{$scale};
+            $this->assertEquals($scaleid, $gradeitem->scaleid);
+        }
+
+        // Ensure other changes have been applied.
+        $duedate = helper::set_time($after['duedate']);
+        $availablefrom = $after['availablefrom'] == 0 ? 0 : helper::set_time($after['availablefrom'], '');
+        $gradingduedate = helper::set_time($duedate, '16:00', "+{$config->gradingdueinterval} week");
+
+        $this->assertEquals($sitsassignafter->get('sitsref'), $assign->get_course_module()->idnumber);
+        $this->assertEquals($sitsassignafter->get('title'), $assign->get_course_module()->name);
+        $this->assertEquals($duedate, $assign->get_instance()->duedate);
+        $this->assertEquals($availablefrom, $assign->get_instance()->allowsubmissionsfromdate);
+        $this->assertEquals($gradingduedate, $assign->get_instance()->gradingduedate);
+    }
+
+    /**
+     * Provider for test_update_assignment_withgrades
+     *
+     * @return array
+     */
+    public static function update_assignment_withgrades_provider(): array {
+        // Need before and after.
+        return [
+            'Existing sits assignment - grademark' => [
+                'before' => [
+                    'sitsref' => 'AAP502_A_SEM1_2023/24_AAP50201_001_0',
+                    'title' => 'CGI Production - Portfolio 1 (50%)',
+                    'weighting' => '50',
+                    'duedate' => strtotime('+2 weeks 16:00'),
+                    'grademarkexempt' => false,
+                    'availablefrom' => 0,
+                    'reattempt' => 0,
+                    'assessmentcode' => 'AAP50201',
+                    'assessmentname' => 'Project 1',
+                    'sequence' => '001',
+                ],
+                'after' => [
+                    'sitsref' => 'AAP502_A_SEM1_2023/24_AAP50201_001_0',
+                    'title' => 'CGI Production - Portfolio 1 (100%)',
+                    'weighting' => '100',
+                    'duedate' => strtotime('+3 weeks 16:00'),
+                    'grademarkexempt' => true,
+                    'availablefrom' => 0,
+                    'reattempt' => 0,
+                    'assessmentcode' => 'AAP50201',
+                    'assessmentname' => 'Project 1',
+                    'sequence' => '001',
+                ],
+                'courseidnumber' => 'AAP502_A_SEM1_2023/24',
+                'expectederror' => '',
+            ],
+            'Existing sits assignment - grademark exempt' => [
+                'before' => [
+                    'sitsref' => 'AAP502_A_SEM1_2023/24_AAP50201_001_0',
+                    'title' => 'CGI Production - Portfolio 1 (50%)',
+                    'weighting' => '50',
+                    'duedate' => strtotime('+2 weeks 16:00'),
+                    'grademarkexempt' => true,
+                    'availablefrom' => 0,
+                    'reattempt' => 0,
+                    'assessmentcode' => 'AAP50201',
+                    'assessmentname' => 'Project 1',
+                    'sequence' => '001',
+                ],
+                'after' => [
+                    'sitsref' => 'AAP502_A_SEM1_2023/24_AAP50201_001_0',
+                    'title' => 'CGI Production - Portfolio 1 (100%)',
+                    'weighting' => '100',
+                    'duedate' => strtotime('+3 weeks 16:00'),
+                    'grademarkexempt' => false,
+                    'availablefrom' => 0,
+                    'reattempt' => 0,
+                    'assessmentcode' => 'AAP50201',
+                    'assessmentname' => 'Project 1',
+                    'sequence' => '001',
+                ],
+                'courseidnumber' => 'AAP502_A_SEM1_2023/24',
+                'expectederror' => '',
             ],
         ];
     }

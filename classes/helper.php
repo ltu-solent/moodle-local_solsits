@@ -272,14 +272,10 @@ class helper {
             return $scales;
         }
         // Filter out any non-Solent scales, if any are set.
-        $solsitsconfig = get_config('local_solsits');
         $solscales = [];
-        if (isset($solsitsconfig->grademarkscale)) {
-            $solscales[] = $solsitsconfig->grademarkscale;
-        }
-        if (isset($solsitsconfig->grademarkexemptscale)) {
-            $solscales[] = $solsitsconfig->grademarkexemptscale;
-        }
+        // If the grademarkscale or grademarkexemptscales are already being used
+        // by the cm, then include them in the drop-down, else just the numeric scale?
+        $solscales = self::get_solscales();
         // If no solscales are set, return the default set.
         if (count($solscales) == 0) {
             return $scales;
@@ -289,6 +285,26 @@ class helper {
         }, ARRAY_FILTER_USE_KEY);
         // Format: [id => 'scale name'].
         return $scales;
+    }
+
+    /**
+     * Get the solscales that are configured in the settings.
+     *
+     * @return array Array of scaleids
+     */
+    public static function get_solscales(): array {
+        $config = get_config('local_solsits');
+        $solscales = [];
+        if (isset($config->grademarkscale)) {
+            $solscales[] = $config->grademarkscale;
+        }
+        if (isset($config->grademarkexemptscale)) {
+            $solscales[] = $config->grademarkexemptscale;
+        }
+        if (isset($config->numericscale)) {
+            $solscales[] = $config->numericscale;
+        }
+        return $solscales;
     }
 
     /**
@@ -476,6 +492,7 @@ class helper {
                 $converted = (int)unformat_float($grade) - 1;
             }
         }
+        // The task get_new_grades will strip the decimal and convert -1 to zero for SITS.
         return $converted;
     }
 

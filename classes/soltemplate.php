@@ -130,7 +130,7 @@ class soltemplate extends persistent {
     public static function get_templateapplied_records($pagetype = '', $session = '', $templateapplied = 0) {
         global $DB;
 
-        [$select, $from, $where, $params] = static::get_templateapplied_sql($pagetype, $session, $templateapplied);
+        [$select, $from, $where, $params] = self::get_templateapplied_sql($pagetype, $session, $templateapplied);
         $sql = "SELECT $select FROM $from ";
         if ($where) {
             $sql = $sql . " WHERE " . $where;

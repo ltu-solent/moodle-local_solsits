@@ -213,7 +213,7 @@ class helper {
      * @return boolean
      */
     public static function istemplated($courseid): bool {
-        $value = static::get_customfield($courseid, 'templateapplied');
+        $value = self::get_customfield($courseid, 'templateapplied');
         if ($value == null) {
             return false;
         }
@@ -227,7 +227,7 @@ class helper {
      * @return string
      */
     public static function get_pagetype($courseid): string {
-        return static::get_customfield($courseid, 'pagetype');
+        return self::get_customfield($courseid, 'pagetype');
     }
 
     /**
@@ -315,7 +315,7 @@ class helper {
      * @return boolean
      */
     public static function is_summative_assignment($cmid) {
-        if (!static::issolsits()) {
+        if (!self::issolsits()) {
             return false;
         }
         try {
@@ -334,7 +334,7 @@ class helper {
      */
     public static function can_release_grades($cmid): bool {
         global $DB, $PAGE;
-        $issummative = static::is_summative_assignment($cmid);
+        $issummative = self::is_summative_assignment($cmid);
         if (!$issummative) {
             return true;
         }
@@ -506,11 +506,11 @@ class helper {
      */
     public static function gradingalerts($cm, $course, $context): array {
         $alerts = [];
-        $issummative = static::is_summative_assignment($cm->id);
+        $issummative = self::is_summative_assignment($cm->id);
         if (!$issummative) {
             return $alerts;
         }
-        $issitsassignment = static::is_sits_assignment($cm->id);
+        $issitsassignment = self::is_sits_assignment($cm->id);
         $srs = get_string('quercus', 'local_solsits');
         if ($issitsassignment) {
             $srs = get_string('gatewaysits', 'local_solsits');
@@ -550,7 +550,7 @@ class helper {
      */
     public static function badassignalerts($cm, $course, $context): array {
         $alerts = [];
-        $issummative = static::is_summative_assignment($cm->id);
+        $issummative = self::is_summative_assignment($cm->id);
         if (!$issummative) {
             return $alerts;
         }

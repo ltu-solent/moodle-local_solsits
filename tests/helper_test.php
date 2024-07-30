@@ -135,7 +135,7 @@ class helper_test extends advanced_testcase {
         global $PAGE;
         $this->resetAfterTest();
         $course = $this->getDataGenerator()->create_course();
-        $defaultscales = get_scales_menu($course->id);
+        $defaultscales = \get_scales_menu($course->id);
         $assign = $this->getDataGenerator()->create_module('assign', [
             'course' => $course->id,
             'name' => $name,

@@ -271,30 +271,11 @@ class helper {
         if (!self::is_summative_assignment($cm->id)) {
             return $scales;
         }
+        $config = get_config('local_solsits');
         // Filter out any non-Solent scales, if any are set.
         $solscales = [];
         // If the grademarkscale or grademarkexemptscales are already being used
         // by the cm, then include them in the drop-down, else just the numeric scale?
-        $solscales = self::get_solscales();
-        // If no solscales are set, return the default set.
-        if (count($solscales) == 0) {
-            return $scales;
-        }
-        $scales = array_filter($scales, function($scaleid) use ($solscales) {
-            return in_array($scaleid, $solscales);
-        }, ARRAY_FILTER_USE_KEY);
-        // Format: [id => 'scale name'].
-        return $scales;
-    }
-
-    /**
-     * Get the solscales that are configured in the settings.
-     *
-     * @return array Array of scaleids
-     */
-    public static function get_solscales(): array {
-        $config = get_config('local_solsits');
-        $solscales = [];
         if (isset($config->grademarkscale)) {
             $solscales[] = $config->grademarkscale;
         }
@@ -304,7 +285,15 @@ class helper {
         if (isset($config->numericscale)) {
             $solscales[] = $config->numericscale;
         }
-        return $solscales;
+        // If no solscales are set, return the default set.
+        if (count($solscales) == 0) {
+            return $scales;
+        }
+        $scales = array_filter($scales, function($scaleid) use ($solscales) {
+            return in_array($scaleid, $solscales);
+        }, ARRAY_FILTER_USE_KEY);
+        // Format: [id => 'scale name'].
+        return $scales;
     }
 
     /**

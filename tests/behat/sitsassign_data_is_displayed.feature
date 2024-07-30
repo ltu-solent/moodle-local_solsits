@@ -107,7 +107,7 @@ Feature: Display SITS assignment data in the settings page, if available
     And I should see "5 May 2023, 4:00:00 PM" in the "#fitem_id_sits_duedate" "css_element"
     And the following config values are set as admin:
       | config       | value  | plugin        |
-      | defaultScale | points | local_solsits |
+      | defaultscale | points | local_solsits |
     And the following SITS assignment exists:
       | sitsref         | SITS1_1         |
       | course          | C1              |
@@ -139,7 +139,7 @@ Feature: Display SITS assignment data in the settings page, if available
   Scenario: View SITS data using Points
     Given the following config values are set as admin:
     | config       | value  | plugin        |
-    | defaultScale | points | local_solsits |
+    | defaultscale | points | local_solsits |
     And the following SITS assignment exists:
       | sitsref         | SITS1         |
       | course          | C1            |

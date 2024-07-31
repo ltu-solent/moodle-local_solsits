@@ -276,13 +276,13 @@ class helper {
         $solscales = [];
         // If the grademarkscale or grademarkexemptscales are already being used
         // by the cm, then include them in the drop-down, else just the numeric scale?
-        if (isset($config->grademarkscale)) {
+        if (isset($config->grademarkscale) && $config->grademarkscale != '') {
             $solscales[] = $config->grademarkscale;
         }
-        if (isset($config->grademarkexemptscale)) {
+        if (isset($config->grademarkexemptscale) && $config->grademarkscale != '') {
             $solscales[] = $config->grademarkexemptscale;
         }
-        if (isset($config->numericscale)) {
+        if (isset($config->numericscale) && $config->grademarkscale != '') {
             $solscales[] = $config->numericscale;
         }
         // If no solscales are set, return the default set.

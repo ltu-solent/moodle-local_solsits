@@ -403,11 +403,16 @@ class helper {
      * Convert grades into SITS form.
      *
      * @param int $scaleid
-     * @param ?int $grade
+     * @param ?float $grade
      * @return int
      */
     public static function convert_grade($scaleid, $grade) {
         $config = get_config('local_solsits');
+        // Until we know if the integration and SITS can cope with decimal grades, use rounding half up.
+        // This will result in 49.4 -> 49; 49.5 -> 50; 49.9 -> 50.
+        if ($grade != null) {
+            $grade = (int) round($grade, 0, PHP_ROUND_HALF_UP);
+        }
         $converted = $grade;
         if ($scaleid == $config->grademarkscale) { // Solent gradescale.
             $converted = -1;

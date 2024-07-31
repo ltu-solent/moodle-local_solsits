@@ -306,6 +306,27 @@ class helper_test extends advanced_testcase {
         $x = 0;
         $grade = helper::convert_grade($scaleid, $x);
         $this->assertEquals(0, $grade);
+
+        // Check points.
+        $grade = helper::convert_grade(0, 50);
+        $this->assertEquals(50, $grade);
+
+        // Test round half-up.
+        $grade = helper::convert_grade(0, 50.2);
+        $this->assertEquals(50, $grade);
+
+        $grade = helper::convert_grade(0, 50.5);
+        $this->assertEquals(51, $grade);
+
+        $grade = helper::convert_grade(0, 50.9);
+        $this->assertEquals(51, $grade);
+
+        // We leave this as -1 to indicate "Not marked".
+        $grade = helper::convert_grade(0, -1);
+        $this->assertEquals(-1, $grade);
+
+        $grade = helper::convert_grade(0, 100);
+        $this->assertEquals(100, $grade);
     }
 
     /**

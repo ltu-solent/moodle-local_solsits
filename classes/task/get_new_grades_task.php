@@ -180,10 +180,7 @@ class get_new_grades_task extends scheduled_task {
         $grade = (string) 0;
         foreach ($allgrades['grades'] as $value) {
             if ($value['userid'] == $student->id) {
-                // Until we know if the integration and SITS can cope with decimal grades, use rounding half up.
-                // This will result in 49.4 -> 49; 49.5 -> 50; 49.9 -> 50.
-                $grade = (int) round($value['grade'], 0, PHP_ROUND_HALF_UP);
-                $grade = (string) helper::convert_grade($scaleid, $grade);
+                $grade = (string) helper::convert_grade($scaleid, $value['grade']);
             }
         }
         return $grade;

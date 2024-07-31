@@ -289,9 +289,9 @@ class helper {
         if (count($solscales) == 0) {
             return $scales;
         }
-        $scales = array_filter($scales, function($scaleid, $scalename) use ($solscales) {
-            return in_array($scalename, $solscales);
-        }, ARRAY_FILTER_USE_BOTH);
+        $scales = array_filter($scales, function($scaleid) use ($solscales) {
+            return in_array($scaleid, $solscales);
+        }, ARRAY_FILTER_USE_KEY);
         // Format: [id => 'scale name'].
         return $scales;
     }

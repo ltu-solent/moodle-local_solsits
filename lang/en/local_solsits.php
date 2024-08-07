@@ -110,6 +110,8 @@ $string['gradequeued'] = 'Queued - Course: {$a->course}, Assignment code: {$a->s
 $string['gradeslocked'] = '<strong>Grades for this assignment have been released and locked.</strong>';
 $string['gradingdueinterval'] = 'Grading due interval';
 $string['gradingdueinterval_desc'] = 'Grading due date interval in weeks';
+$string['gradingdueintervalsecondplus'] = 'Reattempt Grading due interval';
+$string['gradingdueintervalsecondplus_desc'] = 'Grading due date for reattempts interval in weeks';
 
 $string['immediately'] = 'Immediately';
 $string['info'] = 'Info';

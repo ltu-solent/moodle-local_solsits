@@ -99,22 +99,26 @@ if ($hassiteconfig) {
     $title = new lang_string('cutoffinterval', 'local_solsits');
     $description = new lang_string('cutoffinterval_desc', 'local_solsits');
     $default = 1;
-    $options = array_combine(range(1, 10), range(1, 10));
-    $settings->add(new admin_setting_configselect($name, $title, $description, $default, $options));
+    $onetotenoptions = array_combine(range(1, 10), range(1, 10));
+    $settings->add(new admin_setting_configselect($name, $title, $description, $default, $onetotenoptions));
 
     $name = 'local_solsits/cutoffintervalsecondplus';
     $title = new lang_string('cutoffintervalsecondplus', 'local_solsits');
     $description = new lang_string('cutoffintervalsecondplus_desc', 'local_solsits');
     $default = 1;
-    $options = array_combine(range(1, 10), range(1, 10));
-    $settings->add(new admin_setting_configselect($name, $title, $description, $default, $options));
+    $settings->add(new admin_setting_configselect($name, $title, $description, $default, $onetotenoptions));
 
     $name = 'local_solsits/gradingdueinterval';
     $title = new lang_string('gradingdueinterval', 'local_solsits');
     $description = new lang_string('gradingdueinterval_desc', 'local_solsits');
     $default = 1;
-    $options = array_combine(range(1, 10), range(1, 10));
-    $settings->add(new admin_setting_configselect($name, $title, $description, $default, $options));
+    $settings->add(new admin_setting_configselect($name, $title, $description, $default, $onetotenoptions));
+
+    $name = 'local_solsits/gradingdueintervalsecondplus';
+    $title = new lang_string('gradingdueintervalsecondplus', 'local_solsits');
+    $description = new lang_string('gradingdueintervalsecondplus_desc', 'local_solsits');
+    $default = 1;
+    $settings->add(new admin_setting_configselect($name, $title, $description, $default, $onetotenoptions));
 
     $name = 'local_solsits/defaultfilesubmissions';
     $title = new lang_string('defaultfilesubmissions', 'local_solsits');
@@ -254,8 +258,7 @@ if ($hassiteconfig) {
     $name = 'local_solsits/marksuploads_maxassignments';
     $title = new lang_string('marksuploads_maxassignments', 'local_solsits');
     $description = new lang_string('marksuploads_maxassignments_desc', 'local_solsits');
-    $options = array_combine(range(1, 10), range(1, 10));
-    $settings->add(new admin_setting_configselect($name, $title, $description, 1, $options));
+    $settings->add(new admin_setting_configselect($name, $title, $description, 1, $onetotenoptions));
 
     $name = 'local_solsits/marksuploads_batchgrades';
     $title = new lang_string('marksuploads_batchgrades', 'local_solsits');

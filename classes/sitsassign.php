@@ -275,7 +275,11 @@ class sitsassign extends persistent {
         }
 
         // Grading due date.
-        $modifystring = '+' . $config->gradingdueinterval . ' week';
+        $gradingdueinterval = $config->gradingdueinterval ?? 1;
+        if ($this->get('reattempt') != 0) {
+            $gradingdueinterval = $config->gradingdueintervalsecondplus ?? $gradingdueinterval;
+        }
+        $modifystring = '+' . $gradingdueinterval . ' week';
         $dt = helper::set_time($this->get('duedate'), '16:00', $modifystring);
         $this->formdata->gradingduedate = $dt;
     }

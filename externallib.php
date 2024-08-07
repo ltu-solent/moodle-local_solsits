@@ -23,6 +23,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_solsits\helper;
 use local_solsits\sitsassign;
 
 defined('MOODLE_INTERNAL') || die();
@@ -369,7 +370,7 @@ class local_solsits_external extends external_api {
     public static function search_courses_parameters(): external_function_parameters {
         return new external_function_parameters([
             'query' => new external_value(PARAM_TEXT, 'Search string'),
-            'currentcourses' => new external_value(PARAM_BOOL, 'Only include current courses in results'),
+            'session' => new external_value(PARAM_TEXT, 'Only include courses in session in results'),
         ]);
     }
 
@@ -377,14 +378,14 @@ class local_solsits_external extends external_api {
      * Search courses
      *
      * @param string $query
-     * @param bool $currentcourses
+     * @param string $session
      * @return array
      */
-    public static function search_courses($query, $currentcourses): array {
+    public static function search_courses($query, $session): array {
         global $DB;
         $params = self::validate_parameters(self::search_courses_parameters(),
             [
-                'currentcourses' => $currentcourses,
+                'session' => $session,
                 'query' => $query,
             ]
         );
@@ -392,12 +393,13 @@ class local_solsits_external extends external_api {
         $select = "SELECT id courseid, CONCAT(shortname, ': ', fullname) label FROM {course} ";
         $wheres = [];
         $qparams = [];
-        if ($params['currentcourses']) {
-            $now = time();
-            $where = "(startdate < :startdate AND (enddate > :enddate OR enddate = 0))";
-            $qparams['startdate'] = $now;
-            $qparams['enddate'] = $now;
-            $wheres[] = $where;
+        if ($params['session']) {
+            $sessionmenu = helper::get_session_menu();
+            if (in_array($params['session'], $sessionmenu)) {
+                $like = $DB->sql_like('shortname', ':session');
+                $wheres[] = $like;
+                $qparams['session'] = '%' . $DB->sql_like_escape($params['session']) . '%';
+            }
         }
         if ($params['query']) {
             $likeshortname = $DB->sql_like("shortname", ':shortname', false, false);

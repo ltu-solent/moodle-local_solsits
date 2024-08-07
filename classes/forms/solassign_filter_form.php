@@ -26,6 +26,7 @@
 namespace local_solsits\forms;
 
 use lang_string;
+use local_solsits\helper;
 use moodleform;
 
 defined('MOODLE_INTERNAL') || die();
@@ -62,9 +63,13 @@ class solassign_filter_form extends moodleform {
             $options);
         $mform->setDefault('selectedcourses', []);
 
-        $mform->addElement('advcheckbox', 'currentcourses', new lang_string('currentcourses', 'local_solsits'));
-        $mform->addHelpButton('currentcourses', 'currentcourses', 'local_solsits');
-        $mform->setDefault('currentcourses', true);
+        $options = [
+            '' => new lang_string('selectasession', 'local_solsits'),
+        ] + helper::get_session_menu();
+        $default = helper::get_currentacademicyear();
+
+        $mform->addElement('select', 'session', new lang_string('session', 'local_solsits'), $options);
+        $mform->setDefault('session', $default);
 
         $mform->addElement('advcheckbox', 'showerrorsonly', new lang_string('showerrorsonly', 'local_solsits'));
         $mform->addHelpButton('showerrorsonly', 'showerrorsonly', 'local_solsits');

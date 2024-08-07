@@ -155,18 +155,18 @@ if (in_array($action, ['delete', 'recreate'])) {
 
 $params = [
     'selectedcourses' => [],
-    'currentcourses' => true,
     'showerrorsonly' => false,
+    'session' => '',
 ];
 
 $filterform = new \local_solsits\forms\solassign_filter_form(null);
 if ($filterdata = $filterform->get_data()) {
-    $params['currentcourses'] = $filterdata->currentcourses;
+    $params['session'] = $filterdata->session;
     $params['selectedcourses'] = $filterdata->selectedcourses;
     $params['showerrorsonly'] = $filterdata->showerrorsonly;
 } else {
     $params['selectedcourses'] = optional_param_array('selectedcourses', [], PARAM_INT);
-    $params['currentcourses'] = optional_param('currentcourses', true, PARAM_BOOL);
+    $params['session'] = optional_param('session', '', PARAM_RAW);
     $params['showerrorsonly'] = optional_param('showerrorsonly', false, PARAM_BOOL);
     $filterform->set_data($params);
 }

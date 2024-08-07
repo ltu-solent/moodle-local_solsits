@@ -40,20 +40,15 @@ define(['core/ajax', 'jquery'], function(ajax, $) {
         },
 
         transport: function(selector, query, success, failure) {
-            let currentcourses = document.querySelector('#id_currentcourses');
+            let session = document.querySelector('#id_session');
             var promises = null;
-            if (!currentcourses) {
-                currentcourses = false;
-            } else {
-                currentcourses = currentcourses.checked;
-            }
             if (typeof query === "undefined") {
                 query = '';
             }
 
             var searchargs = {
                 query: query,
-                currentcourses: currentcourses
+                session: session.value
             };
 
             var calls = [{

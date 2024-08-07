@@ -95,8 +95,8 @@ class solassign_table extends table_sql {
         $this->no_sorting('actions');
         $this->sortable(true, 'sitsref', SORT_ASC);
         $urlparams = [
-            'currentcourses' => $filters['currentcourses'],
             'showerrorsonly' => $filters['showerrorsonly'],
+            'session' => $filters['session'],
         ];
         $sc = [];
         $baseurl = new moodle_url('/local/solsits/manageassignments.php', $urlparams);
@@ -112,12 +112,13 @@ class solassign_table extends table_sql {
         LEFT JOIN {course_modules} cm ON cm.id = ssa.cmid";
         $params = [];
         $wheres = [];
-        if ($filters['currentcourses']) {
-            $now = time();
-            $where = "(c.startdate < :startdate AND (c.enddate > :enddate OR c.enddate = 0))";
-            $params['startdate'] = $now;
-            $params['enddate'] = $now;
-            $wheres[] = $where;
+        if ($filters['session']) {
+            $sessionmenu = helper::get_session_menu();
+            if (in_array($filters['session'], $sessionmenu)) {
+                $like = $DB->sql_like('c.shortname', ':session');
+                $wheres[] = $like;
+                $params['session'] = '%' . $DB->sql_like_escape($filters['session']) . '%';
+            }
         }
         if ($filters['selectedcourses']) {
             [$insql, $inparams] = $DB->get_in_or_equal($filters['selectedcourses'], SQL_PARAMS_NAMED);

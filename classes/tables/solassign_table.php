@@ -285,7 +285,7 @@ class solassign_table extends table_sql {
      */
     public function col_visible($row) {
         // Perhaps do an eye and eye-slash.
-        $visibility = ($row->cmvisible + $row->cvisible);
+        $visibility = (int)($row->cmvisible + $row->cvisible);
         if ($visibility < 2) {
             return get_string('notvisible', 'local_solsits');
         }

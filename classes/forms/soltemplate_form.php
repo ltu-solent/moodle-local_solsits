@@ -77,7 +77,7 @@ class soltemplate_form extends persistent_form {
     /**
      * Extra validation.
      *
-     * @param  stdClass $data Data to validate.
+     * @param  object $data Data to validate.
      * @param  array $files Array of files.
      * @param  array $errors Currently reported errors.
      * @return array of additional errors, or overridden errors.

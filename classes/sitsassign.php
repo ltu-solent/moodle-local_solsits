@@ -287,7 +287,7 @@ class sitsassign extends persistent {
     /**
      * Create the Moodle assignment from available data
      *
-     * @return void
+     * @return bool
      */
     public function create_assignment() {
         global $DB;

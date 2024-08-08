@@ -28,6 +28,7 @@ use core_user;
 use html_writer;
 use lang_string;
 use moodle_url;
+use stdClass;
 use table_sql;
 
 defined('MOODLE_INTERNAL') || die();

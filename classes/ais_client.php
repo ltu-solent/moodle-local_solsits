@@ -79,8 +79,8 @@ class ais_client extends curl {
      */
     public function __construct($settings, $url, $key) {
         parent::__construct($settings);
-        $this->url = $url ?? '';
-        $this->key = $key ?? '';
+        $this->url = $url;
+        $this->key = $key;
         if ($this->url == '') {
             throw new moodle_exception('urlnotset', 'local_solsits');
         }

@@ -31,6 +31,7 @@ use html_writer;
 use lang_string;
 use local_solsits\helper;
 use moodle_url;
+use stdClass;
 use table_sql;
 
 defined('MOODLE_INTERNAL') || die();

@@ -60,7 +60,7 @@ class helper {
         $years = range(2020, date('Y') + 1);
         $options = [];
         foreach ($years as $year) {
-            $yearplusone = substr($year, 2, 2) + 1;
+            $yearplusone = (string)((int)substr($year, 2, 2) + 1);
             $options[$year . '/' . $yearplusone] = $year . '/' . $yearplusone;
         }
         return array_reverse($options);

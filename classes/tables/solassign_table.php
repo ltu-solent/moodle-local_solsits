@@ -71,6 +71,7 @@ class solassign_table extends table_sql {
             'scale',
             'grademarkexempt',
             'availablefrom',
+            'timecreated',
             'timemodified',
             'actions',
         ];
@@ -88,6 +89,7 @@ class solassign_table extends table_sql {
             new lang_string('scale', 'local_solsits'),
             new lang_string('grademarkexempt', 'local_solsits'),
             new lang_string('availablefrom', 'local_solsits'),
+            new lang_string('timecreated', 'local_solsits'),
             new lang_string('timemodified', 'local_solsits'),
             new lang_string('actions', 'local_solsits'),
         ];
@@ -252,6 +254,16 @@ class solassign_table extends table_sql {
             return ucwords($row->scale);
         }
         return ucwords($this->scales[$config->{$row->scale}]);
+    }
+
+    /**
+     * Output timecreated column
+     *
+     * @param stdClass $row
+     * @return string
+     */
+    public function col_timecreated($row) {
+        return userdate($row->timecreated, get_string('strftimedatetimeshort', 'core_langconfig'));
     }
 
     /**

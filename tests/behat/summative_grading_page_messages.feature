@@ -38,7 +38,7 @@ Feature: Guidance message is displayed to those who can view the grading page
       | assign                | user      | onlinetext                   |
       | Quercus1              | student1  | I'm the student1 submission  |
     And I am on the "Quercus1" Activity page logged in as teacher1
-    When I follow "View all submissions"
+    When I navigate to "Submissions" in current page administration
     Then I should see "Grades for this assignment will be sent to Quercus once they have been released to students in SOL."
     And I should not see "Grades for this assignment will be sent to Gateway (SITS)"
 
@@ -62,7 +62,7 @@ Feature: Guidance message is displayed to those who can view the grading page
       | reattempt       | 0             |
       | grademarkexempt | 0             |
     And I am on the "SITS1" Activity page logged in as teacher1
-    When I follow "View all submissions"
+    When I navigate to "Submissions" in current page administration
     Then I should see "Grades for this assignment will be sent to Gateway (SITS) once they have been released to students in SOL."
     And I should not see "Grades for this assignment will be sent to Quercus"
 
@@ -73,7 +73,7 @@ Feature: Guidance message is displayed to those who can view the grading page
     And I log in as "teacher1"
     And I am on "Course1" course homepage
     And I follow "Formative1"
-    When I follow "View all submissions"
+    When I navigate to "Submissions" in current page administration
     Then I should not see "Grades for this assignment will be sent to Gateway (SITS)"
     And I should not see "Grades for this assignment will be sent to Quercus"
 
@@ -122,10 +122,10 @@ Feature: Guidance message is displayed to those who can view the grading page
       | reattempt       | 1                                                   |
       | grademarkexempt | 0                                                   |
     And I am on the "AAP601_A_SEM1_2023/24_ABC10101_001_0" Activity page logged in as teacher1
-    When I follow "View all submissions"
+    When I navigate to "Submissions" in current page administration
     Then I should not see "submissions before the first attempt submissions have been marked and released."
     And I am on the "AAP601_A_SEM1_2023/24_ABC10101_001_1" Activity page logged in as moduleleader1
-    When I follow "View all submissions"
+    When I navigate to "Submissions" in current page administration
     Then I should see "Please do not release these First reattempt submissions before the first attempt submissions have been marked and released."
     When I set the field "selectall" to "1"
     And I set the field "operation" to "Set marking workflow state"
@@ -134,7 +134,7 @@ Feature: Guidance message is displayed to those who can view the grading page
     And I set the field "Notify student" to "No"
     And I press "Save changes"
     And I am on the "AAP601_A_SEM1_2023/24_ABC10101_001_1" "assign activity" page
-    And I follow "View all submissions"
+    And I navigate to "Submissions" in current page administration
     Then I should see "Released" in the "I'm the student1 submission" "table_row"
     And I should not see "Please do not release these First reattempt submissions before the first attempt submissions have been marked and released."
 
@@ -162,7 +162,7 @@ Feature: Guidance message is displayed to those who can view the grading page
       | reattempt       | 0             |
       | grademarkexempt | 0             |
     And I am on the "SITS1" Activity page logged in as moduleleader1
-    When I follow "View all submissions"
+    When I navigate to "Submissions" in current page administration
     Then I should see "Grades for this assignment will be sent to Gateway (SITS) once they have been released to students in SOL."
     And I should not see "Grades for this assignment will be sent to Quercus"
     And I should not see "Grades for this assignment have been released and locked."
@@ -173,6 +173,6 @@ Feature: Guidance message is displayed to those who can view the grading page
     And I set the field "Notify student" to "No"
     And I press "Save changes"
     And I am on the "SITS1" "assign activity" page
-    And I follow "View all submissions"
+    And I navigate to "Submissions" in current page administration
     Then I should see "Grades for this assignment have been released and locked."
     And I should not see "Grades for this assignment will be sent to Gateway (SITS) once they have been released to students in SOL."

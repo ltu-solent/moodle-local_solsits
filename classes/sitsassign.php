@@ -26,8 +26,7 @@
 namespace local_solsits;
 
 use assign;
-use context_course;
-use context_module;
+use core\context;
 use core\persistent;
 use core_date;
 use DateTime;
@@ -408,7 +407,7 @@ class sitsassign extends persistent {
         // because there are some bits we don't need to do.
         $DB->update_record('assign', $this->formdata);
 
-        $context = context_module::instance($cm->id);
+        $context = context\module::instance($cm->id);
         $assignobj = new assign($context, $cm, $course);
         // Updating the gradebook updates the grade_item, which we depend on for knowing the gradetype
         // being used - if there are grades we definitely don't want to reset those.
@@ -482,7 +481,7 @@ class sitsassign extends persistent {
         }
 
         course_add_cm_to_section($course, $newcmid, 1);
-        $modcontext = $newassign->set_context(context_module::instance($newcm->id));
+        $modcontext = $newassign->set_context(context\module::instance($newcm->id));
 
         $eventdata = clone $newcm;
         $eventdata->modname = $eventdata->modname;
@@ -881,7 +880,7 @@ class sitsassign extends persistent {
         }
 
         try {
-            $context = context_course::instance($originalsitsassign->courseid);
+            $context = context\course::instance($originalsitsassign->courseid);
             [$course, $cm] = get_course_and_cm_from_cmid($originalsitsassign->cmid, 'assign');
             $originalassign = new \assign($context, $cm, $course);
             if (!$originalassign) {

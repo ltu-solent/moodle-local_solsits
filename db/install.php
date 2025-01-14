@@ -23,6 +23,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\context;
+
 /**
  * This function is run when the plugin is installed.
  *
@@ -68,7 +70,7 @@ function xmldb_local_solsits_install() {
     }
 
     $oldcapabilities = $DB->get_records('role_capabilities', ['capability' => 'local/quercus_tasks:releasegrades']);
-    $context = context_system::instance();
+    $context = context\system::instance();
     foreach ($oldcapabilities as $oldcapability) {
         $cap = new stdClass();
         $cap->contextid    = $context->id;

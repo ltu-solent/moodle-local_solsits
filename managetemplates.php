@@ -23,11 +23,12 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\context;
 require_once('../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
 admin_externalpage_setup('local_solsits/managetemplates', '', null, '/local/solsits/managetemplates.php');
-$context = context_system::instance();
+$context = context\system::instance();
 require_capability('local/solsits:managetemplates', $context);
 
 $PAGE->set_context($context);

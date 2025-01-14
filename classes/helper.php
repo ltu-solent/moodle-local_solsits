@@ -26,13 +26,13 @@
 namespace local_solsits;
 
 use assign;
-use context_module;
-use context_system;
+use core\context;
 use core_course\customfield\course_handler;
 use core_customfield\category;
 use core_customfield\field;
 use DateTime;
 use Exception;
+use stdClass;
 
 /**
  * Helper class for common functions.
@@ -202,7 +202,7 @@ class helper {
                 'description' => 'Fields managed by the university\'s Student records system. Do not change unless asked to.',
                 'area' => 'course',
                 'component' => 'core_course',
-                'contextid' => context_system::instance()->id,
+                'contextid' => context\system::instance()->id,
             ]);
             $category->save();
         }
@@ -346,7 +346,7 @@ class helper {
         if (!$issummative) {
             return true;
         }
-        $context = context_module::instance($cmid);
+        $context = context\module::instance($cmid);
         [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'assign');
         // Update in upgrade.php script transfers capabilities from local/quercus_tasks:releasegrades.
         $hascapability = has_capability('local/solsits:releasegrades', $context);
@@ -647,6 +647,65 @@ class helper {
         }
         return $alerts;
 
+    }
+
+    /**
+     * Sets the scale depending on a number of conditions
+     *
+     * @param stdClass $assignment The assignment object from the ws.
+     * @return stdClass The assignment object updated with the scale.
+     */
+    public static function set_scale(stdClass $assignment): stdClass {
+        global $DB;
+        $config = get_config('local_solsits');
+        // For now, the scale isn't being set by AIS, so we're defaulting to defaultscale, if set.
+        // If we go live with defaultscale after an assignment has already been created, we don't want to
+        // change the scale, but maybe it's ok to set defaultscale.
+        // This will ultimately be handled by add_assignment or update_assignment functions.
+        $defaultscale = $config->defaultscale ?? '';
+        // Use numeric scale by default for all new assignments.
+        if (empty($assignment->scale)) {
+            $assignment->scale = $defaultscale;
+        }
+        // If this is not a reattempt, we're just going with whatever the default is.
+        if ($assignment->reattempt == 0) {
+            return $assignment;
+        }
+
+        // Find the original sitsref by replacing the final part of the current sitsref with zero.
+        $attemptpos = strrpos($assignment->sitsref, '_');
+        if ($attemptpos === false) {
+            return $assignment;
+        }
+        $originalsitsref = substr($assignment->sitsref, 0, $attemptpos) . '_0';
+        $originalsitsassign = $DB->get_record('local_solsits_assign', ['sitsref' => $originalsitsref]);
+        if (!$originalsitsassign) {
+            return $assignment;
+        }
+
+        try {
+            [$course, $cm] = get_course_and_cm_from_cmid($originalsitsassign->cmid, 'assign');
+            $context = context\module::instance($cm->id);
+            $originalassign = new \assign($context, $cm, $course);
+            if (!$originalassign) {
+                return $assignment;
+            }
+            // If a scale isn't being used on the original return the default.
+            if (!$originalassign->get_grade_item()->scaleid) {
+                return $assignment;
+            }
+            // Use the scale being used on the old assignment.
+            if ($originalsitsassign->grademarkexempt) {
+                $originalscale = 'grademarkexemptscale';
+            } else {
+                $originalscale = 'grademarkscale';
+            }
+            $assignment->scale = $originalscale;
+        } catch (Exception $ex) {
+            return $assignment;
+        }
+
+        return $assignment;
     }
 }
 

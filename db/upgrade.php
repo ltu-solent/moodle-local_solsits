@@ -23,6 +23,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\context;
 
 /**
  * Stub for upgrade code
@@ -76,7 +77,7 @@ function xmldb_local_solsits_upgrade($oldversion) {
     if ($oldversion < 2022112122) {
         // Copy over all the old quercus assignments to use the new capabilities for the same roles.
         $oldcapabilities = $DB->get_records('role_capabilities', ['capability' => 'local/quercus_tasks:releasegrades']);
-        $context = context_system::instance();
+        $context = context\system::instance();
         foreach ($oldcapabilities as $oldcapability) {
             $cap = new stdClass();
             $cap->contextid    = $context->id;

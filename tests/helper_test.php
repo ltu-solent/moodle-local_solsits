@@ -26,8 +26,7 @@
 namespace local_solsits;
 
 use advanced_testcase;
-use context_module;
-use context_system;
+use core\context;
 use core_customfield\category;
 use core_customfield\field;
 use local_solsits;
@@ -42,14 +41,14 @@ require_once($CFG->dirroot . '/local/solsits/tests/generator.php');
  * Test local_solsits helper functions.
  * @group sol
  */
-class helper_test extends advanced_testcase {
+final class helper_test extends advanced_testcase {
     use generator;
     /**
      * Test setting up course custom fields that will be used by this plugin.
      * @covers \local_solsits\helper::create_sits_coursecustomfields
      * @return void
      */
-    public function test_create_sits_coursecustomfields() {
+    public function test_create_sits_coursecustomfields(): void {
         $this->resetAfterTest();
         // Test creating the category.
         helper::create_sits_coursecustomfields('academic_year');
@@ -57,7 +56,7 @@ class helper_test extends advanced_testcase {
             'name' => 'Student Records System',
             'area' => 'course',
             'component' => 'core_course',
-            'contextid' => context_system::instance()->id,
+            'contextid' => context\system::instance()->id,
         ]);
         $this->assertEquals('Student Records System', $category->get('name'));
         $this->assertEquals(
@@ -92,7 +91,7 @@ class helper_test extends advanced_testcase {
      *
      * @return void
      */
-    public function test_is_sits_assignment() {
+    public function test_is_sits_assignment(): void {
         $this->resetAfterTest();
         $course = $this->getDataGenerator()->create_course();
         $sits = $this->getDataGenerator()->create_module('assign', [
@@ -131,7 +130,7 @@ class helper_test extends advanced_testcase {
      * @param bool $sitsassign Set this up as a SITS assignment?
      * @return void
      */
-    public function test_get_scales_menu($name, $idnumber, $sitsassign) {
+    public function test_get_scales_menu($name, $idnumber, $sitsassign): void {
         global $PAGE;
         $this->resetAfterTest();
         $course = $this->getDataGenerator()->create_course();
@@ -153,7 +152,7 @@ class helper_test extends advanced_testcase {
         $PAGE->set_cm($cm);
         $PAGE->set_url('/course/modedit.php', ['update' => $cm->id]);
         $PAGE->set_course($course);
-        $contextrecord = \context_module::instance($cm->id);
+        $contextrecord = context\module::instance($cm->id);
         $PAGE->set_context($contextrecord);
 
         $scales = helper::get_scales_menu($course->id);
@@ -248,7 +247,7 @@ class helper_test extends advanced_testcase {
      * @covers \local_solsits\helper::convert_grade
      * @return void
      */
-    public function test_convert_grade() {
+    public function test_convert_grade(): void {
         $this->resetAfterTest();
         /** @var local_solsits_generator $ssdg */
         $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
@@ -340,7 +339,7 @@ class helper_test extends advanced_testcase {
      * @return void
      * @covers \local_solsits\helper::badassignalerts
      */
-    public function test_badassignalerts($coursedata, $assigndata, $response, $alertcount) {
+    public function test_badassignalerts($coursedata, $assigndata, $response, $alertcount): void {
         $this->resetAfterTest();
         /** @var local_solsits_generator $ssdg */
         $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
@@ -366,7 +365,7 @@ class helper_test extends advanced_testcase {
             ]);
             $cmid = $assign->cmid;
         }
-        $context = context_module::instance($cmid);
+        $context = context\module::instance($cmid);
         [$c, $cm] = get_course_and_cm_from_cmid($cmid, 'assign');
 
         $teacher = $this->getDataGenerator()->create_user();

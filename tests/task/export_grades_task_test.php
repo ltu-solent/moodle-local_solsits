@@ -26,7 +26,7 @@
 namespace local_solsits\task;
 
 use advanced_testcase;
-use context_module;
+use core\context;
 use local_solsits\ais_client;
 use local_solsits\generator;
 use local_solsits\helper;
@@ -46,7 +46,7 @@ require_once($CFG->dirroot . '/local/solsits/tests/task/task_trait.php');
  * Export grades task test
  * @group sol
  */
-class export_grades_task_test extends advanced_testcase {
+final class export_grades_task_test extends advanced_testcase {
     use generator;
     use mod_assign_test_generator;
     use task_trait;
@@ -90,7 +90,7 @@ class export_grades_task_test extends advanced_testcase {
         ]);
         $sitsassign->create_assignment();
         $cm = get_coursemodule_from_id('assign', $sitsassign->get('cmid'), $course->id);
-        $context = context_module::instance($cm->id);
+        $context = context\module::instance($cm->id);
         $assign = new mod_assign_testable_assign($context, $cm, $course);
         $students = [];
         $assigngrades = [];

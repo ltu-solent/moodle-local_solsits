@@ -62,7 +62,7 @@ Feature: The ability to release grades depends on permissions and workflow statu
       | reattempt       | 0             |
       | grademarkexempt | 0             |
     And I am on the "SITS1" Activity page logged in as moduleleader1
-    When I follow "View all submissions"
+    When I navigate to "Submissions" in current page administration
     Then I should not see "Grades for this assignment have been released and locked."
     And I set the field "selectall" to "1"
     And I set the field "operation" to "Set marking workflow state"
@@ -71,7 +71,7 @@ Feature: The ability to release grades depends on permissions and workflow statu
     And I set the field "Notify student" to "No"
     And I press "Save changes"
     And I am on the "SITS1" "assign activity" page
-    And I follow "View all submissions"
+    And I navigate to "Submissions" in current page administration
     Then I should see "Grades for this assignment have been released and locked."
     # Try to re-release the grades.
     When I set the field "selectall" to "1"
@@ -105,7 +105,7 @@ Feature: The ability to release grades depends on permissions and workflow statu
       | reattempt       | 0             |
       | grademarkexempt | 0             |
     And I am on the "SITS1" Activity page logged in as teacher1
-    When I follow "View all submissions"
+    When I navigate to "Submissions" in current page administration
     Then I should not see "Grades for this assignment have been released and locked."
     And I set the field "selectall" to "1"
     And I set the field "operation" to "Set marking workflow state"
@@ -116,7 +116,7 @@ Feature: The ability to release grades depends on permissions and workflow statu
     And the "Notify student" "field" should be disabled
     And I press "Save changes"
     And I am on the "SITS1" "assign activity" page
-    And I follow "View all submissions"
+    And I navigate to "Submissions" in current page administration
     Then I should not see "Grades for this assignment have been released and locked."
 
   Scenario: Teacher cannot select individual submissions without selecting all
@@ -144,7 +144,7 @@ Feature: The ability to release grades depends on permissions and workflow statu
       | reattempt       | 0             |
       | grademarkexempt | 0             |
     And I am on the "SITS1" Activity page logged in as teacher1
-    And I follow "View all submissions"
+    And I navigate to "Submissions" in current page administration
     When I click on "Select Student 1" "checkbox"
     Then the field "Select Student 2" matches value "checked"
 
@@ -173,6 +173,6 @@ Feature: The ability to release grades depends on permissions and workflow statu
       | reattempt       | 0             |
       | grademarkexempt | 0             |
     And I am on the "SITS1" Activity page logged in as external1
-    And I follow "View all submissions"
+    And I navigate to "Submissions" in current page administration
     When I click on "Select Student 1" "checkbox"
     Then the field "Select Student 2" does not match value "checked"

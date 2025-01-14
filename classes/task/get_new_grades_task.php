@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/mod/assign/externallib.php');
 
-use context_course;
+use core\context;
 use core\task\scheduled_task;
 use local_solsits\helper;
 use local_solsits\sitsassign;
@@ -120,7 +120,7 @@ class get_new_grades_task extends scheduled_task {
             ]);
         $students = get_role_users(
             5,
-            context_course::instance($course->id),
+            context\course::instance($course->id),
             false,
             'u.id, u.lastname, u.firstname, idnumber', 'idnumber, u.lastname, u.firstname'
         );

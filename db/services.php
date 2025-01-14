@@ -27,17 +27,13 @@ defined('MOODLE_INTERNAL') || die();
 
 $functions = [
     'local_solsits_add_assignments' => [
-        'classname'   => 'local_solsits_external',
-        'methodname'  => 'add_assignments',
-        'classpath'   => 'local/solsits/externallib.php',
+        'classname'   => 'local_solsits\external\add_assignments',
         'description' => 'Add assignments via the AIS-SITS interface',
         'capabilities' => 'local/solsits:manageassignments',
         'type'        => 'write',
     ],
     'local_solsits_update_assignments' => [
-        'classname'   => 'local_solsits_external',
-        'methodname'  => 'update_assignments',
-        'classpath'   => 'local/solsits/externallib.php',
+        'classname'   => 'local_solsits\external\update_assignments',
         'description' => 'Update assignments via the AIS-SITS interface',
         'capabilities' => 'local/solsits:manageassignments',
         'type'        => 'write',
@@ -59,17 +55,13 @@ $functions = [
         'type' => 'read',
     ],
     'local_solsits_search_courses' => [
-        'classname' => 'local_solsits_external',
-        'methodname' => 'search_courses',
-        'classpath' => 'local/solsits/externallib.php',
+        'classname' => 'local_solsits\external\search_courses',
         'description' => 'Search courses',
         'type' => 'read',
         'ajax'  => true,
     ],
     'local_solsits_ais_testconnection' => [
-        'classname' => 'local_solsits_external',
-        'methodname' => 'ais_testconnection',
-        'classpath' => 'local/solsits/externallib.php',
+        'classname' => 'local_solsits\external\ais_testconnection',
         'description' => 'Test the AIS properties are set correctly',
         'type' => 'read',
         'ajax' => true,

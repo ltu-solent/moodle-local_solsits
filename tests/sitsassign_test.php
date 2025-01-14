@@ -27,7 +27,7 @@ namespace local_solsits;
 
 use advanced_testcase;
 use assign;
-use context_module;
+use core\context;
 use local_solsits\task\task_trait;
 use mod_assign_test_generator;
 use mod_assign_testable_assign;
@@ -46,7 +46,7 @@ require_once($CFG->dirroot . '/local/solsits/tests/task/task_trait.php');
  * @covers \local_solsits\sitsassign
  * @group sol
  */
-class sitsassign_test extends advanced_testcase {
+final class sitsassign_test extends advanced_testcase {
     use generator;
     use mod_assign_test_generator;
     use task_trait;
@@ -56,7 +56,7 @@ class sitsassign_test extends advanced_testcase {
      * @covers \local_solsits\sitsassign::get_create_list
      * @return void
      */
-    public function test_get_create_list() {
+    public function test_get_create_list(): void {
         $this->resetAfterTest();
         /** @var local_solsits_generator $ssdg */
         $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
@@ -112,7 +112,7 @@ class sitsassign_test extends advanced_testcase {
      * @dataProvider create_assignment_provider
      * @return void
      */
-    public function test_create_assignment($sitsassign, $coursedeleted = false) {
+    public function test_create_assignment($sitsassign, $coursedeleted = false): void {
         $this->resetAfterTest();
         $this->set_settings();
         $this->setTimezone('UTC');
@@ -165,7 +165,7 @@ class sitsassign_test extends advanced_testcase {
         $this->assertSame($assign->get('sitsref'), $cm->idnumber);
         $this->assertSame($course->id, $course2->id);
         // Check relative dates have worked out.
-        $context = context_module::instance($cm->id);
+        $context = context\module::instance($cm->id);
         $assignment = new assign($context, $cm, $course);
         $this->assertEquals($duedate, $assignment->get_instance()->duedate);
         $this->assertEquals($availablefrom, $assignment->get_instance()->allowsubmissionsfromdate);
@@ -326,7 +326,7 @@ class sitsassign_test extends advanced_testcase {
      * @param bool $coursedeleted
      * @return void
      */
-    public function test_update_assignment($oldassign, $newassign, $coursedeleted) {
+    public function test_update_assignment($oldassign, $newassign, $coursedeleted): void {
         global $DB;
         $this->resetAfterTest();
         $this->set_settings();
@@ -364,7 +364,7 @@ class sitsassign_test extends advanced_testcase {
             // Change an assignment setting, to make sure it doesn't get overwritten when the update comes.
             $cmid = $oldsitsassign->get('cmid');
             [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'assign');
-            $context = context_module::instance($cmid);
+            $context = context\module::instance($cmid);
             $assignrecord = $DB->get_record('assign', ['id' => $cm->instance]);
             $assignrecord->markingallocation = 1;
             $DB->update_record('assign', $assignrecord);
@@ -403,7 +403,7 @@ class sitsassign_test extends advanced_testcase {
         $this->assertSame($course->id, $course2->id);
 
         // Check relative dates have worked out.
-        $context = context_module::instance($cm->id);
+        $context = context\module::instance($cm->id);
         $assignment = new assign($context, $cm, $course);
         if ($oldduedate != $newduedate) {
             $this->assertEquals($newduedate, $assignment->get_instance()->duedate);
@@ -624,7 +624,7 @@ class sitsassign_test extends advanced_testcase {
      *
      * @return void
      */
-    public function test_get_queued_grades_for_export() {
+    public function test_get_queued_grades_for_export(): void {
         global $DB;
         $this->resetAfterTest();
         $this->setAdminUser();
@@ -660,7 +660,7 @@ class sitsassign_test extends advanced_testcase {
         ]);
         $sitsassignexported->create_assignment();
         $cm = get_coursemodule_from_id('assign', $sitsassignexported->get('cmid'), $course->id);
-        $context = context_module::instance($cm->id);
+        $context = context\module::instance($cm->id);
         $assignexported = new mod_assign_testable_assign($context, $cm, $course);
 
         // This has not been exported and so will be picked up for export.
@@ -681,7 +681,7 @@ class sitsassign_test extends advanced_testcase {
         ]);
         $sitsassign->create_assignment();
         $cm = get_coursemodule_from_id('assign', $sitsassign->get('cmid'), $course->id);
-        $context = context_module::instance($cm->id);
+        $context = context\module::instance($cm->id);
         $assign = new mod_assign_testable_assign($context, $cm, $course);
 
         $students = [];
@@ -812,7 +812,7 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_ABC10
      *
      * @return void
      */
-    public function test_get_retry_list() {
+    public function test_get_retry_list(): void {
         global $DB;
         $this->resetAfterTest();
         $this->setAdminUser();

@@ -512,16 +512,16 @@ class helper {
     /**
      * Grading alerts
      *
+     * @param \local_solalerts\hook\after_course_content_header $hook
      * @param object $cm
      * @param object $course
      * @param object $context
-     * @return array
+     * @return void
      */
-    public static function gradingalerts($cm, $course, $context): array {
-        $alerts = [];
+    public static function gradingalerts(\local_solalerts\hook\after_course_content_header $hook, $cm, $course, $context): void {
         $issummative = self::is_summative_assignment($cm->id);
         if (!$issummative) {
-            return $alerts;
+            return;
         }
         $issitsassignment = self::is_sits_assignment($cm->id);
         $srs = get_string('quercus', 'local_solsits');
@@ -530,12 +530,17 @@ class helper {
         }
         $assign = new assign($context, $cm, $course);
         $locked = $assign->get_grade_item()->locked;
+        $gradingalert = false;
         if (empty($locked) || $locked == 0) {
             $text = get_config('local_solsits', 'assignmentmessage_marksuploadinclude');
             $text = str_replace('{SRS}', $srs, $text);
-            $alerts[] = new \core\output\notification(clean_text($text), \core\notification::INFO);
+            $alert = new \core\output\notification(clean_text($text), \core\notification::INFO);
+            $hook->add_alert($alert);
+            $gradingalert = true;
         } else {
-            $alerts[] = new \core\output\notification(get_string('gradeslocked', 'local_solsits'), \core\notification::INFO);
+            $alert = new \core\output\notification(get_string('gradeslocked', 'local_solsits'), \core\notification::INFO);
+            $hook->add_alert($alert);
+            $gradingalert = true;
         }
         $text = get_config('local_solsits', 'assignmentmessage_reattempt');
         if ($issitsassignment) {
@@ -544,32 +549,35 @@ class helper {
             if (($reattempt > 0) && $locked == 0) {
                 $reattemptstring = get_string('reattempt' . $reattempt, 'local_solsits');
                 $text = str_replace('{REATTEMPT}', $reattemptstring, $text);
-                $alerts[] = new \core\output\notification(clean_text($text), \core\notification::ERROR);
+                $alert = new \core\output\notification(clean_text($text), \core\notification::ERROR);
+                $hook->add_alert($alert);
+                $gradingalert = true;
             }
         }
-        // I would call quercus alerts here, but that's to do with sittings dates,
-        // which we're not much interested in anymore.
 
-        return $alerts;
+        if (!$gradingalert) {
+            $alert = new \core\output\notification("This is a {$srs} assignment", \core\notification::INFO);
+            $hook->add_alert($alert);
+        }
     }
 
     /**
      * Does this assignment look as it should? Perhaps it's been copied.
      *
+     * @param \local_solalerts\hook\after_course_content_header $hook
      * @param object $cm
      * @param object $course
      * @param object $context
-     * @return array
+     * @return void
      */
-    public static function badassignalerts($cm, $course, $context): array {
-        $alerts = [];
+    public static function badassignalerts(\local_solalerts\hook\after_course_content_header $hook, $cm, $course, $context): void {
         $issummative = self::is_summative_assignment($cm->id);
         if (!$issummative) {
-            return $alerts;
+            return;
         }
         // Only show errors to people who can grade assignments.
         if (!has_capability('mod/assign:grade', $context)) {
-            return $alerts;
+            return;
         }
         // A Quercus assignment idnumber has two parts: TYPE_YEAR
         // A SITS assignment is listed in the local_solsits_assign table.
@@ -585,68 +593,28 @@ class helper {
             // But we have an exception for SPAN1_2022/23.
             $isspan1exception = (strpos($course->idnumber, 'SPAN1_2022/23') > 0);
             if (!$isspan1exception) {
-                $alerts[] = new \core\output\notification(
+                $alert = new \core\output\notification(
                     get_string('quercusassignmentonsitscourse', 'local_solsits', [
                         'assignidnumber' => $cm->idnumber,
                         'courseidnumber' => $course->idnumber,
                     ]),
                     \core\notification::ERROR
                 );
+                $hook->add_alert($alert);
             }
         }
         // The SITS assignment idnumber (sitsref) should match with the courseid in sits assign table.
         $issitsassign = sitsassign::get_record(['sitsref' => $cm->idnumber, 'courseid' => $course->id]);
         if ($assignpartcount > 2 && !$issitsassign) {
-            $alerts[] = new \core\output\notification(
+            $alert = new \core\output\notification(
                 get_string('wrongassignmentonwrongcourse', 'local_solsits', [
                     'assignidnumber' => $cm->idnumber,
                     'courseidnumber' => $course->idnumber,
                 ]),
                 \core\notification::ERROR
             );
+            $hook->add_alert($alert);
         }
-        return $alerts;
-    }
-
-    /**
-     * Quercus specific alerts
-     *
-     * @param object $assign Assign object
-     * @return array
-     */
-    private static function quercusalerts($assign): array {
-        global $DB;
-        $alerts = [];
-        $locked = $assign->get_grade_item()->locked;
-        if ($locked == 0) {
-            $sitting = $DB->get_record('local_quercus_tasks_sittings',
-                ['assign' => $assign->get_course_module()->instance],
-                'sitting_desc, externaldate',
-                IGNORE_MISSING);
-            if ($sitting->sitting_desc != 'FIRST_SITTING') {
-                if ($sitting->externaldate != null) {
-                    $releaseavailable = DateTime::createFromFormat('U', $sitting->externaldate);
-                    $boardbuffer = get_config('local_quercus_tasks', 'boardbuffer') ?? 14;
-                    $modifystring = '+' . $boardbuffer . ' days';
-                    $releaseavailable  = $releaseavailable->modify($modifystring);
-                    $releaseavailable = $releaseavailable->getTimestamp();
-                    $alerts[] = new \core\output\notification(
-                        get_string('releasedate', 'local_solsits', [
-                                'date' => date('d/m/Y', $releaseavailable),
-                                'days' => $boardbuffer,
-                        ]),
-                        \core\notification::SUCCESS);
-                } else {
-                    echo "Null";
-                    $alerts[] = new \core\output\notification(
-                        get_string('noboard', 'local_solsits'),
-                        \core\notification::SUCCESS
-                    );
-                }
-            }
-        }
-        return $alerts;
-
     }
 
     /**

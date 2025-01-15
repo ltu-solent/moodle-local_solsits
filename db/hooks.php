@@ -15,17 +15,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * SolSITS version file
+ * Hook callbacks for SOL-SITS Integration
  *
- * @package   local_solsits
- * @author    Mark Sharp <mark.sharp@solent.ac.uk>
- * @copyright 2022 Solent University {@link https://www.solent.ac.uk}
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    local_solsits
+ * @copyright  2025 Southampton Solent University {@link https://www.solent.ac.uk}
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2024073102;
-$plugin->release   = 'v4.1-r5';
-$plugin->requires  = 2022112800;
-$plugin->component = 'local_solsits';
+$callbacks = [
+    [
+        'hook' => \local_solalerts\hook\after_course_content_header::class,
+        'callback' => [\local_solsits\local\after_course_content_header_callback::class, 'assignalerts'],
+        'priority' => 0,
+    ],
+];

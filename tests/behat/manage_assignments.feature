@@ -107,9 +107,7 @@ Feature: Manage SITS assignments
   Scenario: Assignment has been deleted and needs to be recreated
     Given I am on "Course1" course homepage with editing mode on
     Then I should see "Report 2 (20%)"
-    And I open "Report 2 (20%)" actions menu
-    And I choose "Delete" in the open action menu
-    And I click on "Yes" "button"
+    And I delete "Report 2 (20%)" activity
     And I run all adhoc tasks
     When I navigate to "Plugins > Local plugins > Manage assignments" in site administration
     Then I should see "Recreate assignment activity" in the "C1_SITS2" "table_row"

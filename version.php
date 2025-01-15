@@ -29,3 +29,7 @@ $plugin->version   = 2024073102;
 $plugin->release   = 'v4.1-r5';
 $plugin->requires  = 2022112800;
 $plugin->component = 'local_solsits';
+$plugin->dependencies = [
+    'local_solalerts' => 2024111900,
+];
+$plugin->supported = [405, 500];

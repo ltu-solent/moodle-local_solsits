@@ -27,8 +27,10 @@ namespace local_solsits;
 
 use advanced_testcase;
 use core\context;
+use core\di;
 use core_customfield\category;
 use core_customfield\field;
+use local_solalerts\hook\after_course_content_header;
 use local_solsits;
 
 defined('MOODLE_INTERNAL') || die();
@@ -374,7 +376,10 @@ final class helper_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
 
         $this->setUser($teacher);
-        $alerts = helper::badassignalerts($cm, $c, $context);
+        $hook = new after_course_content_header();
+        di::get(\core\hook\manager::class)->dispatch($hook);
+        helper::badassignalerts($hook, $cm, $c, $context);
+        $alerts = $hook->get_alerts();
 
         $expectedresponse = '';
         if ($response != '') {
@@ -390,7 +395,10 @@ final class helper_test extends advanced_testcase {
         }
 
         $this->setUser($student);
-        $alerts = helper::badassignalerts($cm, $c, $context);
+        $hook = new after_course_content_header();
+        di::get(\core\hook\manager::class)->dispatch($hook);
+        helper::badassignalerts($hook, $cm, $c, $context);
+        $alerts = $hook->get_alerts();
         // Students shouldn't see these ever.
         $this->assertCount(0, $alerts);
     }

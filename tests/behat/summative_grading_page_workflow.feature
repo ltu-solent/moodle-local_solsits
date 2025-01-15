@@ -65,8 +65,8 @@ Feature: The ability to release grades depends on permissions and workflow statu
     When I navigate to "Submissions" in current page administration
     Then I should not see "Grades for this assignment have been released and locked."
     And I set the field "selectall" to "1"
-    And I set the field "operation" to "Set marking workflow state"
-    And I click on "Go" "button" confirming the dialogue
+    And I click on "Change marking state" "button" in the "sticky-footer" "region"
+    And I click on "Change marking state" "button" in the "Set marking workflow state" "dialogue"
     And I set the field "Marking workflow state" to "Released"
     And I set the field "Notify student" to "No"
     And I press "Save changes"
@@ -75,8 +75,8 @@ Feature: The ability to release grades depends on permissions and workflow statu
     Then I should see "Grades for this assignment have been released and locked."
     # Try to re-release the grades.
     When I set the field "selectall" to "1"
-    And I set the field "operation" to "Set marking workflow state"
-    When I click on "Go" "button" confirming the dialogue
+    And I click on "Change marking state" "button" in the "sticky-footer" "region"
+    And I click on "Change marking state" "button" in the "Set marking workflow state" "dialogue"
     Then I should not see "Marking workflow state"
     And the "Notify student" "field" should be disabled
     And I should not see "Save changes"
@@ -108,8 +108,8 @@ Feature: The ability to release grades depends on permissions and workflow statu
     When I navigate to "Submissions" in current page administration
     Then I should not see "Grades for this assignment have been released and locked."
     And I set the field "selectall" to "1"
-    And I set the field "operation" to "Set marking workflow state"
-    And I click on "Go" "button" confirming the dialogue
+    And I click on "Change marking state" "button" in the "sticky-footer" "region"
+    And I click on "Change marking state" "button" in the "Set marking workflow state" "dialogue"
     Then I should see "Marking workflow state"
     And the "Marking workflow state" select box should not contain "Released"
     And the "Marking workflow state" select box should contain "Ready for release"

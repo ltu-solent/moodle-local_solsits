@@ -42,7 +42,7 @@ require_once($CFG->dirroot . '/local/solsits/tests/task/task_trait.php');
  * @covers \local_solsits\create_assignment_task
  * @group sol
  */
-class create_assignment_task_test extends advanced_testcase {
+final class create_assignment_task_test extends advanced_testcase {
     use generator;
     use task_trait;
 
@@ -51,7 +51,7 @@ class create_assignment_task_test extends advanced_testcase {
      *
      * @return void
      */
-    public function test_template_applied() {
+    public function test_template_applied(): void {
         $this->resetAfterTest();
         /** @var local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
@@ -90,7 +90,7 @@ class create_assignment_task_test extends advanced_testcase {
      *
      * @return void
      */
-    public function test_template_not_applied() {
+    public function test_template_not_applied(): void {
         $this->resetAfterTest();
         /** @var local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
@@ -118,7 +118,7 @@ No assignments found to process.
      *
      * @return void
      */
-    public function test_no_duedate() {
+    public function test_no_duedate(): void {
         $this->resetAfterTest();
         /** @var local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
@@ -169,7 +169,7 @@ No assignments found to process.
      *
      * @return void
      */
-    public function test_maxassignments() {
+    public function test_maxassignments(): void {
         global $DB;
         $this->resetAfterTest();
         /** @var local_solsits_generator $dg */
@@ -229,7 +229,7 @@ No assignments found to process.
      *
      * @return void
      */
-    public function test_limittoyears() {
+    public function test_limittoyears(): void {
         global $DB;
         $this->resetAfterTest();
         /** @var local_solsits_generator $dg */

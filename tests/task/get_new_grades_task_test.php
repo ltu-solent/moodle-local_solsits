@@ -45,7 +45,7 @@ require_once($CFG->dirroot . '/mod/assign/tests/generator.php');
  * @covers \local_solsits\task\get_new_grades
  * @group sol
  */
-class get_new_grades_task_test extends advanced_testcase {
+final class get_new_grades_task_test extends advanced_testcase {
 
     use task_trait;
     use mod_assign_test_generator;
@@ -56,7 +56,7 @@ class get_new_grades_task_test extends advanced_testcase {
      *
      * @return void
      */
-    public function test_grademark_assignment() {
+    public function test_grademark_assignment(): void {
         global $DB;
         $this->resetAfterTest();
         /** @var local_solsits_generator $dg */
@@ -175,7 +175,7 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
      *
      * @return void
      */
-    public function test_grademarkexempt_assignment() {
+    public function test_grademarkexempt_assignment(): void {
         global $DB;
         $this->resetAfterTest();
         /** @var local_solsits_generator $dg */
@@ -457,7 +457,7 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
      *
      * @return void
      */
-    public function test_pointsbasedsystem() {
+    public function test_pointsbasedsystem(): void {
         global $DB;
         $this->resetAfterTest();
         $config = get_config('local_solsits');
@@ -551,7 +551,7 @@ Queued - Course: ABC101_A_SEM1_2022/23, Assignment code: ABC101_A_SEM1_2022/23_P
      *
      * @return void
      */
-    public function test_not_released() {
+    public function test_not_released(): void {
         global $DB;
         $this->resetAfterTest();
         /** @var local_solsits_generator $dg */
@@ -616,7 +616,7 @@ Queued - Course: ABC101_A_SEM1_2022/23, Assignment code: ABC101_A_SEM1_2022/23_P
      *
      * @return void
      */
-    public function test_formative() {
+    public function test_formative(): void {
         global $DB;
         $this->resetAfterTest();
         $this->setAdminUser();
@@ -678,7 +678,7 @@ Queued - Course: ABC101_A_SEM1_2022/23, Assignment code: ABC101_A_SEM1_2022/23_P
      *
      * @return void
      */
-    public function test_quercus() {
+    public function test_quercus(): void {
         global $DB;
         $this->resetAfterTest();
         $this->setAdminUser();

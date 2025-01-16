@@ -36,7 +36,7 @@ global $CFG;
  * Test local_solsits helper functions.
  * @group sol
  */
-class soltemplate_test extends advanced_testcase {
+final class soltemplate_test extends advanced_testcase {
 
     /**
      * Get template records that match the criteria
@@ -44,7 +44,7 @@ class soltemplate_test extends advanced_testcase {
      *
      * @return void
      */
-    public function test_get_templateapplied_records() {
+    public function test_get_templateapplied_records(): void {
         $this->resetAfterTest();
         $this->setAdminUser();
         // Customfields are already installed.

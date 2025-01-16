@@ -31,7 +31,7 @@ use advanced_testcase;
  * AIS client test
  * @group sol
  */
-class ais_client_test extends advanced_testcase {
+final class ais_client_test extends advanced_testcase {
     /**
      * Test export_grades function
      *
@@ -42,7 +42,7 @@ class ais_client_test extends advanced_testcase {
      * @param array $response Expected response
      * @return void
      */
-    public function test_export_grades($export, $response) {
+    public function test_export_grades($export, $response): void {
         $this->resetAfterTest();
         set_config('ais_exportgrades_url', 'https://example.com/moodle', 'local_solsits');
         set_config('ais_exportgrades_endpoint', '/api/Results/upload', 'local_solsits');

@@ -41,7 +41,7 @@ use local_solsits\soltemplate;
  * Apply template test class
  * @group sol
  */
-class applytemplate_task_test extends advanced_testcase {
+final class applytemplate_task_test extends advanced_testcase {
     use task_trait;
     use generator;
 
@@ -51,7 +51,7 @@ class applytemplate_task_test extends advanced_testcase {
      * @covers \local_solsits\task\applytemplate_task
      * @return void
      */
-    public function test_runscheduledtask() {
+    public function test_runscheduledtask(): void {
         global $DB;
         $this->resetAfterTest();
         // This is a task, so the user has permissions to do all things.
@@ -188,7 +188,7 @@ Template course_2021/22 has been applied to 2021/22_course_2
      * @dataProvider preventapplytemplate_provider
      * @return void
      */
-    public function test_preventapplytemplate($visible, $hasactivities, $hasusers, $message) {
+    public function test_preventapplytemplate($visible, $hasactivities, $hasusers, $message): void {
         $this->resetAfterTest();
         $this->setAdminUser();
         $this->create_template_course('2021/22', 'module', 1);

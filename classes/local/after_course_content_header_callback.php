@@ -26,6 +26,12 @@ use local_solsits\helper;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class after_course_content_header_callback {
+    /**
+     * Hook callback for after_course_content_header
+     *
+     * @param \local_solalerts\hook\after_course_content_header $hook
+     * @return void
+     */
     public static function assignalerts(\local_solalerts\hook\after_course_content_header $hook): void {
         global $COURSE, $PAGE;
         if ($PAGE->pagetype == 'mod-assign-grading') {

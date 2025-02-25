@@ -122,5 +122,4 @@ function local_solsits_pre_course_module_delete($cm) {
     // Include the number of submissions in the email.
 
     // Alternatively use the event course_module_deleted.
-    return;
 }

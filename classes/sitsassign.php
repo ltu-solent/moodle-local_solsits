@@ -62,7 +62,7 @@ class sitsassign extends persistent {
     /**
      * Default assignment config settings
      *
-     * @var object
+     * @var stdClass
      */
     private $defaultconfig;
 
@@ -500,18 +500,16 @@ class sitsassign extends persistent {
      * @return void
      */
     private function set_defaultconfig() {
-        if ($this->defaultconfig) {
-            // Already set.
-            return;
+        if (!$this->defaultconfig) {
+            // This might be too much, but it does cover cases where new settings have been created.
+            $this->defaultconfig = get_config('assign');
+            $this->defaultconfig->assignfeedback_comments_enabled = get_config('assignfeedback_comments', 'default');
+            $this->defaultconfig->assignfeedback_comments_commentinline = get_config('assignfeedback_comments', 'inline');
+            $this->defaultconfig->assignfeedback_doublemark_enabled = get_config('assignfeedback_doublemark', 'default');
+            $this->defaultconfig->assignfeedback_file_enabled = get_config('assignfeedback_file', 'default');
+            $this->defaultconfig->assignfeedback_misconduct_enabled = get_config('assignfeedback_misconduct', 'default');
+            $this->defaultconfig->assignfeedback_sample_enabled = get_config('assignfeedback_sample', 'default');
         }
-        // This might be too much, but it does cover cases where new settings have been created.
-        $this->defaultconfig = get_config('assign');
-        $this->defaultconfig->assignfeedback_comments_enabled = get_config('assignfeedback_comments', 'default');
-        $this->defaultconfig->assignfeedback_comments_commentinline = get_config('assignfeedback_comments', 'inline');
-        $this->defaultconfig->assignfeedback_doublemark_enabled = get_config('assignfeedback_doublemark', 'default');
-        $this->defaultconfig->assignfeedback_file_enabled = get_config('assignfeedback_file', 'default');
-        $this->defaultconfig->assignfeedback_misconduct_enabled = get_config('assignfeedback_misconduct', 'default');
-        $this->defaultconfig->assignfeedback_sample_enabled = get_config('assignfeedback_sample', 'default');
     }
 
     /**
@@ -681,6 +679,7 @@ class sitsassign extends persistent {
         return $DB->get_record('local_solsits_assign_grades', [
             'solassignmentid' => $this->get('id'),
             'studentid' => $studentid,
+            'message' => null,
         ]);
     }
 

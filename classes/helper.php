@@ -298,10 +298,10 @@ class helper {
         if (isset($config->grademarkscale) && $config->grademarkscale != '') {
             $solscales[] = $config->grademarkscale;
         }
-        if (isset($config->grademarkexemptscale) && $config->grademarkscale != '') {
+        if (isset($config->grademarkexemptscale) && $config->grademarkexemptscale != '') {
             $solscales[] = $config->grademarkexemptscale;
         }
-        if (isset($config->numericscale) && $config->grademarkscale != '') {
+        if (isset($config->numericscale) && $config->numericscale != '') {
             $solscales[] = $config->numericscale;
         }
         // If no solscales are set, return the default set.

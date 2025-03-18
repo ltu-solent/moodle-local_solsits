@@ -671,7 +671,7 @@ class sitsassign extends persistent {
     /**
      * Get grade from local_solsits_assign_grades for individual student.
      *
-     * @param string $studentid
+     * @param int $studentid
      * @return object|false
      */
     public function get_grade($studentid) {
@@ -679,7 +679,6 @@ class sitsassign extends persistent {
         return $DB->get_record('local_solsits_assign_grades', [
             'solassignmentid' => $this->get('id'),
             'studentid' => $studentid,
-            'message' => null,
         ]);
     }
 

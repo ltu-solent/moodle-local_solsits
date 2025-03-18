@@ -114,6 +114,7 @@ $string['gradingdueintervalsecondplus'] = 'Reattempt Grading due interval';
 $string['gradingdueintervalsecondplus_desc'] = 'Grading due date for reattempts interval in weeks';
 
 $string['immediately'] = 'Immediately';
+$string['importantdates'] = 'Important dates for your calendar';
 $string['info'] = 'Info';
 $string['invalidcourseid'] = 'Invalid courseid';
 $string['invalidpagetype'] = 'Invalid pagetype';
@@ -149,8 +150,10 @@ $string['muptimeoutmessage'] = 'Check with Registry. The results may have been s
 
 $string['newsavedtemplate'] = 'New template saved';
 $string['newsoltemplate'] = 'New template';
+$string['noassignmentsyet'] = 'No assignments yet';
 $string['noboard'] = '<p>No board date is available (grades cannot be released). Please contact student.registry@solent.ac.uk.</p>';
 $string['nodefaultscale'] = 'No default scale';
+$string['noduedate'] = 'No due date';
 $string['nolongerexists'] = 'No longer exists';
 $string['noselection'] = 'No selection';
 $string['notemplate'] = 'No template';
@@ -191,6 +194,7 @@ $string['selectatemplate'] = 'Select a template';
 $string['selectcourses'] = 'Select courses';
 $string['sequence'] = 'Sequence';
 $string['session'] = 'Academic session';
+$string['shortcode:summativeassignments'] = 'Summative assignments for course context';
 $string['shortname'] = 'Shortname';
 $string['showerrorsonly'] = 'Show errors only';
 $string['showerrorsonly_help'] = 'The following errors are identified:<ol><li>Broken or no Assignment link</li>
@@ -205,6 +209,7 @@ $string['sitsassign:confirmdeletebody'] = 'Confirm deletion of {$a}.<br />Note: 
 $string['sitsassign:confirmrecreate'] = 'Confirm recreation of {$a}';
 $string['sitsassign:confirmrecreatebody'] = 'Confirm recreation of {$a}.<br />Note: This resets the course_module id to zero so that the assignment creation task can reprocess it. It will take a few minutes.';
 $string['sitsassign:deleted'] = 'SITS assignment {$a} has been deleted.';
+$string['sitsassign:deletedreport'] = 'SITS assignment {$a} has been deleted. Please report this to the Module Leader or to Registry.';
 $string['sitsassign:recreate'] = 'Recreate';
 $string['sitsassign:recreated'] = 'SITS assignment {$a} has been queued to be recreated. It will take a few minutes to process.';
 $string['sitsdatadesc'] = '<div class="alert alert-info">These are the data received from SITS and are used for diagnostic purposes only.</div>';

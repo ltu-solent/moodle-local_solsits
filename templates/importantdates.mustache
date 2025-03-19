@@ -17,10 +17,22 @@
 {{!
     @template local_solsits/importantdates
 
-    TODO describe template importantdates
+    Displays a set of callouts one each for each assignment.
 
     Example context (json):
     {
+        "hasassignments": true,
+        "assigns": [
+            {
+                "link": "https://my.moodle.ac.uk/mod/assign/view.php?id=12345",
+                "style": "teal",
+                "status": "Draft",
+                "submissiondue": "Submission due: 2021-09-30 23:59",
+                "submissiondate": "Submission date: 2021-09-30 23:59",
+                "reattempt": "Note: Only do this if told to do so",
+                "assessmentbrief": "Assessment brief: <a href='https://my.moodle.ac.uk/somelink/view.php?id=12345'>AE1 assessment brief</a>"
+            }
+        ]
     }
 }}
 {{#hasassignments}}

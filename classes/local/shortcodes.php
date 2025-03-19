@@ -130,6 +130,7 @@ class shortcodes {
         global $DB, $OUTPUT, $USER;
         $config = get_config('local_solsits');
         $context = $env->context;
+        $now = time();
         $data = new stdClass();
 
         $sitsassign = sitsassign::get_record(['cmid' => $context->instanceid]);
@@ -144,6 +145,14 @@ class shortcodes {
         $duedate = $assign->get_instance()->duedate;
 
         $data->duedate = userdate($duedate, $strftimedatetimeaccurate);
+        $userdata = $DB->get_record('assign_user_flags', [
+            'userid' => $USER->id,
+            'assignment' => $cm->instance,
+        ]);
+        if ($userdata && $userdata->extensionduedate > 0) {
+            $data->extensionduedate = get_string('userextensiondate', 'mod_assign',
+                userdate($userdata->extensionduedate, $strftimedatetimeaccurate));
+        }
         $submission = $DB->get_record('assign_submission', [
             'userid' => $USER->id,
             'assignment' => $cm->instance,
@@ -168,6 +177,22 @@ class shortcodes {
         }
         if ($sitsassign->get('reattempt') > 0) {
             $data->reattempt = $config->assignmentmessage_studentreattempt;
+        }
+        if (has_capability('mod/assign:grade', $context)) {
+            $tutorinfo = [];
+            if (!$cm->visible) {
+                $tutorinfo[] = get_string('assignmentnotvisible', 'local_solsits');
+            }
+            $submissionplugins = $assign->is_any_submission_plugin_enabled();
+            if (!$submissionplugins) {
+                $tutorinfo[] = get_string('nosubmissionplugins', 'local_solsits');
+            }
+            $gradingdue = $assign->get_instance()->gradingduedate;
+            if ($now > $duedate && $now < $gradingdue) {
+                $tutorinfo[] = get_string('gradingdueby', 'local_solsits', userdate($gradingdue, $strftimedatetimeaccurate));
+            }
+            $data->hastutorinfo = count($tutorinfo) > 0;
+            $data->tutorinfo = $tutorinfo;
         }
 
         return $OUTPUT->render_from_template('local_solsits/assignmentintro', $data);

@@ -40,6 +40,10 @@
     <p>{{{submissiondue}}}</p>
     {{/submissiondue}}
 
+    {{#extensionduedate}}
+    <p><strong>{{{.}}}</strong></p>
+    {{/extensionduedate}}
+
     {{#submissiondate}}
     <p>{{{submissiondate}}}</p>
     {{/submissiondate}}
@@ -52,3 +56,13 @@
     <p>{{{assessmentbrief}}}</p>
     {{/assessmentbrief}}
 </div>
+{{#hastutorinfo}}
+<div class="highlight-box highlight-box-teal fa-style mt-2">
+    <p><strong>{{#str}} tutorinfo , local_solsits {{/str}}</strong></p>
+    <ul>
+        {{#tutorinfo}}
+        <li>{{{.}}}</li>
+        {{/tutorinfo}}
+    </ul>
+</div>
+{{/hastutorinfo}}

@@ -15,24 +15,33 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template local_solsits/importantdates
+    @template local_solsits/assingmentintro
 
-    TODO describe template importantdates
+    TODO describe template assingmentintro
 
     Example context (json):
     {
     }
 }}
-{{#hasassignments}}
-    <div class="importantdates">
-        <h3 class="solid-box solid-box-teal fa-style">
-            <i class="fa fa-calendar"></i> {{#str}}importantdates , local_solsits{{/str}}
-        </h3>
-        
-        {{#assigns}}
-        <div class="mt-2">
-        {{> local_solsits/assignmentintro}}
-        </div>
-        {{/assigns}}
-    </div>
-{{/hasassignments}}
+<div class="highlight-box highlight-box-{{style}} fa-style">
+    {{#link}}
+        <p>{{{link}}}</p>
+    {{/link}}
+    <p><strong>{{#str}} submissionstatus , mod_assign {{/str}}:</strong> {{status}}</p>
+    
+    {{#submissiondue}}
+    <p>{{{submissiondue}}}</p>
+    {{/submissiondue}}
+
+    {{#submissiondate}}
+    <p>{{{submissiondate}}}</p>
+    {{/submissiondate}}
+
+    {{#reattempt}}
+    <div>{{{.}}}</div>
+    {{/reattempt}}
+
+    {{#assessmentbrief}}
+    <p>{{{assessmentbrief}}}</p>
+    {{/assessmentbrief}}
+</div>

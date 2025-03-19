@@ -29,4 +29,8 @@ $shortcodes = [
         'callback' => 'local_solsits\local\shortcodes::summativeassignments',
         'description' => 'shortcode:summativeassignments',
     ],
+    'assignmentintro' => [
+        'callback' => 'local_solsits\local\shortcodes::assignmentintro',
+        'description' => 'shortcode:assignmentintro',
+    ],
 ];

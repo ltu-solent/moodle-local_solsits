@@ -49,6 +49,7 @@ class shortcodes {
      */
     public static function summativeassignments($shortcode, $args, $content, $env, $next) {
         global $DB, $OUTPUT, $USER;
+        $config = get_config('local_solsits');
         $context = $env->context;
         $coursecontext = $context->get_course_context();
         $courseid = $coursecontext->instanceid;
@@ -60,6 +61,9 @@ class shortcodes {
         $assdata->assigns = [];
         $strftimedatetimeaccurate = '%d %B %Y, %I:%M:%S %p';
         foreach ($sitsassigns as $sitsassign) {
+            if (!$sitsassign) {
+                continue;
+            }
             $data = new stdClass();
             $data->link = $sitsassign->get('title');
             if ($sitsassign->get('duedate') == 0) {
@@ -74,23 +78,35 @@ class shortcodes {
                     }
                     $url = new moodle_url('/mod/assign/view.php', ['id' => $sitsassign->get('cmid')]);
                     $data->link = html_writer::link($url, $cm->name);
+                    $data->style = 'solent-sea-blue';
                     // SITSassign has the duedate from SITS, but the activity will have the real date.
-                    $context = context_course::instance($course->id);
                     $assign = new assign($context, $cm, $course);
+                    $duedate = $assign->get_instance()->duedate;
 
-                    $data->duedate = userdate($assign->get_instance()->duedate, $strftimedatetimeaccurate);
+                    $data->duedate = userdate($duedate, $strftimedatetimeaccurate);
                     $submission = $DB->get_record('assign_submission', [
                         'userid' => $USER->id,
                         'assignment' => $cm->instance,
                         'latest' => 1,
                     ]);
-                    if ($submission) {
-                        $data->status = $submission->status;
-                    } else {
+                    if (!$submission) {
                         $data->status = get_string('notsubmitted', 'local_solsits');
+                    } else {
+                        $data->status = get_string('submissionstatus_' . $submission->status, 'assign');
+                    }
+
+                    $submittedstatuses = ['submitted', 'marked'];
+                    if ($submission && !in_array($submission->status, $submittedstatuses)) {
+                        $data->style = 'solent-burgundy-light';
+                        $data->submissiondue = get_string('submissiondue', 'local_solsits', $data->duedate);
+                    }
+                    if ($submission && in_array($submission->status, $submittedstatuses)) {
+                        $data->submissiondate = get_string('submissiondueandsubmitted', 'local_solsits', (object)[
+                            'duedate' => userdate($duedate, $strftimedatetimeaccurate),
+                            'submissiondate' => userdate($submission->timemodified, $strftimedatetimeaccurate),
+                        ]);
                     }
                 } catch (Exception $ex) {
-                    echo $ex->getMessage() . ' ' . $sitsassign->get('cmid');
                     $data->error = get_string('sitsassign:deletedreport', 'local_solsits', $sitsassign->get('title'));
                 }
             }
@@ -98,5 +114,62 @@ class shortcodes {
         }
         $assdata->hasassignments = count($assdata->assigns) > 0;
         return $OUTPUT->render_from_template('local_solsits/importantdates', $assdata);
+    }
+
+    /**
+     * Returns a list of summative SITS assignments.
+     *
+     * @param string $shortcode The shortcode.
+     * @param object $args The arguments of the code.
+     * @param string|null $content The content, if the shortcode wraps content.
+     * @param object $env The filter environment (contains context, noclean and originalformat).
+     * @param Closure $next The function to pass the content through to process sub shortcodes.
+     * @return string The new content.
+     */
+    public static function assignmentintro($shortcode, $args, $content, $env, $next) {
+        global $DB, $OUTPUT, $USER;
+        $config = get_config('local_solsits');
+        $context = $env->context;
+        $data = new stdClass();
+
+        $sitsassign = sitsassign::get_record(['cmid' => $context->instanceid]);
+        if (!$sitsassign) {
+            return '';
+        }
+        $data->style = 'solent-sea-blue';
+        $coursecontext = $context->get_course_context();
+        [$course, $cm] = get_course_and_cm_from_cmid($sitsassign->get('cmid'), 'assign');
+        $strftimedatetimeaccurate = '%d %B %Y, %I:%M:%S %p';
+        $assign = new assign($context, $cm, $course);
+        $duedate = $assign->get_instance()->duedate;
+
+        $data->duedate = userdate($duedate, $strftimedatetimeaccurate);
+        $submission = $DB->get_record('assign_submission', [
+            'userid' => $USER->id,
+            'assignment' => $cm->instance,
+            'latest' => 1,
+        ]);
+        if (!$submission) {
+            $data->status = get_string('notsubmitted', 'local_solsits');
+        } else {
+            $data->status = get_string('submissionstatus_' . $submission->status, 'assign');
+        }
+
+        $submittedstatuses = ['submitted', 'marked'];
+        if ($submission && !in_array($submission->status, $submittedstatuses)) {
+            $data->style = 'solent-burgundy-light';
+            $data->submissiondue = get_string('submissiondue', 'local_solsits', userdate($duedate, $strftimedatetimeaccurate));
+        }
+        if ($submission && in_array($submission->status, $submittedstatuses)) {
+            $data->submissiondate = get_string('submissiondueandsubmitted', 'local_solsits', (object)[
+                'duedate' => userdate($duedate, $strftimedatetimeaccurate),
+                'submissiondate' => userdate($submission->timemodified, $strftimedatetimeaccurate),
+            ]);
+        }
+        if ($sitsassign->get('reattempt') > 0) {
+            $data->reattempt = $config->assignmentmessage_studentreattempt;
+        }
+
+        return $OUTPUT->render_from_template('local_solsits/assignmentintro', $data);
     }
 }

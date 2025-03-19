@@ -194,6 +194,7 @@ $string['selectatemplate'] = 'Select a template';
 $string['selectcourses'] = 'Select courses';
 $string['sequence'] = 'Sequence';
 $string['session'] = 'Academic session';
+$string['shortcode:assignmentintro'] = 'Displays dynamic information about an assignment that is displayed to students.';
 $string['shortcode:summativeassignments'] = 'Summative assignments for course context';
 $string['shortname'] = 'Shortname';
 $string['showerrorsonly'] = 'Show errors only';
@@ -229,6 +230,8 @@ $string['startdate'] = 'Start date';
 $string['status'] = 'Status';
 $string['studentidnotexists'] = 'Studentid user does not exist';
 $string['studentidnotset'] = 'Studentid not set';
+$string['submissiondue'] = '<strong>Submission due on or before:</strong> {$a}';
+$string['submissiondueandsubmitted'] = 'Submission due on {$a->duedate} and submitted on {$a->submissiondate}';
 $string['success'] = 'Success';
 
 $string['targetsection'] = 'Assignment section';

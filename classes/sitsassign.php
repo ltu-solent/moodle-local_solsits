@@ -234,6 +234,10 @@ class sitsassign extends persistent {
             $availablefrom = get_string('immediately', 'local_solsits');
         }
         $mform->addElement('static', 'sits_availablefrom', new lang_string('availablefrom', 'local_solsits'), $availablefrom);
+
+        $mform->addElement('static', 'sits_assignmentbrief', new lang_string('assignmentbrief', 'local_solsits'),
+            'brief:' . $solassign->sitsref);
+        $mform->addHelpButton('sits_assignmentbrief', 'assignmentbrief', 'local_solsits');
     }
 
     /**
@@ -360,9 +364,9 @@ class sitsassign extends persistent {
         $this->formdata = $DB->get_record('assign', ['id' => $cm->instance]);
         $this->formdata->name = $this->get('title');
         // Add the assignment intro shortcode, if not already present.
-        $hasassignmentintro = strpos($this->formdata->intro, '[assignmentintro]') !== false;
+        $hasassignmentintro = strpos($this->formdata->intro, '[assignmentintro') !== false;
         if (!$hasassignmentintro) {
-            $this->formdata->intro = '[assignmentintro]' . $this->formdata->intro;
+            $this->formdata->intro = '[assignmentintro note="Do not remove"]' . $this->formdata->intro;
         }
 
         $reattempt = $config->assignmentmessage_studentreattempt ?? null;
@@ -541,7 +545,7 @@ class sitsassign extends persistent {
         }
         $this->formdata->course = $this->get('courseid');
         $this->formdata->name = $this->get('title');
-        $this->formdata->intro = '[assignmentintro]';
+        $this->formdata->intro = '[assignmentintro note="Do not remove"]';
         $this->formdata->introformat = FORMAT_HTML;
         $this->formdata->alwaysshowdescription = 1;
         // Any submission plugins enabled? Default 0.

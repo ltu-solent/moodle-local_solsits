@@ -178,6 +178,15 @@ class shortcodes {
         if ($sitsassign->get('reattempt') > 0) {
             $data->reattempt = $config->assignmentmessage_studentreattempt;
         }
+
+        if ($brief = $DB->get_record('course_modules', ['idnumber' => 'brief:' . $sitsassign->get('sitsref')])) {
+            $briefcm = get_fast_modinfo($course)->cms[$brief->id];
+            $data->assignmentbrief = (object)[
+                'id' => $briefcm->id,
+                'title' => $briefcm->name,
+                'url' => $briefcm->get_url(),
+            ];
+        }
         if (has_capability('mod/assign:grade', $context)) {
             $tutorinfo = [];
             if (!$cm->visible) {

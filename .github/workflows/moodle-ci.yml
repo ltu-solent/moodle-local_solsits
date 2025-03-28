@@ -8,7 +8,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:13
+        image: postgres:14
         env:
           POSTGRES_USER: 'postgres'
           POSTGRES_HOST_AUTH_METHOD: 'trust'
@@ -70,6 +70,7 @@ jobs:
             moodle-plugin-ci add-plugin --branch MOODLE_405_DEV ltu-solent/moodle-theme_solent
             moodle-plugin-ci add-plugin --branch SSU_main ltu-solent/moodle-format_onetopic
             moodle-plugin-ci add-plugin --branch main ltu-solent/moodle-local_solalerts
+            moodle-plugin-ci add-plugin --branch master branchup/moodle-filter_shortcodes
             moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
         env:
           DB: ${{ matrix.database }}

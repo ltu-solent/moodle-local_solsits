@@ -142,6 +142,8 @@ class shortcodes {
         [$course, $cm] = get_course_and_cm_from_cmid($sitsassign->get('cmid'), 'assign');
         $strftimedatetimeaccurate = '%d %B %Y, %I:%M:%S %p';
         $assign = new assign($context, $cm, $course);
+        // Apply overrides.
+        $assign->update_effective_access($USER->id);
         $duedate = $assign->get_instance()->duedate;
 
         $data->duedate = userdate($duedate, $strftimedatetimeaccurate);

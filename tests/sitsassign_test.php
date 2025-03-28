@@ -41,6 +41,8 @@ require_once($CFG->dirroot . '/mod/assign/locallib.php');
 require_once($CFG->dirroot . '/mod/assign/tests/generator.php');
 require_once($CFG->dirroot . '/local/solsits/tests/generator.php');
 require_once($CFG->dirroot . '/local/solsits/tests/task/task_trait.php');
+require_once($CFG->dirroot . '/filter/shortcodes/lib/helpers.php');
+
 /**
  * Test sitsassign persistent class
  * @covers \local_solsits\sitsassign
@@ -179,7 +181,7 @@ final class sitsassign_test extends advanced_testcase {
             $this->assertEquals($gradingduedate, $assignment->get_instance()->gradingduedate);
             $this->assertEquals(1, $cm->visible);
             $this->assertEquals(2, $cm->completion);
-            $this->assertEquals('', $assignment->get_instance()->intro);
+            $this->assertEquals('[assignmentintro note="Do not remove"]', $assignment->get_instance()->intro);
         } else {
             $cutoffdate = helper::set_time($duedate, '16:00', "+{$config->cutoffintervalsecondplus} week");
             $gradingduedate = helper::set_time($duedate, '16:00', "+{$config->gradingdueintervalsecondplus} week");
@@ -187,10 +189,15 @@ final class sitsassign_test extends advanced_testcase {
             $this->assertEquals($gradingduedate, $assignment->get_instance()->gradingduedate);
             $this->assertEquals(0, $cm->visible);
             $this->assertEquals(0, $cm->completion);
-            $this->assertEquals(
-                get_config('local_solsits', 'assignmentmessage_studentreattempt'),
-                $assignment->get_instance()->intro
-            );
+            $reattemptmessage = get_config('local_solsits', 'assignmentmessage_studentreattempt');
+            $env = (object)[
+                'context' => $context,
+            ];
+            $expected = \local_solsits\local\shortcodes::assignmentintro(null, null, null, $env, null);
+            $filter = new \filter_shortcodes\text_filter($context, []);
+            $actual = $filter->filter($assignment->get_instance()->intro);
+            $this->assertEquals($expected, $actual);
+            $this->assertStringContainsString($reattemptmessage, $actual);
         }
         $this->assertEquals(0, $cm->completionexpected);
         // Check it's in section 1.

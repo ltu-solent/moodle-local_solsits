@@ -25,11 +25,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2024073102;
-$plugin->release   = 'v4.1-r5';
-$plugin->requires  = 2022112800;
+$plugin->version   = 2025032800;
+$plugin->release   = 'v4.5-r0';
+$plugin->requires  = 2024100700;
 $plugin->component = 'local_solsits';
 $plugin->dependencies = [
     'local_solalerts' => 2024111900,
+    'filter_shortcodes' => ANY_VERSION,
 ];
 $plugin->supported = [405, 500];

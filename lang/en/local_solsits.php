@@ -34,6 +34,11 @@ $string['assessmentcode'] = 'Assessment code';
 $string['assessmentname'] = 'Assessment name';
 $string['assignmentbrief'] = 'Assignment brief:';
 $string['assignmentbrief_help'] = 'Add this reference to the idnumber of a file resource to automatically link to assignment brief in the assignment';
+$string['assignmentconfigwarning_body'] = 'Assignment config warning message body';
+$string['assignmentconfigwarning_body_desc'] = 'Message sent to Module leaders and extra recipients at weekly intervals leading up to the due date';
+$string['assignmentconfigwarning_mailinglist'] = 'Assignment config warning mailing list';
+$string['assignmentconfigwarning_mailinglist_desc'] = 'List of usernames (comma separated) of those who are to receive an assignment config warning in addition to the Module leaders';
+
 $string['assignmentmessage_marksuploadinclude'] = 'Marks upload message';
 $string['assignmentmessage_marksuploadinclude_desc'] = 'Message appears on grading page to remind marks about the Marks upload process.';
 $string['assignmentmessage_reattempt'] = 'Reattempt message';
@@ -150,6 +155,7 @@ $string['maxassignments_desc'] = 'Maximum number of assignments to create in a s
 $string['maxtemplates'] = 'Max templates';
 $string['maxtemplates_desc'] = 'Maximum number of courses to apply templates to in a single run.';
 $string['modifiedby'] = 'Modified by';
+$string['module'] = 'Module';
 $string['muptimeoutmessage'] = 'Check with Registry. The results may have been successfully uploaded.';
 
 $string['newsavedtemplate'] = 'New template saved';
@@ -180,6 +186,9 @@ $string['points'] = 'Points';
 $string['quercus'] = 'Quercus';
 $string['quercusassignmentonsitscourse'] = 'The Quercus assignment ({$a->assignidnumber}) should not be on the Gateway module ({$a->courseidnumber}). Please contact Guided.Learning@solent.ac.uk to delete it.';
 
+$string['r0-1weeks'] = 'The following assignments are due within 1 week';
+$string['r1-2weeks'] = 'The following assignments are due in one to two weeks';
+$string['r2-3weeks'] = 'The following assignments are due in two to three weeks';
 $string['reattempt'] = 'Re-attempt';
 $string['reattempt0'] = 'First attempt';
 $string['reattempt1'] = 'First reattempt';
@@ -197,6 +206,7 @@ $string['selectascale'] = 'Select a scale';
 $string['selectasession'] = 'Select a session';
 $string['selectatemplate'] = 'Select a template';
 $string['selectcourses'] = 'Select courses';
+$string['send_assign_config_errors_messsage_task'] = 'Send assignment configuration error message digest';
 $string['sequence'] = 'Sequence';
 $string['session'] = 'Academic session';
 $string['shortcode:assignmentintro'] = 'Displays dynamic information about an assignment that is displayed to students.';
@@ -237,6 +247,7 @@ $string['studentidnotexists'] = 'Studentid user does not exist';
 $string['studentidnotset'] = 'Studentid not set';
 $string['submissiondue'] = '<strong>Submission due on or before:</strong> {$a}';
 $string['submissiondueandsubmitted'] = 'Submission due on {$a->duedate} and submitted on {$a->submissiondate}';
+$string['submissionsenabled'] = 'Submissions enabled';
 $string['success'] = 'Success';
 
 $string['targetsection'] = 'Assignment section';

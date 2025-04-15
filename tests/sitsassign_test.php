@@ -881,4 +881,103 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_ABC10
         set_config('gradingdueinterval', '4', 'local_solsits');
         set_config('gradingdueintervalsecondplus', '2', 'local_solsits');
     }
+
+    /**
+     * Get unconfigured assignments
+     *
+     * @dataProvider get_unconfigured_assignments_provider
+     * @param int $startwindow
+     * @param int $endwindow
+     * @param int $duedate
+     * @param bool $inside Is due date inside window
+     * @return void
+     */
+    public function test_get_unconfigured_assignments($startwindow, $endwindow, $duedate, $inside): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $this->set_settings();
+        /** @var local_solsits_generator $ssdg */
+        $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
+        $course = $this->getDataGenerator()->create_course();
+        $sitsassign = $ssdg->create_sits_assign([
+            'sitsref' => 'PROJECT1_ABC101_2023/24',
+            'reattempt' => 0,
+            'title' => 'Project 1 (100%)',
+            'weighting' => 100,
+            'duedate' => $duedate,
+            'grademarkexempt' => false,
+            'availablefrom' => 0,
+            'courseid' => $course->id,
+        ]);
+        $sitsassign->create_assignment();
+        // This assignment is not configured.
+        $unconfigured = sitsassign::get_unconfigured_assignments($startwindow, $endwindow);
+        if (!$inside) {
+            $this->assertCount(0, $unconfigured);
+        } else {
+            $this->assertCount(1, $unconfigured);
+            foreach ($unconfigured as $unconf) {
+                $this->assertEquals($sitsassign->get('id'), $unconf->id);
+            }
+            $context = context\course::instance($course->id);
+            $cm = get_coursemodule_from_id('assign', $sitsassign->get('cmid'), $course->id);
+            $assign = new mod_assign_testable_assign($context, $cm, $course);
+            // The assignment now has a submission plugin enabled.
+            $assign->get_submission_plugin_by_type('comments')->set_config('enabled', 1);
+            $unconfigured = sitsassign::get_unconfigured_assignments($startwindow, $endwindow);
+            $this->assertCount(0, $unconfigured);
+        }
+    }
+
+    /**
+     * Get unconfigured assignments provider
+     *
+     * @return array
+     */
+    public static function get_unconfigured_assignments_provider(): array {
+        return [
+            '0-1 week window dd 10 days' => [
+                'startwindow' => 0,
+                'endwindow' => strtotime('+1 weeks'),
+                'duedate' => strtotime('+10 days'),
+                'inside' => false,
+            ],
+            '0-1 week window dd 5 days' => [
+                'startwindow' => 0,
+                'endwindow' => strtotime('+1 weeks'),
+                'duedate' => strtotime('+5 days'),
+                'inside' => true,
+            ],
+            '1-2 week window dd 10 days' => [
+                'startwindow' => strtotime('+1 week'),
+                'endwindow' => strtotime('+2 weeks'),
+                'duedate' => strtotime('+10 days'),
+                'inside' => true,
+            ],
+            '1-2 week window dd 5 days' => [
+                'startwindow' => strtotime('+1 week'),
+                'endwindow' => strtotime('+2 weeks'),
+                'duedate' => strtotime('+5 days'),
+                'inside' => false,
+            ],
+            '2-3 week window dd 30 days' => [
+                'startwindow' => strtotime('+2 week'),
+                'endwindow' => strtotime('+3 weeks'),
+                'duedate' => strtotime('+30 days'),
+                'inside' => false,
+            ],
+            '2-3 week window dd 15 days' => [
+                'startwindow' => strtotime('+2 week'),
+                'endwindow' => strtotime('+3 weeks'),
+                'duedate' => strtotime('+15 days'),
+                'inside' => true,
+            ],
+            'up to 3 week window dd 30 days' => [
+                'startwindow' => 0,
+                'endwindow' => strtotime('+3 weeks'),
+                'duedate' => strtotime('+30 days'),
+                'inside' => false,
+            ],
+        ];
+    }
 }

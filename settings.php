@@ -220,6 +220,24 @@ if ($hassiteconfig) {
         )
     );
 
+    $name = 'local_solsits/assignmentconfigwarning_mailinglist';
+    $title = new lang_string('assignmentconfigwarning_mailinglist', 'local_solsits');
+    $description = new lang_string('assignmentconfigwarning_mailinglist_desc', 'local_solsits');
+    $settings->add(new admin_setting_configtext($name, $title, $description, '', PARAM_TEXT));
+
+    $name = 'local_solsits/assignmentconfigwarning_body';
+    $title = new lang_string('assignmentconfigwarning_body', 'local_solsits');
+    $description = new lang_string('assignmentconfigwarning_body_desc', 'local_solsits');
+    $settings->add(
+        new admin_setting_configtextarea($name, $title, $description,
+        '<p>Dear {MODULELEADER}</p>
+        <p>The following assignments may not have been set up correctly (missing submission plugins, not visible to students),
+            please correct as appropriate.</p>
+        <p>Thank you</p>
+        <p>Kind regards, Guided Learning</p>'
+        )
+    );
+
     $name = 'local_solsits/marksuploadssettings';
     $title = new lang_string('marksuploadssettings', 'local_solsits');
     $description = '';

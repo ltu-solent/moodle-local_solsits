@@ -1,0 +1,85 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_solsits/assign_config_errors
+
+    Outputs a message and a list of summative assignments that are not configured correctly.
+
+    Example context (json):
+    {
+        "title": "Assignment configuration errors",
+        "message": "The following assignments need their submissions types configuring",
+        "assignments": {
+            "courseid": 5,
+            "cmid": 300,
+            "sitsref": "ABC101_A_SEM1_2024/25_ABC10101_001_0",
+            "duedate": 1744707995
+            "fullname": "Making widgets (ABC101)",
+            "shortname": "ABC101_A_SEM1_2024/25",
+            "reattempt": "0",
+            "title": "Making widgets (50%)",
+            "weighting": 50,
+            "visible": 1
+        }
+    }
+}}
+<h3>{{title}}</h3>
+{{{message}}}
+<table class="styled-table">
+    <thead>
+        <tr>
+            <th>{{#str}} module, local_solsits {{/str}}</th>
+            <th>{{#str}} assignmentname, mod_assign {{/str}}</th>
+            <th>{{#str}} duedate, local_solsits{{/str}}</th>
+            <th>{{#str}} visible, local_solsits{{/str}}</th>
+            <th>{{#str}} submissionsenabled, local_solsits{{/str}}</th>
+        </tr>
+    </thead>
+    <tbody>
+    {{#assignments}}
+        <tr>
+            <td><a href="{{config.wwwroot}}/course/view.php?id={{courseid}}">{{fullname}}</a></td>
+            <td><a href="{{config.wwwroot}}/mod/assign/view.php?id={{cmid}}">{{title}}</a> (<a href="{{config.wwwroot}}/course/modedit.php?update={{cmid}}">{{#str}} edit {{/str}}</a>)<br />{{sitsref}}</td>
+            <td>{{#userdate}} {{duedate}}, {{#str}} strftimedatetime, core_langconfig {{/str}} {{/userdate}}
+            <td>{{#visible}}{{#str}} yes {{/str}}{{/visible}}{{^visible}} {{#str}} no {{/str}}{{/visible}}</td>
+            <td>{{#plugins_enabled}}{{#str}} yes {{/str}}{{/plugins_enabled}}{{^plugins_enabled}} {{#str}} no {{/str}}{{/plugins_enabled}}</td>
+        </tr>
+    {{/assignments}}
+    </tbody>
+</table>
+<style>
+.styled-table {
+    border-collapse: collapse;
+    margin: 25px 50px;
+    font-size: 0.9em;
+    font-family: courier;
+    min-width: 400px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+.styled-table thead tr {
+    background-color: darkred;
+    color: #ffffff;
+    text-align: left;
+}
+
+.styled-table th,
+.styled-table td {
+    padding: 12px 15px;
+}
+.styled-table tbody tr {border-bottom: 1px solid #dddddd;}
+.styled-table tbody tr:nth-of-type(even) {background-color: #f3f3f3;}
+</style>

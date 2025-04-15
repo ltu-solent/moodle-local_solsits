@@ -908,4 +908,44 @@ class sitsassign extends persistent {
 
         return '';
     }
+
+    /**
+     * Get any summative assignments due within a specified window that has no submission plugins enabled
+     *
+     * @param int $startwindow Unix timestamp Start of window
+     * @param int $endwindow Unix timestamp End of window
+     * @return array List of SITS assignments
+     */
+    public static function get_unconfigured_assignments(int $startwindow = 0, int $endwindow = 0): array {
+        global $DB;
+        if ($startwindow == 0) {
+            $startwindow = time();
+        }
+        if ($endwindow < $startwindow) {
+            $endwindow = $startwindow + (WEEKSECS * 3);
+        }
+
+        // We exclude the comments plugin as this isn't being used for submissions.
+        $sql = "SELECT sa.id, sa.sitsref, sa.cmid, sa.courseid, c.fullname, c.shortname,
+                sa.reattempt, sa.title, sa.weighting, a.duedate, cm.visible, COUNT(apc.id) plugins_enabled
+            FROM {local_solsits_assign} sa
+            JOIN {course_modules} cm ON cm.id = sa.cmid
+            JOIN {assign} a ON a.id = cm.instance
+            JOIN {course} c ON c.id = a.course
+            LEFT JOIN {assign_plugin_config} apc ON apc.assignment = a.id
+                AND apc.subtype = 'assignsubmission'
+                AND apc.name = 'enabled'
+                AND apc.value = 1
+                AND apc.plugin != 'comments'
+            WHERE a.duedate >= :startwindow AND a.duedate <= :endwindow
+                GROUP BY sa.id
+                HAVING COUNT(apc.id) = 0 OR cm.visible = 0
+                ORDER BY a.duedate ASC, sa.sitsref ASC
+            ";
+        $results = $DB->get_records_sql($sql, [
+            'startwindow' => $startwindow,
+            'endwindow' => $endwindow,
+        ]);
+        return $results;
+    }
 }

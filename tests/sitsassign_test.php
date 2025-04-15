@@ -923,7 +923,7 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_ABC10
             $cm = get_coursemodule_from_id('assign', $sitsassign->get('cmid'), $course->id);
             $assign = new mod_assign_testable_assign($context, $cm, $course);
             // The assignment now has a submission plugin enabled.
-            $assign->get_submission_plugin_by_type('comments')->set_config('enabled', 1);
+            $assign->get_submission_plugin_by_type('onlinetext')->set_config('enabled', 1);
             $unconfigured = sitsassign::get_unconfigured_assignments($startwindow, $endwindow);
             $this->assertCount(0, $unconfigured);
         }

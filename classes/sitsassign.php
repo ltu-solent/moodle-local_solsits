@@ -935,7 +935,7 @@ class sitsassign extends persistent {
             LEFT JOIN {assign_plugin_config} apc ON apc.assignment = a.id
                 AND apc.subtype = 'assignsubmission'
                 AND apc.name = 'enabled'
-                AND apc.value = 1
+                AND apc.value = '1'
                 AND apc.plugin != 'comments'
             WHERE a.duedate >= :startwindow AND a.duedate <= :endwindow
                 GROUP BY sa.id

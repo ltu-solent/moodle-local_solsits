@@ -938,7 +938,7 @@ class sitsassign extends persistent {
                 AND apc.value = '1'
                 AND apc.plugin != 'comments'
             WHERE a.duedate >= :startwindow AND a.duedate <= :endwindow
-                GROUP BY sa.id
+                GROUP BY sa.id, c.fullname, c.shortname, a.duedate, cm.visible
                 HAVING COUNT(apc.id) = 0 OR cm.visible = 0
                 ORDER BY a.duedate ASC, sa.sitsref ASC
             ";

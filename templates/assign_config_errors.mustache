@@ -37,6 +37,30 @@
         }
     }
 }}
+<head>
+    <style>
+    .styled-table {
+        border-collapse: collapse;
+        margin: 25px 50px;
+        font-size: 0.9em;
+        font-family: courier;
+        min-width: 400px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    }
+    .styled-table thead tr {
+        background-color: darkred;
+        color: #ffffff;
+        text-align: left;
+    }
+
+    .styled-table th,
+    .styled-table td {
+        padding: 12px 15px;
+    }
+    .styled-table tbody tr {border-bottom: 1px solid #dddddd;}
+    .styled-table tbody tr:nth-of-type(even) {background-color: #f3f3f3;}
+    </style>
+</head>
 <h3>{{title}}</h3>
 {{{message}}}
 <table class="styled-table">
@@ -54,32 +78,10 @@
         <tr>
             <td><a href="{{config.wwwroot}}/course/view.php?id={{courseid}}">{{fullname}}</a></td>
             <td><a href="{{config.wwwroot}}/mod/assign/view.php?id={{cmid}}">{{title}}</a> (<a href="{{config.wwwroot}}/course/modedit.php?update={{cmid}}">{{#str}} edit {{/str}}</a>)<br />{{sitsref}}</td>
-            <td>{{#userdate}} {{duedate}}, {{#str}} strftimedatetime, core_langconfig {{/str}} {{/userdate}}
+            <td>{{#userdate}} {{duedate}}, {{#str}} strftimedatetime, core_langconfig {{/str}} {{/userdate}}</td>
             <td>{{#visible}}{{#str}} yes {{/str}}{{/visible}}{{^visible}} {{#str}} no {{/str}}{{/visible}}</td>
             <td>{{#plugins_enabled}}{{#str}} yes {{/str}}{{/plugins_enabled}}{{^plugins_enabled}} {{#str}} no {{/str}}{{/plugins_enabled}}</td>
         </tr>
     {{/assignments}}
     </tbody>
 </table>
-<style>
-.styled-table {
-    border-collapse: collapse;
-    margin: 25px 50px;
-    font-size: 0.9em;
-    font-family: courier;
-    min-width: 400px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-}
-.styled-table thead tr {
-    background-color: darkred;
-    color: #ffffff;
-    text-align: left;
-}
-
-.styled-table th,
-.styled-table td {
-    padding: 12px 15px;
-}
-.styled-table tbody tr {border-bottom: 1px solid #dddddd;}
-.styled-table tbody tr:nth-of-type(even) {background-color: #f3f3f3;}
-</style>

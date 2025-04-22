@@ -40,6 +40,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/course/lib.php');
 require_once($CFG->dirroot . '/course/modlib.php');
+require_once($CFG->dirroot . '/group/lib.php');
 require_once($CFG->dirroot . '/mod/assign/locallib.php');
 require_once($CFG->dirroot . '/mod/assign/externallib.php');
 
@@ -428,6 +429,14 @@ class sitsassign extends persistent {
         $completion = new stdClass();
         $completion->id = $this->get('cmid');
         $completion->completionexpected = 0;
+        $groups = $this->groups();
+        $addavailabilitytoreattempt = get_config('local_solsits', 'addavailabilitytoreattempt');
+        if ($groups && $addavailabilitytoreattempt && $cm->availability == null) {
+            // If there's already an availability condition, just don't mess with it.
+            $completion->availability = json_encode(
+                \core_availability\tree::get_root_json([\availability_group\condition::get_json($groups->id)])
+            );
+        }
         $DB->update_record('course_modules', $completion);
 
         // Get fresh, rather than cached.
@@ -451,7 +460,7 @@ class sitsassign extends persistent {
         global $DB;
         // Get module.
         $modassign = $DB->get_record('modules', ['name' => 'assign'], '*', MUST_EXIST);
-
+        $groups = $this->groups();
         // Insert to course_modules table.
         $module = new stdClass();
         $module->id = null;
@@ -479,6 +488,12 @@ class sitsassign extends persistent {
         $module->completionexpected = 0;
         $module->showdescription = 1;
         $module->availability = null;
+        $addavailabilitytoreattempt = get_config('local_solsits', 'addavailabilitytoreattempt');
+        if ($groups && $addavailabilitytoreattempt) {
+            $module->availability = json_encode(
+                \core_availability\tree::get_root_json([\availability_group\condition::get_json($groups->id)])
+            );
+        }
         $module->deletioninprogress = 0;
         $module->coursemodule = "";
         $module->add = 'assign';
@@ -947,5 +962,31 @@ class sitsassign extends persistent {
             'endwindow' => $endwindow,
         ]);
         return $results;
+    }
+
+    /**
+     * Creates an invisible group for reattempt assessments.
+     *
+     * @return void|stdClass
+     */
+    private function groups() {
+        if ($this->get('reattempt') == 0) {
+            return;
+        }
+        $createreattemptgroups = get_config('local_solsits', 'createreattemptgroups');
+        if (!$createreattemptgroups) {
+            return;
+        }
+        $group = groups_get_group_by_idnumber($this->get('courseid'), $this->get('sitsref'));
+        if ($group) {
+            return $group;
+        }
+        $group = new stdClass();
+        $group->courseid = $this->get('courseid');
+        $group->idnumber = $this->get('sitsref');
+        $group->name = $this->get('title');
+        $group->visibility = GROUPS_VISIBILITY_NONE;
+        $group->id = groups_create_group($group);
+        return $group;
     }
 }

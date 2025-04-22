@@ -198,6 +198,22 @@ final class sitsassign_test extends advanced_testcase {
             $actual = $filter->filter($assignment->get_instance()->intro);
             $this->assertEquals($expected, $actual);
             $this->assertStringContainsString($reattemptmessage, $actual);
+
+            // A hidden group is created for reattempts using the sitsref as the idnumber.
+            $createreattemptgroups = get_config('local_solsits', 'createreattemptgroups');
+            $addavailabilitytoreattempt = get_config('local_solsits', 'addavailabilitytoreattempt');
+            if ($createreattemptgroups) {
+                $reattemptgroup = groups_get_group_by_idnumber($course->id, $assign->get('sitsref'));
+                $this->assertEquals($sitsassign['sitsref'], $reattemptgroup->idnumber);
+                $this->assertEquals(GROUPS_VISIBILITY_NONE, $reattemptgroup->visibility);
+                if ($addavailabilitytoreattempt) {
+                    // And the availability conditions for said group.
+                    $expectedavailability = json_encode(
+                        \core_availability\tree::get_root_json([\availability_group\condition::get_json($reattemptgroup->id)])
+                    );
+                    $this->assertEquals($expectedavailability, $cm->availability);
+                }
+            }
         }
         $this->assertEquals(0, $cm->completionexpected);
         // Check it's in section 1.
@@ -977,6 +993,99 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_ABC10
                 'endwindow' => strtotime('+3 weeks'),
                 'duedate' => strtotime('+30 days'),
                 'inside' => false,
+            ],
+        ];
+    }
+
+    /**
+     * Test reattempt group settings
+     *
+     * @dataProvider reattempt_groups_provider
+     * @param int $reattempt
+     * @param bool $creategroup
+     * @param bool $addavailability
+     * @return void
+     */
+    public function test_reattempt_groups($reattempt, $creategroup, $addavailability): void {
+        global $DB;
+        // Check create and update here.
+        $this->resetAfterTest();
+        $this->set_settings();
+        $this->setTimezone('UTC');
+        set_config('createreattemptgroups', $creategroup, 'local_solsits');
+        set_config('addavailabilitytoreattempt', $addavailability, 'local_solsits');
+        $this->setAdminUser();
+        /** @var local_solsits_generator $ssdg */
+        $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
+        $course = $this->getDataGenerator()->create_course();
+        // Pretend to apply template to the course.
+        $handler = \core_customfield\handler::get_handler('core_course', 'course');
+        $customfields = $handler->get_instance_data($course->id, true);
+        $context = $handler->get_instance_context($course->id);
+        foreach ($customfields as $key => $customfield) {
+            if ($customfield->get_field()->get('shortname') == 'templateapplied') {
+                $customfield->set('value', 1);
+                $customfield->set('contextid', $context->id);
+                $customfield->save();
+            }
+        }
+        $sitsassign = [
+            'courseid' => $course->id,
+            'sitsref' => $course->shortname . '_ABC10101_001_' . $reattempt,
+            'reattempt' => $reattempt,
+        ];
+        $assign = $ssdg->create_sits_assign($sitsassign);
+        $assign->create_assignment();
+        $cm = $DB->get_record('course_modules', ['id' => $assign->get('cmid')]);
+        $reattemptgroup = groups_get_group_by_idnumber($course->id, $assign->get('sitsref'));
+        if ($reattempt > 0) {
+            if ($creategroup) {
+                $this->assertEquals($sitsassign['sitsref'], $reattemptgroup->idnumber);
+                $this->assertEquals(GROUPS_VISIBILITY_NONE, $reattemptgroup->visibility);
+            } else {
+                $this->assertFalse($reattemptgroup);
+            }
+            if ($addavailability) {
+                $expectedavailability = json_encode(
+                    \core_availability\tree::get_root_json([\availability_group\condition::get_json($reattemptgroup->id)])
+                );
+                $this->assertEquals($expectedavailability, $cm->availability);
+            } else {
+                $this->assertNull($cm->availability);
+            }
+        } else {
+            // No group and availability should have been created.
+            $this->assertFalse($reattemptgroup);
+            $this->assertNull($cm->availability);
+        }
+    }
+
+    /**
+     * Provider for test_reattempt_groups
+     *
+     * @return array
+     */
+    public static function reattempt_groups_provider(): array {
+        return [
+            'no groups' => [
+                'reattempt' => 1,
+                'creategroup' => 0,
+                'addavailability' => 0,
+            ],
+            'groups no availability' => [
+                'reattempt' => 1,
+                'creategroup' => 1,
+                'addavailability' => 0,
+            ],
+            'groups and availability' => [
+                'reattempt' => 1,
+                'creategroup' => 1,
+                'addavailability' => 1,
+            ],
+            'no reattempt groups and availability even if set for 1st attempt' => [
+                'reattempt' => 0,
+                'creategroup' => 1,
+                'addavailability' => 1,
             ],
         ];
     }

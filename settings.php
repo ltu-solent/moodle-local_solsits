@@ -150,6 +150,16 @@ if ($hassiteconfig) {
     $options = \local_solsits\helper::get_session_menu();
     $settings->add(new admin_setting_configmultiselect($name, $title, $description, [], $options));
 
+    $name = 'local_solsits/createreattemptgroups';
+    $title = new lang_string('createreattemptgroups', 'local_solsits');
+    $desription = new lang_string('createreattemptgroups_desc', 'local_solsits');
+    $settings->add(new admin_setting_configcheckbox($name, $title, $description, 0));
+
+    $name = 'local_solsits/addavailabilitytoreattempt';
+    $title = new lang_string('addavailabilitytoreattempt', 'local_solsits');
+    $description = new lang_string('addavailabilitytoreattempt_desc', 'local_solsits');
+    $settings->add(new admin_setting_configcheckbox($name, $title, $description, 0));
+
     // Assignment message settings.
     $name = 'local_solsits/assignmentmessagesettings';
     $title = new lang_string('assignmentmessagesettings', 'local_solsits');

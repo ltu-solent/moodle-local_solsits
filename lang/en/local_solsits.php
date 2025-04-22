@@ -26,6 +26,9 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['actions'] = 'Actions';
+$string['addavailabilitytoreattempt'] = 'Add group availability to reattempt';
+$string['addavailabilitytoreattempt_desc'] = 'This is linked to the "create reattempt groups" setting, and will explicitly add a
+    restriction to the reattempt. Warning: Only add this if the tutors can easily know who should take reattempts.';
 $string['ais_testconnection'] = 'Test connection';
 $string['allgrades'] = 'All grades';
 $string['allocatedtemplate'] = 'Allocated template';
@@ -58,6 +61,7 @@ $string['assignmentwarning_hidden'] = 'Hidden warning';
 $string['assignmentwarning_hidden_desc'] = 'This message will display to all with grading permissions, and will form part of an email when settings are changed';
 $string['assignmentwarning_wrongsection'] = 'Wrong section warning';
 $string['assignmentwarning_wrongsection_desc'] = 'This message will display to all with grading permissions, and will form part of an email when settings are changed';
+$string['availabilityconditions'] = 'Availability conditions have been set. Please make sure those students who need to submit have access. e.g. Group membership.';
 $string['availablefrom'] = 'Available from';
 
 $string['checkcoursedeleted'] = 'Check: This template no longer exists';
@@ -66,6 +70,9 @@ $string['confirmdeletetemplate'] = 'Confirm deletion of "{$a}"';
 $string['courseidrequired'] = 'Courseid field required';
 $string['coursename'] = 'Course name';
 $string['createassignmenttask'] = 'Create assignment task';
+$string['createreattemptgroups'] = 'Create reattempt groups';
+$string['createreattemptgroups_desc'] = 'Create hidden groups when a reattempt assignment is created. This can be used to restrict
+    visibility of reattempts to only those students who need to take the reattempt.';
 $string['currentcourses'] = 'Display only current courses';
 $string['currentcourses_help'] = 'Current courses are courses or modules that are currently running or have no end date';
 $string['cutoffinterval'] = 'Cut off interval';
@@ -197,6 +204,7 @@ $string['reattempt3'] = 'Third reattempt';
 $string['reattempt4'] = 'Fourth reattempt';
 $string['reattempt5'] = 'Fifth reattempt';
 $string['reattempt6'] = 'Sixth reattempt';
+$string['reattemptavailability'] = 'Ensure required students are a member of the "{$a}" group';
 $string['recreate'] = 'Recreate assignment activity';
 $string['releasedate'] = 'Grades cannot be released until {$a->date} ({$a->days} days after the board has passed).';
 

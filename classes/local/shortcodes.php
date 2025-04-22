@@ -202,6 +202,17 @@ class shortcodes {
             if ($now > $duedate && $now < $gradingdue) {
                 $tutorinfo[] = get_string('gradingdueby', 'local_solsits', userdate($gradingdue, $strftimedatetimeaccurate));
             }
+            if ($cm->availability != null) {
+                if ($sitsassign->get('reattempt') > 0) {
+                    $groupslink = html_writer::link(
+                        new moodle_url('/group/index.php', ['id' => $sitsassign->get('courseid')]),
+                        $sitsassign->get('title')
+                    );
+                    $tutorinfo[] = get_string('reattemptavailability', 'local_solsits', $groupslink);
+                } else {
+                    $tutorinfo[] = get_string('availabilityconditions', 'local_solsits');
+                }
+            }
             $data->hastutorinfo = count($tutorinfo) > 0;
             $data->tutorinfo = $tutorinfo;
         }

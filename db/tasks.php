@@ -59,7 +59,7 @@ $tasks = [
         'month' => '*',
         'dayofweek' => '*',
     ], [
-        'classname' => '\local_solsits\task\send_assign_config_errors_messsage_task',
+        'classname' => '\local_solsits\task\send_assign_config_errors_message_task',
         'blocking' => 0,
         'minute' => '*',
         'hour' => '23',

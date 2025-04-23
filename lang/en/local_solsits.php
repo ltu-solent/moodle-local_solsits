@@ -41,6 +41,8 @@ $string['assignmentconfigwarning_body'] = 'Assignment config warning message bod
 $string['assignmentconfigwarning_body_desc'] = 'Message sent to Module leaders and extra recipients at weekly intervals leading up to the due date';
 $string['assignmentconfigwarning_mailinglist'] = 'Assignment config warning mailing list';
 $string['assignmentconfigwarning_mailinglist_desc'] = 'List of usernames (comma separated) of those who are to receive an assignment config warning in addition to the Module leaders';
+$string['assignmentconfigwarning_ranges'] = 'Message date ranges';
+$string['assignmentconfigwarning_ranges_desc'] = 'The date ranges for sending config warning messages.';
 
 $string['assignmentmessage_marksuploadinclude'] = 'Marks upload message';
 $string['assignmentmessage_marksuploadinclude_desc'] = 'Message appears on grading page to remind marks about the Marks upload process.';
@@ -108,6 +110,7 @@ $string['externaldate'] = 'External date';
 $string['failure'] = 'Failure';
 $string['filter'] = 'Filter';
 $string['filterassignments'] = 'Filter assignments';
+$string['forinformation'] = '[For information] ';
 
 $string['gatewaysits'] = 'Gateway (SITS)';
 $string['generalsettings'] = 'General settings';
@@ -194,8 +197,8 @@ $string['quercus'] = 'Quercus';
 $string['quercusassignmentonsitscourse'] = 'The Quercus assignment ({$a->assignidnumber}) should not be on the Gateway module ({$a->courseidnumber}). Please contact Guided.Learning@solent.ac.uk to delete it.';
 
 $string['r0-1weeks'] = 'The following assignments are due within 1 week';
-$string['r1-2weeks'] = 'The following assignments are due in one to two weeks';
-$string['r2-3weeks'] = 'The following assignments are due in two to three weeks';
+$string['rangedates'] = 'Unconfigured assignments due between {$a->start} and {$a->end}';
+$string['rangeweeks'] = '{$a->start} to {$a->end} weeks';
 $string['reattempt'] = 'Re-attempt';
 $string['reattempt0'] = 'First attempt';
 $string['reattempt1'] = 'First reattempt';

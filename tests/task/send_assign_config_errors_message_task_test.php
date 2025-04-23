@@ -17,6 +17,7 @@
 namespace local_solsits\task;
 
 use context_course;
+use local_solsits\helper;
 
 /**
  * Tests for SOL-SITS Integration
@@ -40,20 +41,9 @@ final class send_assign_config_errors_message_task_test extends \advanced_testca
         $this->resetAfterTest();
         $this->setAdminUser();
         $this->set_settings();
-        $ranges = [
-            'r0-1weeks' => [
-                'start' => time(),
-                'end' => strtotime('+1 week'),
-            ],
-            'r1-2weeks' => [
-                'start' => strtotime('+1 week'),
-                'end' => strtotime('+2 weeks'),
-            ],
-            'r2-3weeks' => [
-                'start' => strtotime('+2 week'),
-                'end' => strtotime('+3 weeks'),
-            ],
-        ];
+        set_config('assignmentconfigwarning_ranges', 'r0-1,r1-2,r2-3', 'local_solsits');
+        $ranges = send_assign_config_errors_message_task::get_ranges();
+        $menu = helper::get_ranges_menu();
         /** @var local_solsits_generator $ssdg */
         $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $course = $this->getDataGenerator()->create_course();
@@ -80,7 +70,7 @@ final class send_assign_config_errors_message_task_test extends \advanced_testca
         set_config('assignmentconfigwarning_mailinglist', join(',', [$registryuser->username]), 'local_solsits');
 
         $sink = $this->redirectEmails();
-        $task = new \local_solsits\task\send_assign_config_errors_messsage_task();
+        $task = new \local_solsits\task\send_assign_config_errors_message_task();
         $task->execute();
         $expectedoutput = '';
         if ($range != 'nil') {
@@ -88,21 +78,41 @@ final class send_assign_config_errors_message_task_test extends \advanced_testca
             // One to module leader, the other to configured Gateway list.
             $this->assertEquals(2, $sink->count());
             $email = reset($emails);
-            $this->assertSame(get_string($range, 'local_solsits'), $email->subject);
+            $map = helper::map_range($range);
+            $startdate = date('Y-m-d', $map['start']);
+            $enddate = date('Y-m-d', $map['end']);
+            $subject = get_string('forinformation', 'local_solsits') . get_string('rangedates', 'local_solsits', [
+                'start' => $startdate,
+                'end' => $enddate,
+            ]);
+            $this->assertSame($subject, $email->subject);
             $this->assertStringContainsString($sitsassign->get('sitsref'), $email->body);
             foreach ($ranges as $k => $r) {
                 $itemcount = 0;
                 if ($range == $k) {
                     $itemcount = 1;
                 }
-                $expectedoutput .= $itemcount . ' items found for range ' .
-                    date('Y-m-d', $r['start']) . ' - ' . date('Y-m-d', $r['end']) . '
+                $map = helper::map_range($k);
+                $startdate = date('Y-m-d', $map['start']);
+                $enddate = date('Y-m-d', $map['end']);
+                $rangestring = get_string('rangedates', 'local_solsits', [
+                    'start' => $startdate,
+                    'end' => $enddate,
+                ]);
+                $expectedoutput .= $itemcount . ' ' . $rangestring . '
 ';
             }
         } else {
             $this->assertEquals(0, $sink->count());
-            foreach ($ranges as $r) {
-                $expectedoutput .= '0 items found for range ' . date('Y-m-d', $r['start']) . ' - ' . date('Y-m-d', $r['end']) . '
+            foreach ($ranges as $k => $r) {
+                $map = helper::map_range($k);
+                $startdate = date('Y-m-d', $map['start']);
+                $enddate = date('Y-m-d', $map['end']);
+                $rangestring = get_string('rangedates', 'local_solsits', [
+                    'start' => $startdate,
+                    'end' => $enddate,
+                ]);
+                $expectedoutput .= '0 ' . $rangestring . '
 ';
             }
         }
@@ -118,15 +128,15 @@ final class send_assign_config_errors_message_task_test extends \advanced_testca
         return [
             '0-1 week window dd 5 days' => [
                 'duedate' => strtotime('+5 days'),
-                'range' => 'r0-1weeks',
+                'range' => 'r0-1',
             ],
             '1-2 week window dd 10 days' => [
                 'duedate' => strtotime('+10 days'),
-                'range' => 'r1-2weeks',
+                'range' => 'r1-2',
             ],
             '2-3 week window dd 15 days' => [
                 'duedate' => strtotime('+15 days'),
-                'range' => 'r2-3weeks',
+                'range' => 'r2-3',
             ],
             '3+ week window dd 30 days' => [
                 'duedate' => strtotime('+30 days'),

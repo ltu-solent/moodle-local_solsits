@@ -23,6 +23,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_solsits\helper;
+
 defined('MOODLE_INTERNAL') || die();
 
 $parent = new admin_category('local_solsitscat', new lang_string('pluginname', 'local_solsits'));
@@ -152,7 +154,7 @@ if ($hassiteconfig) {
 
     $name = 'local_solsits/createreattemptgroups';
     $title = new lang_string('createreattemptgroups', 'local_solsits');
-    $desription = new lang_string('createreattemptgroups_desc', 'local_solsits');
+    $description = new lang_string('createreattemptgroups_desc', 'local_solsits');
     $settings->add(new admin_setting_configcheckbox($name, $title, $description, 0));
 
     $name = 'local_solsits/addavailabilitytoreattempt';
@@ -230,6 +232,12 @@ if ($hassiteconfig) {
         )
     );
 
+    $name = 'local_solsits/assignmentconfigwarning_ranges';
+    $title = new lang_string('assignmentconfigwarning_ranges', 'local_solsits');
+    $description = new lang_string('assignmentconfigwarning_ranges_desc', 'local_solsits');
+    $options = helper::get_ranges_menu();
+    $settings->add(new admin_setting_configmultiselect($name, $title, $description, [], $options));
+
     $name = 'local_solsits/assignmentconfigwarning_mailinglist';
     $title = new lang_string('assignmentconfigwarning_mailinglist', 'local_solsits');
     $description = new lang_string('assignmentconfigwarning_mailinglist_desc', 'local_solsits');
@@ -241,8 +249,11 @@ if ($hassiteconfig) {
     $settings->add(
         new admin_setting_configtextarea($name, $title, $description,
         '<p>Dear {MODULELEADER}</p>
-        <p>The following assignments may not have been set up correctly (missing submission plugins, not visible to students),
-            please correct as appropriate.</p>
+        <p>The following assignments may not have been set up correctly.</p>
+        <p>If you require your students to submit to any of these assignments, please set a <a href="#">submission type</a> as
+         appropriate.</p>
+        <p>If an assignment does not require your students to uploaded a submission (e.g. exams, in-class presentations,
+        physical submission), then no further action is required.</p>
         <p>Thank you</p>
         <p>Kind regards, Guided Learning</p>'
         )

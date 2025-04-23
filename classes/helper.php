@@ -32,6 +32,7 @@ use core_customfield\category;
 use core_customfield\field;
 use DateTime;
 use Exception;
+use NumberFormatter;
 use stdClass;
 
 /**
@@ -97,6 +98,46 @@ class helper {
             return [];
         }
         return $DB->get_records_menu('course', ['category' => $templatecat], 'fullname ASC', 'id, fullname');
+    }
+
+    /**
+     * Get ranges menu
+     *
+     * @return array
+     */
+    public static function get_ranges_menu(): array {
+        $menu = [];
+        $nf = new NumberFormatter(current_language(), NumberFormatter::SPELLOUT);
+        for ($x = 0; $x < 6; $x++) {
+            $endint = $x + 1;
+            $start = $nf->format($x);
+            $end = $nf->format($endint);
+            $value = get_string('rangeweeks', 'local_solsits', [
+                'start' => $start,
+                'end' => $end,
+            ]);
+            $menu['r' . $x . '-' . $endint] = $value;
+        }
+        return $menu;
+    }
+
+    /**
+     * Gets timestamp for given index e.g. r0-1
+     *
+     * @param string $index
+     * @return array|null
+     */
+    public static function map_range($index): ?array {
+        $result = preg_match('/r(\d+)-(\d+)/', $index, $matches);
+        if ($result) {
+            $start = $matches[1];
+            $end = $matches[2];
+            return [
+                'start' => strtotime("+{$start} weeks"),
+                'end' => strtotime("+{$end} weeks"),
+            ];
+        }
+        return null;
     }
 
     /**

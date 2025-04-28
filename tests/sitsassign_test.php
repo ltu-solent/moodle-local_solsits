@@ -943,6 +943,11 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_ABC10
             $unconfigured = sitsassign::get_unconfigured_assignments($startwindow, $endwindow);
             $this->assertCount(0, $unconfigured);
         }
+        $course->visible = 0;
+        update_course($course);
+        // This course is hidden, so ignores any unconfigured assignments.
+        $unconfigured = sitsassign::get_unconfigured_assignments($startwindow, $endwindow);
+        $this->assertCount(0, $unconfigured);
     }
 
     /**

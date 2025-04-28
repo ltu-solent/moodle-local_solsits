@@ -941,6 +941,7 @@ class sitsassign extends persistent {
         }
 
         // We exclude the comments plugin as this isn't being used for submissions.
+        // And we exclude hidden courses because they're not in use, and can't be accessed by MLs.
         $sql = "SELECT sa.id, sa.sitsref, sa.cmid, sa.courseid, c.fullname, c.shortname,
                 sa.reattempt, sa.title, sa.weighting, a.duedate, cm.visible, COUNT(apc.id) plugins_enabled
             FROM {local_solsits_assign} sa
@@ -952,7 +953,7 @@ class sitsassign extends persistent {
                 AND apc.name = 'enabled'
                 AND apc.value = '1'
                 AND apc.plugin != 'comments'
-            WHERE a.duedate >= :startwindow AND a.duedate <= :endwindow
+            WHERE a.duedate >= :startwindow AND a.duedate <= :endwindow AND c.visible = 1
                 GROUP BY sa.id, c.fullname, c.shortname, a.duedate, cm.visible
                 HAVING COUNT(apc.id) = 0 OR cm.visible = 0
                 ORDER BY a.duedate ASC, sa.sitsref ASC

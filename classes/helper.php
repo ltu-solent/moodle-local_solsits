@@ -108,7 +108,7 @@ class helper {
     public static function get_ranges_menu(): array {
         $menu = [];
         $nf = new NumberFormatter(current_language(), NumberFormatter::SPELLOUT);
-        for ($x = 0; $x < 6; $x++) {
+        for ($x = 0; $x < 10; $x++) {
             $endint = $x + 1;
             $start = $nf->format($x);
             $end = $nf->format($endint);

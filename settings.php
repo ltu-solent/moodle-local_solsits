@@ -259,6 +259,21 @@ if ($hassiteconfig) {
         )
     );
 
+    $name = 'local_solsits/assignmentduedatechange_mailinglist';
+    $title = new lang_string('assignmentduedatechange_mailinglist', 'local_solsits');
+    $description = new lang_string('assignmentduedatechange_mailinglist_desc', 'local_solsits');
+    $settings->add(new admin_setting_configtext($name, $title, $description, '', PARAM_TEXT));
+
+    $name = 'local_solsits/assignmentduedatechange_body';
+    $title = new lang_string('assignmentduedatechange_body', 'local_solsits');
+    $description = new lang_string('assignmentduedatechange_body_desc', 'local_solsits');
+    $settings->add(
+        new admin_setting_configtextarea($name, $title, $description,
+        '<p>Dear Assessments</p>
+        <p>Please change the due date for "{TITLE}" - "{SITSREF}" to {NEWDUEDATE}<p>
+        <p>Kind regards, {TUTOR}</p>')
+    );
+
     $name = 'local_solsits/marksuploadssettings';
     $title = new lang_string('marksuploadssettings', 'local_solsits');
     $description = '';

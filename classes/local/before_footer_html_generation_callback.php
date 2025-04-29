@@ -14,25 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace local_solsits\local;
+
+use core\hook\output\before_footer_html_generation;
+
 /**
- * Hook callbacks for SOL-SITS Integration
+ * Class before_footer_html_generation_callback
  *
  * @package    local_solsits
  * @copyright  2025 Southampton Solent University {@link https://www.solent.ac.uk}
+ * @author Mark Sharp <mark.sharp@solent.ac.uk>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
-
-$callbacks = [
-    [
-        'hook' => \local_solalerts\hook\after_course_content_header::class,
-        'callback' => [\local_solsits\local\after_course_content_header_callback::class, 'assignalerts'],
-        'priority' => 0,
-    ],
-    [
-        'hook' => \core\hook\output\before_footer_html_generation::class,
-        'callback' => \local_solsits\local\before_footer_html_generation_callback::class . '::assignments',
-        'priority' => 0,
-    ],
-];
+class before_footer_html_generation_callback {
+    /**
+     * Load assignment js scripts
+     *
+     * @param before_footer_html_generation $hook
+     * @return void
+     */
+    public static function assignments(before_footer_html_generation $hook): void {
+        global $PAGE;
+        $PAGE->requires->js_call_amd('local_solsits/assignments', 'init');
+    }
+}

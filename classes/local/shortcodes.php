@@ -191,6 +191,21 @@ class shortcodes {
         }
         if (has_capability('mod/assign:grade', $context)) {
             $tutorinfo = [];
+            if ($duedate > $now) {
+                $mailinglist = get_config('local_solsits', 'assignmentduedatechange_mailinglist') ?? '';
+                if (empty($mailinglist)) {
+                    $tutorinfo[] = get_string('checkduedatenomessage', 'local_solsits', [
+                        'duedate' => userdate($duedate, $strftimedatetimeaccurate),
+                    ]);
+                } else {
+                    $tutorinfo[] = get_string('checkduedate', 'local_solsits', [
+                        'duedate' => userdate($duedate, $strftimedatetimeaccurate),
+                        'sitsref' => $sitsassign->get('sitsref'),
+                        'title' => $sitsassign->get('title'),
+                        'cmid' => $sitsassign->get('cmid'),
+                    ]);
+                }
+            }
             if (!$cm->visible) {
                 $tutorinfo[] = get_string('assignmentnotvisible', 'local_solsits');
             }

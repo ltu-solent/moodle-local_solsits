@@ -44,6 +44,15 @@ $string['assignmentconfigwarning_mailinglist_desc'] = 'List of usernames (comma 
 $string['assignmentconfigwarning_ranges'] = 'Message date ranges';
 $string['assignmentconfigwarning_ranges_desc'] = 'The date ranges for sending config warning messages.';
 
+$string['assignmentduedatechange_body'] = 'Due date change body';
+$string['assignmentduedatechange_body_desc'] = 'The message that will be sent to Assessments to change the due date.';
+$string['assignmentduedatechange_description'] = '<p>A message will be sent to the Assessments team to update the due date for "<strong>{$a->title}</strong>" with the date you select below.</p>
+  <p>The date will not be updated in Gateway automatically.</p>
+  <p>A copy will be sent to you when the message has been sent (it may take a few minutes to be sent).</p>';
+$string['assignmentduedatechange_mailinglist'] = 'Due date change mailing list';
+$string['assignmentduedatechange_mailinglist_desc'] = 'List of usernames (comma separated) of those who are to receive request to update the due dates';
+$string['assignmentduedatechange_subject'] = 'Due date change for {$a}';
+
 $string['assignmentmessage_marksuploadinclude'] = 'Marks upload message';
 $string['assignmentmessage_marksuploadinclude_desc'] = 'Message appears on grading page to remind marks about the Marks upload process.';
 $string['assignmentmessage_reattempt'] = 'Reattempt message';
@@ -67,6 +76,13 @@ $string['availabilityconditions'] = 'Availability conditions have been set. Plea
 $string['availablefrom'] = 'Available from';
 
 $string['checkcoursedeleted'] = 'Check: This template no longer exists';
+$string['checkduedate'] = 'Submission due date is <strong>{$a->duedate}</strong>. Is this correct? <a href="#"
+ data-action="sol-new-duedate"
+ data-sitsref="{$a->sitsref}"
+ data-cmid="{$a->cmid}"
+ data-title="{$a->title}"
+ data-duedate"{$a->duedate}">Inform Assessments team of new date</a>.';
+$string['checkduedatenomessage'] = 'Submission due date is <strong>{$a->duedate}</strong>. Is this correct?';
 $string['cmid'] = 'Course module ID';
 $string['confirmdeletetemplate'] = 'Confirm deletion of "{$a}"';
 $string['courseidrequired'] = 'Courseid field required';
@@ -91,6 +107,7 @@ $string['defaultscale_desc'] = 'Scale to use when none specified. When empty, as
 $string['deletedtemplate'] = '"{$a}" has been deleted.';
 $string['deleteduser'] = 'Deleted user';
 $string['duedate'] = 'Due date';
+$string['duedatethankyou'] = 'Thank you. Your request for a change to the due date has been sent.';
 $string['duplicatepagetypesession'] = 'A template already exists for this session and page-type combination';
 
 $string['editsoltemplate'] = 'Edit Template';
@@ -104,9 +121,11 @@ $string['error:invalidpagetype'] = 'Invalid pagetype: {$a}';
 $string['error:sitsrefinuse'] = 'SITS Reference already in use: {$a}';
 $string['error:sitsrefnotexist'] = 'SITS reference doesn\'t exist: {$a}';
 $string['error:usersenrolledalready'] = 'Enrolments already exist. Cannot apply template. {$a}';
+$string['existingduedate'] = 'Existing due date';
 $string['exportgradestask'] = 'Export grades to SITS';
 $string['externaldate'] = 'External date';
 
+$string['failedtoqueue'] = 'We\'ve been able to send your request.';
 $string['failure'] = 'Failure';
 $string['filter'] = 'Filter';
 $string['filterassignments'] = 'Filter assignments';
@@ -168,6 +187,7 @@ $string['modifiedby'] = 'Modified by';
 $string['module'] = 'Module';
 $string['muptimeoutmessage'] = 'Check with Registry. The results may have been successfully uploaded.';
 
+$string['newduedate'] = 'New due date';
 $string['newsavedtemplate'] = 'New template saved';
 $string['newsoltemplate'] = 'New template';
 $string['noassignmentsyet'] = 'No assignments yet';
@@ -211,6 +231,7 @@ $string['reattemptavailability'] = 'Ensure required students are a member of the
 $string['recreate'] = 'Recreate assignment activity';
 $string['releasedate'] = 'Grades cannot be released until {$a->date} ({$a->days} days after the board has passed).';
 
+$string['samedates'] = 'Your requested has not been sent because they\'re for the same dates';
 $string['scale'] = 'Scale';
 $string['selectapagetype'] = 'Select a pagetype';
 $string['selectascale'] = 'Select a scale';
@@ -218,6 +239,7 @@ $string['selectasession'] = 'Select a session';
 $string['selectatemplate'] = 'Select a template';
 $string['selectcourses'] = 'Select courses';
 $string['send_assign_config_errors_messsage_task'] = 'Send assignment configuration error message digest';
+$string['sendmessage'] = 'Send message';
 $string['sequence'] = 'Sequence';
 $string['session'] = 'Academic session';
 $string['shortcode:assignmentintro'] = 'Displays dynamic information about an assignment that is displayed to students.';
@@ -289,6 +311,7 @@ $string['timemodified'] = 'Time modified';
 $string['tutorinfo'] = 'Tutor information';
 
 $string['updatedtemplate'] = '"{$a}" has been updated.';
+$string['updateduedate'] = 'Update due date for "{$a->title}"';
 $string['urlnotset'] = 'AIS client url not set';
 
 $string['visibility'] = 'Visibility';

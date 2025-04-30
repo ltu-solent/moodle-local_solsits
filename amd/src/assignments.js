@@ -41,6 +41,7 @@ const newDueDate = (e) => {
         formClass: 'local_solsits\\forms\\new_duedate_form',
         args: {
             sitsref: element.getAttribute('data-sitsref'),
+            newduedate: element.getAttribute('data-duedate'),
         },
         modalConfig: {
             title: getString('updateduedate', 'local_solsits', {

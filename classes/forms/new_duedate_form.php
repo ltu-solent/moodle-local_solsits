@@ -61,7 +61,6 @@ class new_duedate_form extends dynamic_form {
         $mform = $this->_form;
         $mform->setDisableShortforms();
         $strftimedatetimeaccurate = '%d %B %Y';
-        $mform->addElement('header', 'hdr', '');
         $mform->addElement('hidden', 'sitsref');
         $mform->setType('sitsref', PARAM_RAW);
 
@@ -70,7 +69,7 @@ class new_duedate_form extends dynamic_form {
         $description = get_string('assignmentduedatechange_description', 'local_solsits', [
             'title' => $this->get_sitsassign()->get('title'),
         ]);
-        $mform->addElement('static', 'messageinfo', $title, $description);
+        $mform->addElement('html', $description);
         $duedate = $this->get_sitsassign()->get('duedate');
         $title = get_string('existingduedate', 'local_solsits');
         $mform->addElement('static', 'duedate', $title, userdate($duedate, $strftimedatetimeaccurate));

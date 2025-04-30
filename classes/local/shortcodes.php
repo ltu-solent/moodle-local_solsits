@@ -246,6 +246,7 @@ class shortcodes {
             } else {
                 $tutorinfo[] = get_string('checkduedate', 'local_solsits', [
                     'duedate' => userdate($duedate, $strftimedatetimeaccurate),
+                    'duedatetimestamp' => $duedate,
                     'sitsref' => $sitsassign->get('sitsref'),
                     'title' => $sitsassign->get('title'),
                     'cmid' => $sitsassign->get('cmid'),

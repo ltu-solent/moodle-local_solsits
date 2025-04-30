@@ -81,7 +81,7 @@ $string['checkduedate'] = 'Submission due date is <strong>{$a->duedate}</strong>
  data-sitsref="{$a->sitsref}"
  data-cmid="{$a->cmid}"
  data-title="{$a->title}"
- data-duedate"{$a->duedate}">Inform Assessments team of new date</a>.';
+ data-duedate="{$a->duedatetimestamp}">Inform Assessments team of new date</a>.';
 $string['checkduedatenomessage'] = 'Submission due date is <strong>{$a->duedate}</strong>. Is this correct?';
 $string['cmid'] = 'Course module ID';
 $string['confirmdeletetemplate'] = 'Confirm deletion of "{$a}"';

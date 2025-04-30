@@ -125,7 +125,7 @@ $string['existingduedate'] = 'Existing due date';
 $string['exportgradestask'] = 'Export grades to SITS';
 $string['externaldate'] = 'External date';
 
-$string['failedtoqueue'] = 'We\'ve been able to send your request.';
+$string['failedtoqueue'] = 'We\'ve been unable to send your request - this may be because there\'s a pending request.';
 $string['failure'] = 'Failure';
 $string['filter'] = 'Filter';
 $string['filterassignments'] = 'Filter assignments';

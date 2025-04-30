@@ -35,11 +35,14 @@
         ]
     }
 }}
+{{#hasstudentinfo}}
 <div class="highlight-box highlight-box-{{style}} fa-style">
     {{#link}}
         <p>{{{link}}}</p>
     {{/link}}
+    {{#status}}
     <p><strong>{{#str}} submissionstatus , mod_assign {{/str}}:</strong> {{status}}</p>
+    {{/status}}
     
     {{#submissiondue}}
     <p>{{{submissiondue}}}</p>
@@ -61,6 +64,7 @@
     <p><strong>{{#str}} assignmentbrief, local_solsits {{/str}}</strong> <a href="{{{url}}}">{{title}}</a></p>
     {{/assignmentbrief}}
 </div>
+{{/hasstudentinfo}}
 {{#hastutorinfo}}
 <div class="highlight-box highlight-box-teal fa-style mt-2">
     <p><strong>{{#str}} tutorinfo , local_solsits {{/str}}</strong></p>

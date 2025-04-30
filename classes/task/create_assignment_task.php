@@ -46,9 +46,9 @@ class create_assignment_task extends scheduled_task {
      * @return void
      */
     public function execute() {
-        $config = get_config('local_solsits');
+        $maxassignments = get_config('local_solsits', 'maxassignments') ?? 0;
         // Get list of assignments to be created.
-        $assignments = sitsassign::get_create_list($config->maxassignments);
+        $assignments = sitsassign::get_create_list($maxassignments);
         if (count($assignments) == 0) {
             mtrace("No assignments found to process.");
             return;

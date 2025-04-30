@@ -234,7 +234,7 @@ No assignments found to process.
         $this->resetAfterTest();
         /** @var local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
-        set_config('maxassignments', '1', 'local_solsits');
+        set_config('maxassignments', 1, 'local_solsits');
         $dg->create_solent_gradescales();
         $this->setAdminUser();
 
@@ -285,7 +285,7 @@ No assignments found to process.
         $this->assertEquals($asscount, $count);
 
         // Loop through each year, picking off 5 each time.
-        set_config('maxassignments', '5', 'local_solsits');
+        set_config('maxassignments', 5, 'local_solsits');
         foreach ($years as $year) {
             $limittoyears[] = $year;
             set_config('limittoyears', join(',', $limittoyears), 'local_solsits');

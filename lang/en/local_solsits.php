@@ -76,12 +76,12 @@ $string['availabilityconditions'] = 'Availability conditions have been set. Plea
 $string['availablefrom'] = 'Available from';
 
 $string['checkcoursedeleted'] = 'Check: This template no longer exists';
-$string['checkduedate'] = 'Submission due date is <strong>{$a->duedate}</strong>. Is this correct? <a href="#"
+$string['checkduedate'] = 'Submission due date is <strong>{$a->duedate}</strong>. <a href="#"
  data-action="sol-new-duedate"
  data-sitsref="{$a->sitsref}"
  data-cmid="{$a->cmid}"
  data-title="{$a->title}"
- data-duedate="{$a->duedatetimestamp}">Inform Assessments team of new date</a>.';
+ data-duedate="{$a->duedatetimestamp}">Inform Assessments team of new date</a>, if incorrect.';
 $string['checkduedatenomessage'] = 'Submission due date is <strong>{$a->duedate}</strong>. Is this correct?';
 $string['cmid'] = 'Course module ID';
 $string['confirmdeletetemplate'] = 'Confirm deletion of "{$a}"';

@@ -41,7 +41,7 @@
         <p>{{{link}}}</p>
     {{/link}}
     {{#status}}
-    <p><strong>{{#str}} submissionstatus , mod_assign {{/str}}:</strong> {{status}}</p>
+    <p><strong>{{#str}} submissionstatus , mod_assign {{/str}}:</strong> {{{status}}}</p>
     {{/status}}
     
     {{#submissiondue}}
@@ -61,7 +61,7 @@
     {{/reattempt}}
 
     {{#assignmentbrief}}
-    <p><strong>{{#str}} assignmentbrief, local_solsits {{/str}}</strong> <a href="{{{url}}}">{{title}}</a></p>
+    <p><strong>{{#str}} assignmentbrief, local_solsits {{/str}}</strong> <a href="{{{url}}}">{{{title}}}</a></p>
     {{/assignmentbrief}}
 </div>
 {{/hasstudentinfo}}

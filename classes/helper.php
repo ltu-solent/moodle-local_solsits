@@ -392,8 +392,7 @@ class helper {
         // Update in upgrade.php script transfers capabilities from local/quercus_tasks:releasegrades.
         $hascapability = has_capability('local/solsits:releasegrades', $context);
         $locked = $DB->get_field_select('grade_items', 'locked', 'itemmodule = ? AND iteminstance = ?', ['assign', $cm->instance]);
-        $batchreleasepage = ($PAGE->pagetype == 'mod-assign-viewbatchsetmarkingworkflowstate');
-        if ($hascapability && $locked == 0 && $batchreleasepage) {
+        if ($hascapability && $locked == 0) {
             return true;
         } else if ($locked != 0) {
             return true;

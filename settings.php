@@ -264,6 +264,11 @@ if ($hassiteconfig) {
     $description = new lang_string('assignmentduedatechange_mailinglist_desc', 'local_solsits');
     $settings->add(new admin_setting_configtext($name, $title, $description, '', PARAM_TEXT));
 
+    $name = 'local_solsits/assignmentduedatechange_reasons';
+    $title = new lang_string('assignmentduedatechange_reasons', 'local_solsits');
+    $description = new lang_string('assignmentduedatechange_reasons_desc', 'local_solsits');
+    $settings->add(new admin_setting_configtextarea($name, $title, $description, '', PARAM_TEXT));
+
     $name = 'local_solsits/assignmentduedatechange_body';
     $title = new lang_string('assignmentduedatechange_body', 'local_solsits');
     $description = new lang_string('assignmentduedatechange_body_desc', 'local_solsits');

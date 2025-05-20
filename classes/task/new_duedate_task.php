@@ -63,12 +63,18 @@ class new_duedate_task extends adhoc_task {
             '{SITSREF}',
             '{NEWDUEDATE}',
             '{OLDDUEDATE}',
+            '{ADDITIONALINFORMATION}',
+            '{REASON}',
+            '{MAP}',
         ], [
             $tutor,
             $this->get_sitsassign()->get('title'),
             $this->get_sitsassign()->get('sitsref'),
             $formattednewduedate,
             $formattedduedate,
+            $customdata->additionalinformation ?? '',
+            $customdata->reason ?? '',
+            $this->get_sitsassign()->get('assessmentcode'),
         ], $body);
         $noreplyuser = \core_user::get_noreply_user();
         $subject = get_string('assignmentduedatechange_subject', 'local_solsits', $this->sitsassign->get('sitsref'));

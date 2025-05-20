@@ -200,12 +200,14 @@ class shortcodes {
         if ($submission && !in_array($submission->status, $submittedstatuses)) {
             $data->style = 'solent-burgundy-light';
             $data->submissiondue = get_string('submissiondue', 'local_solsits', userdate($duedate, $strftimedatetimeaccurate));
-        }
-        if ($submission && in_array($submission->status, $submittedstatuses)) {
+        } else if ($submission && in_array($submission->status, $submittedstatuses)) {
             $data->submissiondate = get_string('submissiondueandsubmitted', 'local_solsits', (object)[
                 'duedate' => userdate($duedate, $strftimedatetimeaccurate),
                 'submissiondate' => userdate($submission->timemodified, $strftimedatetimeaccurate),
             ]);
+        } else {
+            $data->style = 'solent-burgundy-light';
+            $data->submissiondue = get_string('submissiondue', 'local_solsits', userdate($duedate, $strftimedatetimeaccurate));
         }
         if ($sitsassign->get('reattempt') > 0) {
             $data->reattempt = $config->assignmentmessage_studentreattempt;

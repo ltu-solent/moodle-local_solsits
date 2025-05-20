@@ -29,6 +29,7 @@ $string['actions'] = 'Actions';
 $string['addavailabilitytoreattempt'] = 'Add group availability to reattempt';
 $string['addavailabilitytoreattempt_desc'] = 'This is linked to the "create reattempt groups" setting, and will explicitly add a
     restriction to the reattempt. Warning: Only add this if the tutors can easily know who should take reattempts.';
+$string['additionalinformation'] = 'Additional information';
 $string['ais_testconnection'] = 'Test connection';
 $string['allgrades'] = 'All grades';
 $string['allocatedtemplate'] = 'Allocated template';
@@ -51,6 +52,9 @@ $string['assignmentduedatechange_description'] = '<p>A message will be sent to t
   <p>A copy will be sent to you when the message has been sent (it may take a few minutes to be sent).</p>';
 $string['assignmentduedatechange_mailinglist'] = 'Due date change mailing list';
 $string['assignmentduedatechange_mailinglist_desc'] = 'List of usernames (comma separated) of those who are to receive request to update the due dates';
+$string['assignmentduedatechange_reasons'] = 'Reasons to change due date';
+$string['assignmentduedatechange_reasons_desc'] = 'List of valid reasons to change the due date';
+
 $string['assignmentduedatechange_subject'] = 'Due date change for {$a}';
 
 $string['assignmentmessage_marksuploadinclude'] = 'Marks upload message';
@@ -219,6 +223,7 @@ $string['quercusassignmentonsitscourse'] = 'The Quercus assignment ({$a->assigni
 $string['r0-1weeks'] = 'The following assignments are due within 1 week';
 $string['rangedates'] = 'Unconfigured assignments due between {$a->start} and {$a->end}';
 $string['rangeweeks'] = '{$a->start} to {$a->end} weeks';
+$string['reason'] = 'Reason';
 $string['reattempt'] = 'Re-attempt';
 $string['reattempt0'] = 'First attempt';
 $string['reattempt1'] = 'First reattempt';
@@ -234,6 +239,7 @@ $string['releasedate'] = 'Grades cannot be released until {$a->date} ({$a->days}
 $string['samedates'] = 'Your requested has not been sent because they\'re for the same dates';
 $string['scale'] = 'Scale';
 $string['selectapagetype'] = 'Select a pagetype';
+$string['selectareason'] = 'Select a reason';
 $string['selectascale'] = 'Select a scale';
 $string['selectasession'] = 'Select a session';
 $string['selectatemplate'] = 'Select a template';

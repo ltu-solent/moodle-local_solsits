@@ -18,6 +18,7 @@ namespace local_solsits\forms;
 
 use core\context;
 use core\exception\moodle_exception;
+use core\lang_string;
 use core\task\manager;
 use core\url;
 use core_form\dynamic_form;
@@ -64,8 +65,6 @@ class new_duedate_form extends dynamic_form {
         $mform->addElement('hidden', 'sitsref');
         $mform->setType('sitsref', PARAM_RAW);
 
-        $name = 'message';
-        $title = '';
         $description = get_string('assignmentduedatechange_description', 'local_solsits', [
             'title' => $this->get_sitsassign()->get('title'),
         ]);
@@ -73,7 +72,18 @@ class new_duedate_form extends dynamic_form {
         $duedate = $this->get_sitsassign()->get('duedate');
         $title = get_string('existingduedate', 'local_solsits');
         $mform->addElement('static', 'duedate', $title, userdate($duedate, $strftimedatetimeaccurate));
+
         $mform->addElement('date_selector', 'newduedate', get_string('newduedate', 'local_solsits'));
+
+        $reasons = get_config('local_solsits', 'assignmentduedatechange_reasons') ?? '';
+        $reasons = explode("\n", trim($reasons));
+        if (count($reasons) > 0 && !empty($reasons[0])) {
+            $reasons = array_merge(['' => get_string('selectareason', 'local_solsits')], $reasons);
+            $mform->addElement('select', 'reason', new lang_string('reason', 'local_solsits'), $reasons);
+            $mform->addRule('reason', get_string('required'), 'required');
+        }
+
+        $mform->addElement('textarea', 'additionalinformation', new lang_string('additionalinformation', 'local_solsits'));
     }
 
     /**
@@ -119,9 +129,17 @@ class new_duedate_form extends dynamic_form {
             return $detail;
         }
 
+        $reasons = get_config('local_solsits', 'assignmentduedatechange_reasons') ?? '';
+        $reasons = explode("\n", trim($reasons));
+        if (count($reasons) > 0 && !empty($reasons[0])) {
+            $reason = $reasons[$data->reason];
+        }
+
         $customdata = [
             'sitsref' => $this->get_sitsassign()->get('sitsref'),
             'newduedate' => $newduedate,
+            'reason' => $reason,
+            'additionalinformation' => $data->additionalinformation,
         ];
         $task = new new_duedate_task();
         $task->set_userid($USER->id);

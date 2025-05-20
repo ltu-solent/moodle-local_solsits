@@ -71,6 +71,7 @@ class observers {
         $problems = [];
         $coursesection = 0;
         try {
+            // This is getting a cached cm, but this might not have been refreshed yet. See MDL-85419.
             [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'assign');
             $problems = [];
             if ($cm->visible == 0) {

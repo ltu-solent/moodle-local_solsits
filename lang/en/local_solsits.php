@@ -215,6 +215,33 @@ $string['passfail'] = 'Pass/Fail';
 $string['passfailscale'] = 'Pass/Fail scale';
 $string['pluginname'] = 'SOL-SITS Integration';
 $string['poft'] = '{$a->page} of {$a->total}';
+$string['pointgrademarkmapping'] = 'Grade';
+$string['pointgrademarkmapping_help'] = 'Enter the grade for the student\'s submission here.
+
+For summative assignments, the following points map to the Solent Grademark scale:<br />
+100 -> A1<br />
+ 92 -> A2<br />
+ 83 -> A3<br />
+ 74 -> A4<br />
+ 68 -> B1<br />
+ 65 -> B2<br />
+ 62 -> B3<br />
+ 58 -> C1<br />
+ 55 -> C2<br />
+ 52 -> C3<br />
+ 48 -> D1<br />
+ 45 -> D2<br />
+ 42 -> D3<br />
+ 35 -> F1<br />
+ 20 -> F2<br />
+ 15 -> F3<br />
+  2 -> S<br />
+  0 -> N<br />
+
+For Pass/Fail assessments, use:<br />
+42 -> Pass<br />
+35 -> Fail<br />
+';
 $string['points'] = 'Points';
 
 $string['quercus'] = 'Quercus';

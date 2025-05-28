@@ -550,6 +550,35 @@ class helper {
     }
 
     /**
+     * Select menu options for Grademark mapping. Not currently used.
+     *
+     * @return array
+     */
+    public static function get_pointygrademarkoptions(): array {
+        $points = [
+            '100' => '100/100 (A1)',
+            '92' => '92/100 (A2)',
+            '83' => '83/100 (A3)',
+            '74' => '74/100 (A4)',
+            '68' => '68/100 (B1)',
+            '65' => '65/100 (B2)',
+            '62' => '62/100 (B3)',
+            '58' => '58/100 (C1)',
+            '55' => '55/100 (C2)',
+            '52' => '52/100 (C3)',
+            '48' => '48/100 (D1)',
+            '45' => '45/100 (D2)',
+            '42' => '42/100 (D3)',
+            '35' => '34/100 (F1)',
+            '20' => '20/100 (F2)',
+            '15' => '15/100 (F3)',
+            '2' => '2/100 (S)',
+            '0' => '0/100 (N)',
+        ];
+        return $points;
+    }
+
+    /**
      * Grading alerts
      *
      * @param \local_solalerts\hook\after_course_content_header $hook

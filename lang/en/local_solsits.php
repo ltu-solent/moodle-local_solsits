@@ -241,7 +241,8 @@ For summative assignments, the following points map to the Solent Grademark scal
 For Pass/Fail assessments, use:<br />
 42 -> Pass<br />
 35 -> Fail<br />
-';
+
+<a href="https://learn.solent.ac.uk/academic-handbook/grading-criteria">Grading guidance</a>';
 $string['points'] = 'Points';
 
 $string['quercus'] = 'Quercus';

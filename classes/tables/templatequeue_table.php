@@ -51,34 +51,21 @@ class templatequeue_table extends table_sql {
         global $DB;
         parent::__construct($uniqueid);
         $columns = [
-            'id',
-            'coursename',
-            'shortname',
-            'startdate',
-            'enddate',
-            'visibility',
-            'timecreated',
-            'pagetype',
-            'session',
-            'allocatedtemplate',
-            'info',
+            'id' => 'id',
+            'coursename' => new lang_string('coursename', 'local_solsits'),
+            'shortname' => new lang_string('shortname', 'local_solsits'),
+            'startdate' => new lang_string('startdate', 'local_solsits'),
+            'enddate' => new lang_string('enddate', 'local_solsits'),
+            'visibility' => new lang_string('visibility', 'local_solsits'),
+            'timecreated' => new lang_string('timecreated'),
+            'pagetype' => new lang_string('pagetype', 'local_solsits'),
+            'session' => new lang_string('session', 'local_solsits'),
+            'allocatedtemplate' => new lang_string('allocatedtemplate', 'local_solsits'),
+            'info' => new lang_string('info', 'local_solsits'),
         ];
 
-        $columnheadings = [
-            'id',
-            new lang_string('coursename', 'local_solsits'),
-            new lang_string('shortname', 'local_solsits'),
-            new lang_string('startdate', 'local_solsits'),
-            new lang_string('enddate', 'local_solsits'),
-            new lang_string('visibility', 'local_solsits'),
-            new lang_string('timecreated'),
-            new lang_string('pagetype', 'local_solsits'),
-            new lang_string('session', 'local_solsits'),
-            new lang_string('allocatedtemplate', 'local_solsits'),
-            new lang_string('info', 'local_solsits'),
-        ];
-        $this->define_columns($columns);
-        $this->define_headers($columnheadings);
+        $this->define_columns(array_keys($columns));
+        $this->define_headers(array_values($columns));
         $this->collapsible(false);
 
         // Filter validation.

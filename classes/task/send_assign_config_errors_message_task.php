@@ -64,6 +64,15 @@ class send_assign_config_errors_message_task extends scheduled_task {
     public function execute() {
         global $OUTPUT;
         $config = get_config('local_solsits');
+        $lastrun = get_config('local_solsits', 'assign_config_errors_lastrun') ?? 0;
+        // Undercut the 7 days by a bit so we don't find ourselves with a 2 week interval.
+        $mininterval = ((DAYSECS * 7) - HOURSECS);
+        $now = time();
+        if ($now < ($lastrun + $mininterval)) {
+            mtrace("This task can only run once a week. Last run " . date('Y-m-d H:i:s', $lastrun));
+            return;
+        }
+        set_config('assign_config_errors_lastrun', $now, 'local_solsits');
         // Prefixed with r because get_string will convert into an object and you can't have properties starting with
         // a number.
         $ranges = self::get_ranges();

@@ -146,6 +146,81 @@ final class send_assign_config_errors_message_task_test extends \advanced_testca
     }
 
     /**
+     * Prevent sending lots of emails
+     *
+     * @dataProvider send_email_provider
+     * @param int $duedate
+     * @param string $range
+     * @return void
+     */
+    public function test_prevent_runs_within_interval($duedate, $range): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $this->set_settings();
+        set_config('assignmentconfigwarning_ranges', 'r0-1,r1-2,r2-3', 'local_solsits');
+        $ranges = send_assign_config_errors_message_task::get_ranges();
+        $menu = helper::get_ranges_menu();
+        /** @var local_solsits_generator $ssdg */
+        $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
+        $course = $this->getDataGenerator()->create_course();
+        $coursecontext = context_course::instance($course->id);
+        $sitsassign = $ssdg->create_sits_assign([
+            'sitsref' => 'PROJECT1_ABC101_2023/24',
+            'reattempt' => 0,
+            'title' => 'Project 1 (100%)',
+            'weighting' => 100,
+            'duedate' => $duedate,
+            'grademarkexempt' => false,
+            'availablefrom' => 0,
+            'courseid' => $course->id,
+        ]);
+        $sitsassign->create_assignment();
+        $mlroleid = $this->getDataGenerator()->create_role([
+            'name' => 'Module leader',
+            'shortname' => 'moduleleader',
+            'archetype' => 'editingteacher',
+        ]);
+        assign_capability('local/solsits:releasegrades', CAP_ALLOW, $mlroleid, $coursecontext);
+        $this->getDataGenerator()->create_and_enrol($course, 'moduleleader');
+        $registryuser = $this->getDataGenerator()->create_user();
+        set_config('assignmentconfigwarning_mailinglist', join(',', [$registryuser->username]), 'local_solsits');
+        $expectedoutput = '';
+        $sink = $this->redirectEmails();
+        $task = new \local_solsits\task\send_assign_config_errors_message_task();
+        // Will send 2 emails.
+        $task->execute();
+
+        // Will send 0 emails.
+        $lastrunnow = get_config('local_solsits', 'assign_config_errors_lastrun');
+        $task->execute();
+        $expectedoutput .= 'This task can only run once a week. Last run ' . date('Y-m-d H:i:s', $lastrunnow) . PHP_EOL;
+
+        // Will send 0 emails.
+        $lastrun5 = time() - (DAYSECS * 5);
+        set_config('assign_config_errors_lastrun', $lastrun5, 'local_solsits');
+        $task->execute();
+        $expectedoutput .= 'This task can only run once a week. Last run ' . date('Y-m-d H:i:s', $lastrun5) . PHP_EOL;
+
+        // Will send 0 emails.
+        $lastrun6 = time() - (DAYSECS * 6);
+        set_config('assign_config_errors_lastrun', $lastrun6, 'local_solsits');
+        $task->execute();
+        $expectedoutput .= 'This task can only run once a week. Last run ' . date('Y-m-d H:i:s', $lastrun6) . PHP_EOL;
+
+        // Will send 2 emails.
+        set_config('assign_config_errors_lastrun', time() - (DAYSECS * 7), 'local_solsits');
+        $task->execute();
+
+        $sink->get_messages();
+        if ($range != 'nil') {
+            $this->assertEquals(4, $sink->count());
+        } else {
+            $this->assertEquals(0, $sink->count());
+        }
+        $this->expectOutputRegex('#' . $expectedoutput . '#');
+    }
+
+    /**
      * Settings required to create an assignment
      *
      * @return void

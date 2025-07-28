@@ -35,6 +35,10 @@ use Exception;
 use NumberFormatter;
 use stdClass;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot . '/mod/assign/locallib.php');
+
 /**
  * Helper class for common functions.
  */

@@ -421,7 +421,7 @@ class sitsassign extends persistent {
         $DB->update_record('assign', $this->formdata);
 
         $context = context\module::instance($cm->id);
-        $assignobj = new assign($context, $cm, $course);
+        $assignobj = new \assign($context, $cm, $course);
         // Updating the gradebook updates the grade_item, which we depend on for knowing the gradetype
         // being used - if there are grades we definitely don't want to reset those.
         $assignobj->update_gradebook(false, $cm->id);

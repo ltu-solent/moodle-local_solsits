@@ -17,7 +17,6 @@
 namespace local_solsits\external;
 
 use core\context;
-use core\exception\invalid_parameter_exception;
 use core\exception\moodle_exception;
 use core_external\external_api;
 use core_external\external_function_parameters;
@@ -26,7 +25,6 @@ use core_external\external_single_structure;
 use core_external\external_value;
 use local_solsits\helper;
 use local_solsits\sitsassign;
-use stdClass;
 
 /**
  * Class add_assignments
@@ -57,7 +55,10 @@ class add_assignments extends external_api {
                     'grademarkexempt' => new external_value(PARAM_BOOL, 'Is this grademark exempt', VALUE_DEFAULT, false),
                     'scale' => new external_value(PARAM_ALPHANUMEXT, 'Shortname of scale to be used', VALUE_OPTIONAL),
                     'availablefrom' => new external_value(
-                        PARAM_INT, 'When the assignment is available to the student from', VALUE_OPTIONAL),
+                        PARAM_INT,
+                        'When the assignment is available to the student from',
+                        VALUE_OPTIONAL
+                    ),
                 ])
             ),
         ]);
@@ -71,8 +72,7 @@ class add_assignments extends external_api {
      */
     public static function execute($assignments) {
         global $DB;
-        $params = self::validate_parameters(self::execute_parameters(),
-                ['assignments' => $assignments]);
+        $params = self::validate_parameters(self::execute_parameters(), ['assignments' => $assignments]);
         $transaction = $DB->start_delegated_transaction();
         $inserted = [];
         foreach ($params['assignments'] as $assignment) {
@@ -126,7 +126,10 @@ class add_assignments extends external_api {
                 'grademarkexempt' => new external_value(PARAM_BOOL, 'Is this grademark exempt', VALUE_DEFAULT, false),
                 'scale' => new external_value(PARAM_ALPHANUMEXT, 'Shortname of scale to be used', VALUE_OPTIONAL),
                 'availablefrom' => new external_value(
-                        PARAM_INT, 'When the assignment is available to the student from', VALUE_OPTIONAL),
+                    PARAM_INT,
+                    'When the assignment is available to the student from',
+                    VALUE_OPTIONAL
+                ),
             ])
         );
     }

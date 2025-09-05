@@ -45,6 +45,7 @@ require_once($CFG->dirroot . '/local/solsits/tests/generator.php');
  */
 final class helper_test extends advanced_testcase {
     use generator;
+
     /**
      * Test setting up course custom fields that will be used by this plugin.
      * @covers \local_solsits\helper::create_sits_coursecustomfields

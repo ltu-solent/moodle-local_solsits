@@ -27,12 +27,8 @@ namespace local_solsits;
 
 use assign;
 use core\context;
+use core\lang_string;
 use core\persistent;
-use core_date;
-use DateTime;
-use grade_item;
-use lang_string;
-use mod_assign_external;
 use plagiarism_plugin_turnitin;
 use stdClass;
 
@@ -202,14 +198,26 @@ class sitsassign extends persistent {
         $mform->addElement('html', new lang_string('sitsdatadesc', 'local_solsits'));
 
         $mform->addElement('static', 'sits_sitsref', new lang_string('sitsreference', 'local_solsits'), $solassign->sitsref);
-        $mform->addElement('static', 'sits_assessmentname',
-            new lang_string('assessmentname', 'local_solsits'), $solassign->assessmentname);
-        $mform->addElement('static', 'sits_assessmentcode',
-            new lang_string('assessmentcode', 'local_solsits'), $solassign->assessmentcode);
+        $mform->addElement(
+            'static',
+            'sits_assessmentname',
+            new lang_string('assessmentname', 'local_solsits'),
+            $solassign->assessmentname
+        );
+        $mform->addElement(
+            'static',
+            'sits_assessmentcode',
+            new lang_string('assessmentcode', 'local_solsits'),
+            $solassign->assessmentcode
+        );
         $mform->addElement('static', 'sits_sequence', new lang_string('sequence', 'local_solsits'), $solassign->sequence);
         $reattempt = get_string('reattempt' . (string)$solassign->reattempt, 'local_solsits');
-        $mform->addElement('static', 'sits_reattempt', new lang_string('sitsreattempt', 'local_solsits'),
-            $reattempt);
+        $mform->addElement(
+            'static',
+            'sits_reattempt',
+            new lang_string('sitsreattempt', 'local_solsits'),
+            $reattempt
+        );
 
         $mform->addElement('static', 'sits_weighting', new lang_string('weighting', 'local_solsits'), $solassign->weighting . '%');
         $strftimedatetimeaccurate = '%d %B %Y, %I:%M:%S %p';
@@ -236,8 +244,12 @@ class sitsassign extends persistent {
         }
         $mform->addElement('static', 'sits_availablefrom', new lang_string('availablefrom', 'local_solsits'), $availablefrom);
 
-        $mform->addElement('static', 'sits_assignmentbrief', new lang_string('assignmentbrief', 'local_solsits'),
-            'brief:' . $solassign->sitsref);
+        $mform->addElement(
+            'static',
+            'sits_assignmentbrief',
+            new lang_string('assignmentbrief', 'local_solsits'),
+            'brief:' . $solassign->sitsref
+        );
         $mform->addHelpButton('sits_assignmentbrief', 'assignmentbrief', 'local_solsits');
     }
 
@@ -613,7 +625,6 @@ class sitsassign extends persistent {
         $this->formdata->revealidenties = 0;
         $this->formdata->coursemodule = '';
         $this->calculatedates();
-
     }
 
     /**
@@ -718,7 +729,11 @@ class sitsassign extends persistent {
         $assignids = $DB->get_records_sql(
             "SELECT DISTINCT(ag.solassignmentid) solassignmentid
             FROM {local_solsits_assign_grades} ag
-            WHERE ag.response IS NULL", [], 0, $limit);
+            WHERE ag.response IS NULL",
+            [],
+            0,
+            $limit
+        );
         $assignids = array_keys($assignids);
         return $assignids;
     }

@@ -24,12 +24,12 @@
  */
 namespace local_solsits\tables;
 
-use core_user;
-use html_writer;
-use lang_string;
-use moodle_url;
+use core\lang_string;
+use core\output\html_writer;
+use core\url;
+use core\user;
+use core_table\sql_table;
 use stdClass;
-use table_sql;
 
 defined('MOODLE_INTERNAL') || die();
 require_once("$CFG->libdir/tablelib.php");
@@ -37,7 +37,7 @@ require_once("$CFG->libdir/tablelib.php");
 /**
  * Table for listing soltemplate persistent records.
  */
-class soltemplates_table extends table_sql {
+class soltemplates_table extends sql_table {
     /**
      * Constructor to set up table
      *
@@ -74,7 +74,7 @@ class soltemplates_table extends table_sql {
         $this->sortable(true, 'session', SORT_DESC);
         $this->collapsible(false);
 
-        $this->define_baseurl(new moodle_url("/local/solsits/managetemplates.php"));
+        $this->define_baseurl(new url("/local/solsits/managetemplates.php"));
         $where = '1=1';
         $this->set_sql('*', "{local_solsits_templates}", $where);
     }
@@ -87,11 +87,11 @@ class soltemplates_table extends table_sql {
      */
     public function col_actions($row) {
         $params = ['action' => 'edit', 'id' => $row->id];
-        $edit = new moodle_url('/local/solsits/edittemplate.php', $params);
+        $edit = new url('/local/solsits/edittemplate.php', $params);
         $html = html_writer::link($edit, get_string('edit'));
 
         $params['action'] = 'delete';
-        $delete = new moodle_url('/local/solsits/edittemplate.php', $params);
+        $delete = new url('/local/solsits/edittemplate.php', $params);
         $html .= " " . html_writer::link($delete, get_string('delete'));
         return $html;
     }
@@ -139,7 +139,7 @@ class soltemplates_table extends table_sql {
         if (!$course) {
             return get_string('checkcoursedeleted', 'local_solsits');
         }
-        $url = new moodle_url('/course/view.php', ['id' => $row->courseid]);
+        $url = new url('/course/view.php', ['id' => $row->courseid]);
         return html_writer::link($url, $course);
     }
 
@@ -150,7 +150,7 @@ class soltemplates_table extends table_sql {
      * @return string HTML for row's column value
      */
     public function col_usermodified($row) {
-        $modifiedby = core_user::get_user($row->usermodified);
+        $modifiedby = user::get_user($row->usermodified);
         if (!$modifiedby || $modifiedby->deleted) {
             return get_string('deleteduser', 'local_solsits');
         }
@@ -166,5 +166,4 @@ class soltemplates_table extends table_sql {
     public function col_timemodified($row) {
         return userdate($row->timemodified, get_string('strftimedatetimeshort', 'core_langconfig'));
     }
-
 }

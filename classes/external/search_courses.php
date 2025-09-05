@@ -52,12 +52,7 @@ class search_courses extends external_api {
      */
     public static function execute($query, $session): array {
         global $DB;
-        $params = self::validate_parameters(self::execute_parameters(),
-            [
-                'session' => $session,
-                'query' => $query,
-            ]
-        );
+        $params = self::validate_parameters(self::execute_parameters(), ['session' => $session, 'query' => $query]);
 
         $select = "SELECT id courseid, CONCAT(shortname, ': ', fullname) label FROM {course} ";
         $wheres = [];

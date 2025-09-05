@@ -75,8 +75,13 @@ trait generator {
      * @param string $workflowstate ASSIGN_MARKING_WORKFLOW_STATE_ constant
      * @return void
      */
-    private function mark_assignments($students, $grades, $assign, $moduleleader,
-            $workflowstate = ASSIGN_MARKING_WORKFLOW_STATE_RELEASED) {
+    private function mark_assignments(
+        $students,
+        $grades,
+        $assign,
+        $moduleleader,
+        $workflowstate = ASSIGN_MARKING_WORKFLOW_STATE_RELEASED
+    ) {
         $this->setUser($moduleleader);
         foreach ($students as $x => $student) {
             $data = new stdClass();

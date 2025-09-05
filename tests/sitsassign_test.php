@@ -31,7 +31,6 @@ use core\context;
 use local_solsits\task\task_trait;
 use mod_assign_test_generator;
 use mod_assign_testable_assign;
-use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -52,6 +51,7 @@ final class sitsassign_test extends advanced_testcase {
     use generator;
     use mod_assign_test_generator;
     use task_trait;
+
     /**
      * Test getting a list of assignments that can now be created
      *
@@ -465,7 +465,8 @@ final class sitsassign_test extends advanced_testcase {
                 $this->assertEquals($newduedate, $event->timestart);
                 $this->assertEquals(
                     get_string('completionexpectedfor', 'completion', (object)['instancename' => $newassign['title']]),
-                    $event->name);
+                    $event->name
+                );
             }
             if ($event->eventtype == ASSIGN_EVENT_TYPE_DUE) {
                 $this->assertEquals($newduedate, $event->timestart);

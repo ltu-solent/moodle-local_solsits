@@ -47,6 +47,7 @@ final class update_assignments_test extends externallib_advanced_testcase {
     use generator;
     use mod_assign_test_generator;
     use task_trait;
+
     /**
      * Try updating an existing assignment with the wrong courseid
      * @covers \local_solsits_external::update_assignments
@@ -118,7 +119,8 @@ final class update_assignments_test extends externallib_advanced_testcase {
         $afterscale,
         $courseidnumber,
         $expectederror = '',
-        $cmexists = false): void {
+        $cmexists = false
+    ): void {
         $this->resetAfterTest();
         $this->setAdminUser();
         $course = $this->getDataGenerator()->create_course([

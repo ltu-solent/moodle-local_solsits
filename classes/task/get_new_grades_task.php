@@ -67,17 +67,19 @@ class get_new_grades_task extends scheduled_task {
             $lastruntime = $lastruntime - 60;
         }
         // Get assign ids for new assignments.
-        $assignids = $DB->get_records_sql('SELECT iteminstance
+        $assignids = $DB->get_records_sql(
+            'SELECT iteminstance
             FROM {grade_items}
             WHERE itemmodule = :itemmodule
                 AND idnumber != :idnumber
-                AND (locked > :locked AND locktime = :locktime)', [
-                    'itemmodule' => 'assign',
-                    'idnumber' => '',
-                    'locked' => $lastruntime,
-                    'locktime' => 0,
-                ]
-            );
+                AND (locked > :locked AND locktime = :locktime)',
+            [
+                'itemmodule' => 'assign',
+                'idnumber' => '',
+                'locked' => $lastruntime,
+                'locktime' => 0,
+            ]
+        );
         if (!$assignids) {
             mtrace('No grades have been released');
             return;
@@ -122,7 +124,8 @@ class get_new_grades_task extends scheduled_task {
             5,
             context\course::instance($course->id),
             false,
-            'u.id, u.lastname, u.firstname, idnumber', 'idnumber, u.lastname, u.firstname'
+            'u.id, u.lastname, u.firstname, idnumber',
+            'idnumber, u.lastname, u.firstname'
         );
         $allgrades = mod_assign_external::get_grades([$assignid]);
         if (empty($allgrades['assignments'])) {

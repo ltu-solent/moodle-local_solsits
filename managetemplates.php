@@ -24,6 +24,9 @@
  */
 
 use core\context;
+use core\output\action_link;
+use core\url;
+
 require_once('../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
@@ -35,13 +38,16 @@ $PAGE->set_context($context);
 $PAGE->set_heading(get_string('pluginname', 'local_solsits'));
 $PAGE->set_pagelayout('admin');
 $PAGE->set_title(get_string('pluginname', 'local_solsits'));
-$PAGE->set_url($CFG->wwwroot.'/local/solsits/managetemplates.php');
+$PAGE->set_url($CFG->wwwroot . '/local/solsits/managetemplates.php');
 
 echo $OUTPUT->header();
 
-$new = new action_link(new moodle_url('/local/solsits/edittemplate.php', ['action' => 'new']),
-    get_string('newsoltemplate', 'local_solsits'), null,
-    ['class' => 'btn btn-primary']);
+$new = new action_link(
+    new url('/local/solsits/edittemplate.php', ['action' => 'new']),
+    get_string('newsoltemplate', 'local_solsits'),
+    null,
+    ['class' => 'btn btn-primary']
+);
 echo $OUTPUT->render($new);
 
 $table = new \local_solsits\tables\soltemplates_table('soltemplates');

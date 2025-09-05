@@ -27,13 +27,13 @@ global $CFG;
 require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
 
 use Behat\Gherkin\Node\TableNode;
+use core\exception\moodle_exception;
 use local_solsits\generator;
 
 /**
  * Behat steps for local solsits
  */
 class behat_local_solsits extends behat_base {
-
     /**
      * Create new sitsassign record
      *

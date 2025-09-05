@@ -16,7 +16,8 @@
 
 namespace local_solsits\task;
 
-use context_course;
+use advanced_testcase;
+use core\context;
 use local_solsits\helper;
 
 /**
@@ -28,7 +29,7 @@ use local_solsits\helper;
  * @copyright  2025 Southampton Solent University {@link https://www.solent.ac.uk}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-final class send_assign_config_errors_message_task_test extends \advanced_testcase {
+final class send_assign_config_errors_message_task_test extends advanced_testcase {
     /**
      * Send emails if assignment falls within window
      *
@@ -47,7 +48,7 @@ final class send_assign_config_errors_message_task_test extends \advanced_testca
         /** @var local_solsits_generator $ssdg */
         $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $course = $this->getDataGenerator()->create_course();
-        $coursecontext = context_course::instance($course->id);
+        $coursecontext = context\course::instance($course->id);
         $sitsassign = $ssdg->create_sits_assign([
             'sitsref' => 'PROJECT1_ABC101_2023/24',
             'reattempt' => 0,
@@ -163,7 +164,7 @@ final class send_assign_config_errors_message_task_test extends \advanced_testca
         /** @var local_solsits_generator $ssdg */
         $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $course = $this->getDataGenerator()->create_course();
-        $coursecontext = context_course::instance($course->id);
+        $coursecontext = context\course::instance($course->id);
         $sitsassign = $ssdg->create_sits_assign([
             'sitsref' => 'PROJECT1_ABC101_2023/24',
             'reattempt' => 0,

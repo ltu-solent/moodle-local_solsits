@@ -26,7 +26,7 @@
 namespace local_solsits\forms;
 
 use core\form\persistent as persistent_form;
-use lang_string;
+use core\lang_string;
 use local_solsits\helper;
 use local_solsits\soltemplate;
 
@@ -34,7 +34,6 @@ use local_solsits\soltemplate;
  * Form to manage soltemplate persistent records.
  */
 class soltemplate_form extends persistent_form {
-
     /**
      * Cross reference for the object this form is working from.
      *
@@ -103,7 +102,6 @@ class soltemplate_form extends persistent_form {
                     $errors['session'] = $errors['pagetype'];
                 }
             }
-
         }
         return $errors;
     }

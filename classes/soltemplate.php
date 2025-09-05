@@ -25,8 +25,8 @@
 
 namespace local_solsits;
 
+use core\lang_string;
 use core\persistent;
-use lang_string;
 
 /**
  * Soltemplate persistent record.

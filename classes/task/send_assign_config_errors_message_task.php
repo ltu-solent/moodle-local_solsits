@@ -16,8 +16,9 @@
 
 namespace local_solsits\task;
 
-use context_course;
+use core\context;
 use core\task\scheduled_task;
+use core\user;
 use local_solsits\helper;
 use local_solsits\sitsassign;
 use stdClass;
@@ -81,12 +82,12 @@ class send_assign_config_errors_message_task extends scheduled_task {
             return;
         }
         // We are going to send these emails from 'noreplyaddress'.
-        $noreplyuser = \core_user::get_noreply_user();
+        $noreplyuser = user::get_noreply_user();
         $mailinglist = $config->assignmentconfigwarning_mailinglist ?? '';
         $mailinglist = explode(',', $mailinglist);
         $gatewayusers = [];
         foreach ($mailinglist as $username) {
-            $user = \core_user::get_user_by_username($username);
+            $user = user::get_user_by_username($username);
             if ($user) {
                 $gatewayusers[] = $user;
             }
@@ -97,7 +98,7 @@ class send_assign_config_errors_message_task extends scheduled_task {
             $unconfigured = sitsassign::get_unconfigured_assignments($range['start'], $range['end']);
             foreach ($unconfigured as $sitsassign) {
                 // Get the course's module leader(s). Add The assignment to that ML's list.
-                $context = context_course::instance($sitsassign->courseid);
+                $context = context\course::instance($sitsassign->courseid);
                 $mls = get_enrolled_users($context, 'local/solsits:releasegrades', 0, 'u.*', null, 0, 0, true);
                 foreach ($mls as $ml) {
                     if (!isset($moduleleaders[$ml->id])) {
@@ -119,7 +120,7 @@ class send_assign_config_errors_message_task extends scheduled_task {
             foreach ($moduleleaders as $userid => $assignments) {
                 $data->assignments = $assignments;
                 $body = $config->assignmentconfigwarning_body ?? '';
-                $user = \core_user::get_user($userid);
+                $user = user::get_user($userid);
                 $moduleleader = fullname($user);
                 $body = str_replace([
                     '{MODULELEADER}',

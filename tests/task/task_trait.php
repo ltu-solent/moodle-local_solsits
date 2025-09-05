@@ -29,7 +29,6 @@ namespace local_solsits\task;
  * Helper trait for task processing.
  */
 trait task_trait {
-
     /**
      * Helper to execute a particular task.
      *
@@ -41,4 +40,3 @@ trait task_trait {
         $task->execute();
     }
 }
-

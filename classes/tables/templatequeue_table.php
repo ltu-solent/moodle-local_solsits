@@ -25,13 +25,13 @@
 
 namespace local_solsits\tables;
 
-use html_writer;
-use lang_string;
+use core\lang_string;
+use core\output\html_writer;
+use core\url;
+use core_table\sql_table;
 use local_solsits\helper;
 use local_solsits\soltemplate;
-use moodle_url;
 use stdClass;
-use table_sql;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -40,7 +40,7 @@ require_once("$CFG->libdir/tablelib.php");
 /**
  * Table to list courses that haven't yet had the template applied.
  */
-class templatequeue_table extends table_sql {
+class templatequeue_table extends sql_table {
     /**
      * Set up the page and sql
      *
@@ -86,7 +86,7 @@ class templatequeue_table extends table_sql {
         $selectedcourses = $filters['selectedcourses'] ?? [];
 
         // Ensure the filter form elements are replicated for paging links.
-        $baseurl = new moodle_url("/local/solsits/templatequeue.php");
+        $baseurl = new url("/local/solsits/templatequeue.php");
         $baseurl->param('pagetype', $pagetype);
         $baseurl->param('session', $session);
         foreach ($selectedcourses as $selectedcourse) {
@@ -123,7 +123,7 @@ class templatequeue_table extends table_sql {
         if ($templatecourse) {
             $template = $DB->get_record('course', ['id' => $templatecourse->get('courseid')]);
             $link = html_writer::link(
-                new moodle_url('/course/view.php', ['id' => $template->id]),
+                new url('/course/view.php', ['id' => $template->id]),
                 $template->fullname
             );
         }
@@ -138,7 +138,7 @@ class templatequeue_table extends table_sql {
      */
     public function col_coursename($row) {
         $link = html_writer::link(
-            new moodle_url('/course/view.php', ['id' => $row->id]),
+            new url('/course/view.php', ['id' => $row->id]),
             $row->fullname
         );
         return $link;

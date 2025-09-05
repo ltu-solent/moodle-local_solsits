@@ -17,12 +17,10 @@
 namespace local_solsits\local;
 
 use assign;
-use context_course;
-use context_module;
+use core\output\html_writer;
+use core\url;
 use Exception;
-use html_writer;
 use local_solsits\sitsassign;
-use moodle_url;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -76,7 +74,7 @@ class shortcodes {
                     if (!$cm->visible) {
                         continue;
                     }
-                    $url = new moodle_url('/mod/assign/view.php', ['id' => $sitsassign->get('cmid')]);
+                    $url = new url('/mod/assign/view.php', ['id' => $sitsassign->get('cmid')]);
                     $data->link = html_writer::link($url, $cm->name);
                     $data->style = 'solent-sea-blue';
                     // SITSassign has the duedate from SITS, but the activity will have the real date.
@@ -177,8 +175,11 @@ class shortcodes {
             'assignment' => $cm->instance,
         ]);
         if ($userdata && $userdata->extensionduedate > 0) {
-            $data->extensionduedate = get_string('userextensiondate', 'mod_assign',
-                userdate($userdata->extensionduedate, $strftimedatetimeaccurate));
+            $data->extensionduedate = get_string(
+                'userextensiondate',
+                'mod_assign',
+                userdate($userdata->extensionduedate, $strftimedatetimeaccurate)
+            );
         }
         $submission = $DB->get_record('assign_submission', [
             'userid' => $USER->id,
@@ -269,7 +270,7 @@ class shortcodes {
         if ($cm->availability != null) {
             if ($sitsassign->get('reattempt') > 0) {
                 $groupslink = html_writer::link(
-                    new moodle_url('/group/index.php', ['id' => $sitsassign->get('courseid')]),
+                    new url('/group/index.php', ['id' => $sitsassign->get('courseid')]),
                     $sitsassign->get('title')
                 );
                 $tutorinfo[] = get_string('reattemptavailability', 'local_solsits', $groupslink);

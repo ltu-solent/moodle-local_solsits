@@ -23,6 +23,9 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\lang_string;
+use core\output\html_writer;
+use core\url;
 use local_solsits\helper;
 
 defined('MOODLE_INTERNAL') || die();
@@ -136,7 +139,8 @@ if ($hassiteconfig) {
     $options = get_max_upload_sizes(
         $CFG->maxbytes,
         get_config('moodlecourse', 'maxbytes'),
-        get_config('assignsubmission_file', 'maxbytes'));
+        get_config('assignsubmission_file', 'maxbytes')
+    );
     $default = 104857600;
     $settings->add(new admin_setting_configselect($name, $title, $description, $default, $options));
 
@@ -183,7 +187,9 @@ if ($hassiteconfig) {
     $description = new lang_string('assignmentmessage_reattempt_desc', 'local_solsits');
     $settings->add(
         new admin_setting_configtextarea(
-            $name, $title, $description,
+            $name,
+            $title,
+            $description,
             'Please do not release these {REATTEMPT} submissions before the first attempt submissions have been ' .
             'marked and released.'
         )
@@ -194,7 +200,9 @@ if ($hassiteconfig) {
     $description = new lang_string('assignmentmessage_studentreattempt_desc', 'local_solsits');
     $settings->add(
         new admin_setting_configtextarea(
-            $name, $title, $description,
+            $name,
+            $title,
+            $description,
             'Note: You only need to submit to this assignment if you have been asked to do so. If you are not sure, please ' .
             'speak to your Module leader.'
         )
@@ -204,9 +212,12 @@ if ($hassiteconfig) {
     $title = new lang_string('assignmentwarning_hidden', 'local_solsits');
     $description = new lang_string('assignmentwarning_hidden_desc', 'local_solsits');
     $settings->add(
-        new admin_setting_configtextarea($name, $title, $description,
-        '<p><strong>Warning</strong>This is a Summative assignment and it has been hidden.</p>' .
-        '<p>Your students will not be able to see their grades or feedback; please make visible again.</p>'
+        new admin_setting_configtextarea(
+            $name,
+            $title,
+            $description,
+            '<p><strong>Warning</strong>This is a Summative assignment and it has been hidden.</p>' .
+            '<p>Your students will not be able to see their grades or feedback; please make visible again.</p>'
         )
     );
 
@@ -214,9 +225,13 @@ if ($hassiteconfig) {
     $title = new lang_string('assignmentwarning_wrongsection', 'local_solsits');
     $description = new lang_string('assignmentwarning_wrongsection_desc', 'local_solsits');
     $settings->add(
-        new admin_setting_configtextarea($name, $title, $description,
-        '<p><strong>Warning</strong>This is a Summative assignment and it has been moved out of the Assignments section.</p>' .
-        '<p>Moving assignments where students don\'t expect can be confusing. Please contact Guided.Learning to move it back</p>'
+        new admin_setting_configtextarea(
+            $name,
+            $title,
+            $description,
+            '<p><strong>Warning</strong>This is a Summative assignment and it has been moved out of the Assignments section.</p>' .
+            '<p>Moving assignments where students don\'t expect can be confusing. ' .
+            'Please contact Guided.Learning to move it back</p>'
         )
     );
 
@@ -224,11 +239,14 @@ if ($hassiteconfig) {
     $title = new lang_string('assignmentwarning_body', 'local_solsits');
     $description = new lang_string('assignmentwarning_body_desc', 'local_solsits');
     $settings->add(
-        new admin_setting_configtextarea($name, $title, $description,
-        '<p>Dear {MODULELEADER}</p>' .
-        '<p>Changes have recently been made to {ASSIGNMENTLINK} ({IDNUMBER}) on {COURSELINK}.' .
-        'Please note these changes can affect access and Marks Uploads. See below for details.</p>' .
-        '<p>Kind regards, Guided Learning</p>'
+        new admin_setting_configtextarea(
+            $name,
+            $title,
+            $description,
+            '<p>Dear {MODULELEADER}</p>' .
+            '<p>Changes have recently been made to {ASSIGNMENTLINK} ({IDNUMBER}) on {COURSELINK}.' .
+            'Please note these changes can affect access and Marks Uploads. See below for details.</p>' .
+            '<p>Kind regards, Guided Learning</p>'
         )
     );
 
@@ -247,15 +265,18 @@ if ($hassiteconfig) {
     $title = new lang_string('assignmentconfigwarning_body', 'local_solsits');
     $description = new lang_string('assignmentconfigwarning_body_desc', 'local_solsits');
     $settings->add(
-        new admin_setting_configtextarea($name, $title, $description,
-        '<p>Dear {MODULELEADER}</p>
-        <p>The following assignments may not have been set up correctly.</p>
-        <p>If you require your students to submit to any of these assignments, please set a <a href="#">submission type</a> as
-         appropriate.</p>
-        <p>If an assignment does not require your students to uploaded a submission (e.g. exams, in-class presentations,
-        physical submission), then no further action is required.</p>
-        <p>Thank you</p>
-        <p>Kind regards, Guided Learning</p>'
+        new admin_setting_configtextarea(
+            $name,
+            $title,
+            $description,
+            '<p>Dear {MODULELEADER}</p>
+            <p>The following assignments may not have been set up correctly.</p>
+            <p>If you require your students to submit to any of these assignments, please set a <a href="#">submission type</a> as
+            appropriate.</p>
+            <p>If an assignment does not require your students to uploaded a submission (e.g. exams, in-class presentations,
+            physical submission), then no further action is required.</p>
+            <p>Thank you</p>
+            <p>Kind regards, Guided Learning</p>'
         )
     );
 
@@ -273,10 +294,14 @@ if ($hassiteconfig) {
     $title = new lang_string('assignmentduedatechange_body', 'local_solsits');
     $description = new lang_string('assignmentduedatechange_body_desc', 'local_solsits');
     $settings->add(
-        new admin_setting_configtextarea($name, $title, $description,
-        '<p>Dear Assessments</p>
-        <p>Please change the due date for "{TITLE}" - "{SITSREF}" to {NEWDUEDATE}<p>
-        <p>Kind regards, {TUTOR}</p>')
+        new admin_setting_configtextarea(
+            $name,
+            $title,
+            $description,
+            '<p>Dear Assessments</p>
+            <p>Please change the due date for "{TITLE}" - "{SITSREF}" to {NEWDUEDATE}<p>
+            <p>Kind regards, {TUTOR}</p>'
+        )
     );
 
     $name = 'local_solsits/marksuploadssettings';
@@ -301,15 +326,16 @@ if ($hassiteconfig) {
 
     $name = 'local_solsits/ais_testconnection';
     $title = new lang_string('ais_testconnection', 'local_solsits');
-    $description = html_writer::tag('p',
-        html_writer::tag('button',
+    $description = html_writer::tag(
+        'p',
+        html_writer::tag(
+            'button',
             $title,
             [
                 'class' => 'btn btn-primary',
                 'id' => 'ais_testconnection',
             ]
         ) . html_writer::tag('span', '', ['id' => 'ais_testconnection_response', 'class' => 'pl-1'])
-
     );
     $settings->add(new admin_setting_description($name, '', $description));
     $PAGE->requires->js_call_amd('local_solsits/ais-testconnection', 'init');
@@ -337,21 +363,21 @@ if ($hassiteconfig) {
 
     $name = 'local_solsits/managetemplates';
     $title = new lang_string('managetemplates', 'local_solsits');
-    $url = new moodle_url('/local/solsits/managetemplates.php');
+    $url = new url('/local/solsits/managetemplates.php');
     $externalpage = new admin_externalpage($name, $title, $url);
 
     $ADMIN->add('local_solsitscat', $externalpage);
 
     $name = 'local_solsits/manageassignments';
     $title = new lang_string('manageassignments', 'local_solsits');
-    $url = new moodle_url('/local/solsits/manageassignments.php');
+    $url = new url('/local/solsits/manageassignments.php');
     $externalpage = new admin_externalpage($name, $title, $url);
 
     $ADMIN->add('local_solsitscat', $externalpage);
 
     $name = 'local_solsits/templatequeue';
     $title = new lang_string('templatequeue', 'local_solsits');
-    $url = new moodle_url('/local/solsits/templatequeue.php');
+    $url = new url('/local/solsits/templatequeue.php');
     $externalpage = new admin_externalpage($name, $title, $url);
 
     $ADMIN->add('local_solsitscat', $externalpage);

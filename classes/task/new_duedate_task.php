@@ -19,6 +19,7 @@ namespace local_solsits\task;
 use core\exception\coding_exception;
 use core\exception\moodle_exception;
 use core\task\adhoc_task;
+use core\user;
 use local_solsits\sitsassign;
 
 /**
@@ -30,7 +31,6 @@ use local_solsits\sitsassign;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class new_duedate_task extends adhoc_task {
-
     /**
      * Sits assignment record
      *
@@ -55,7 +55,7 @@ class new_duedate_task extends adhoc_task {
         $formattedduedate = userdate($existingduedate, $strftimedatetimeaccurate);
         $formattednewduedate = userdate($newduedate, $strftimedatetimeaccurate);
         $userid = $this->get_userid();
-        $requester = \core_user::get_user($userid);
+        $requester = user::get_user($userid);
         $tutor = fullname($requester);
         $htmlbody = str_replace([
             '{TUTOR}',
@@ -76,14 +76,14 @@ class new_duedate_task extends adhoc_task {
             $customdata->reason ?? '',
             $this->get_sitsassign()->get('assessmentcode'),
         ], $body);
-        $noreplyuser = \core_user::get_noreply_user();
+        $noreplyuser = user::get_noreply_user();
         $subject = get_string('assignmentduedatechange_subject', 'local_solsits', $this->sitsassign->get('sitsref'));
         $textbody = html_to_text($htmlbody);
         email_to_user($requester, $noreplyuser, $subject, $textbody, $htmlbody);
         $mailinglist = get_config('local_solsits', 'assignmentduedatechange_mailinglist') ?? '';
         $mailinglist = explode(',', $mailinglist);
         foreach ($mailinglist as $username) {
-            $user = \core_user::get_user_by_username($username);
+            $user = user::get_user_by_username($username);
             if ($user) {
                 email_to_user($user, $requester, $subject, $textbody, $htmlbody);
             }

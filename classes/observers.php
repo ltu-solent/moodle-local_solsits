@@ -25,15 +25,15 @@
 
 namespace local_solsits;
 
-use core_user;
-use html_writer;
-use moodle_url;
+use core\output\html_writer;
+use core\url;
+use core\user;
+use Exception;
 
 /**
  * Observers class for local_solsits.
  */
 class observers {
-
     /**
      * Actions on deletion of sits assignment.
      *
@@ -81,26 +81,27 @@ class observers {
             if ($coursesection->section != 1) {
                 $problems[] = 'wrongsection';
             }
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return;
         }
         if (count($problems) == 0) {
             return;
         }
         // Don't send if the user is site admin or AIS WS user.
-        $triggerer = core_user::get_user($event->userid);
+        $triggerer = user::get_user($event->userid);
         if (is_siteadmin($triggerer) || $triggerer->username == 'aisws') {
             // No notification required.
             return;
         }
         $moduleleader = fullname($triggerer);
-        $assignmenturl = new moodle_url('/course/mod.php', ['update' => $cmid]);
+        $assignmenturl = new url('/course/mod.php', ['update' => $cmid]);
         $assignmentlink = html_writer::link($assignmenturl, $cm->name);
-        $courseurl = new moodle_url('/course/view.php', ['id' => $course->id]);
+        $courseurl = new url('/course/view.php', ['id' => $course->id]);
         $courselink = html_writer::link($courseurl, $course->fullname);
         $subject = html_to_text(get_string('assignmentsettingserrorsubject', 'local_solsits', ['idnumber' => $cm->idnumber]));
         $body = $config->assignmentwarning_body;
-        $body = str_replace([
+        $body = str_replace(
+            [
                 '{IDNUMBER}',
                 '{COURSELINK}',
                 '{MODULELEADER}',
@@ -111,7 +112,9 @@ class observers {
                 $courselink,
                 $moduleleader,
                 $assignmentlink,
-            ], $body);
+            ],
+            $body
+        );
         foreach ($problems as $problem) {
             $problemtext = clean_text($config->{'assignmentwarning_' . $problem});
             $body .= $problemtext;
@@ -121,12 +124,12 @@ class observers {
         ];
         $extras = ['admin', 'guidedlearning'];
         foreach ($extras as $extra) {
-            $recep = core_user::get_user_by_username($extra);
+            $recep = user::get_user_by_username($extra);
             if ($recep) {
                 $recipients[] = $recep;
             }
         }
-        $noreply = core_user::get_noreply_user();
+        $noreply = user::get_noreply_user();
         foreach ($recipients as $recipient) {
             email_to_user($recipient, $noreply, $subject, html_to_text($body), $body);
         }

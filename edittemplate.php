@@ -24,6 +24,11 @@
  */
 
 use core\context;
+use core\exception\moodle_exception;
+use core\lang_string;
+use core\output\html_writer;
+use core\output\single_button;
+use core\url;
 use local_solsits\forms\soltemplate_form;
 use local_solsits\soltemplate;
 require_once('../../config.php');
@@ -50,10 +55,10 @@ require_capability('local/solsits:managetemplates', $context);
 
 $PAGE->set_context($context);
 $PAGE->set_pagelayout('admin');
-$PAGE->set_url(new moodle_url('/local/solsits/edittemplate.php', $pageparams));
-$PAGE->navbar->add(get_string('localplugins'), new moodle_url('/admin/category.php?category=localplugins'));
-$PAGE->navbar->add(get_string('pluginname', 'local_solsits'), new moodle_url('/admin/category.php?category=local_solsitscat'));
-$PAGE->navbar->add(get_string('managetemplates', 'local_solsits'), new moodle_url('/local/solsits/managetemplates.php'));
+$PAGE->set_url(new url('/local/solsits/edittemplate.php', $pageparams));
+$PAGE->navbar->add(get_string('localplugins'), new url('/admin/category.php?category=localplugins'));
+$PAGE->navbar->add(get_string('pluginname', 'local_solsits'), new url('/admin/category.php?category=local_solsitscat'));
+$PAGE->navbar->add(get_string('managetemplates', 'local_solsits'), new url('/local/solsits/managetemplates.php'));
 
 $soltemplate = null;
 $form = null;
@@ -77,34 +82,40 @@ if ($confirmdelete && confirm_sesskey()) {
     $templatecourseid = $soltemplate->get('courseid');
     $title = $DB->get_field('course', 'fullname', ['id' => $templatecourseid]);
     $soltemplate->delete();
-    redirect(new moodle_url('/local/solsits/managetemplates.php'),
+    redirect(
+        new url('/local/solsits/managetemplates.php'),
         get_string('deletedtemplate', 'local_solsits', $title),
         null,
-        \core\output\notification::NOTIFY_INFO);
+        \core\output\notification::NOTIFY_INFO
+    );
 }
 
 
 $form = new soltemplate_form($PAGE->url->out(false), $customdata);
 if ($form->is_cancelled()) {
-    redirect(new moodle_url('/local/solsits/managetemplates.php'));
+    redirect(new url('/local/solsits/managetemplates.php'));
 }
 if ($formdata = $form->get_data()) {
     if (empty($formdata->id)) {
         $soltemplate = new soltemplate(0, $formdata);
         $soltemplate->create();
-        redirect(new moodle_url('/local/solsits/managetemplates.php'),
+        redirect(
+            new url('/local/solsits/managetemplates.php'),
             get_string('newsavedtemplate', 'local_solsits'),
             null,
-            \core\output\notification::NOTIFY_SUCCESS);
+            \core\output\notification::NOTIFY_SUCCESS
+        );
     } else {
         $soltemplate = new soltemplate($formdata->id);
         if ($action == 'edit') {
             $soltemplate->from_record($formdata);
             $soltemplate->update();
-            redirect(new moodle_url('/local/solsits/managetemplates.php'),
+            redirect(
+                new url('/local/solsits/managetemplates.php'),
                 get_string('updatedtemplate', 'local_solsits', $formdata->courseid),
                 null,
-                \core\output\notification::NOTIFY_SUCCESS);
+                \core\output\notification::NOTIFY_SUCCESS
+            );
         }
     }
 }
@@ -119,7 +130,7 @@ if ($action == 'delete') {
     $title = $DB->get_field('course', 'fullname', ['id' => $templatecourseid]);
     $heading = new lang_string('confirmdeletetemplate', 'local_solsits', $title);
     echo html_writer::tag('h3', $heading);
-    $deleteurl = new moodle_url('/local/solsits/edittemplate.php', [
+    $deleteurl = new url('/local/solsits/edittemplate.php', [
         'action' => 'delete',
         'confirmdelete' => true,
         'id' => $id,
@@ -129,7 +140,7 @@ if ($action == 'delete') {
     echo $OUTPUT->confirm(
         $heading,
         $deletebutton,
-        new moodle_url('/local/solsits/managetemplates.php')
+        new url('/local/solsits/managetemplates.php')
     );
 } else {
     $heading = new lang_string('newsoltemplate', 'local_solsits');

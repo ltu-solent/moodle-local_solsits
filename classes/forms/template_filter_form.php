@@ -25,7 +25,7 @@
 
 namespace local_solsits\forms;
 
-use lang_string;
+use core\lang_string;
 use local_solsits\helper;
 use moodleform;
 
@@ -48,7 +48,7 @@ class template_filter_form extends moodleform {
             'multiple' => true,
             'noselectionstring' => get_string('noselection', 'local_solsits'),
             'ajax' => 'local_solsits/form-course-selector',
-            'valuehtmlcallback' => function($value) {
+            'valuehtmlcallback' => function ($value) {
                 global $DB;
                 $course = $DB->get_record('course', ['id' => $value]);
                 if ($course) {
@@ -57,10 +57,13 @@ class template_filter_form extends moodleform {
                 return false;
             },
         ];
-        $mform->addElement('autocomplete', 'selectedcourses',
+        $mform->addElement(
+            'autocomplete',
+            'selectedcourses',
             new lang_string('selectcourses', 'local_solsits'),
             [],
-            $options);
+            $options
+        );
         $mform->setDefault('selectedcourses', []);
 
         $options = [

@@ -50,6 +50,7 @@ final class export_grades_task_test extends advanced_testcase {
     use generator;
     use mod_assign_test_generator;
     use task_trait;
+
     /**
      * Test executing the task
      *

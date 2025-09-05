@@ -26,7 +26,6 @@
 namespace local_solsits;
 
 use advanced_testcase;
-use core_course\customfield\course_handler;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -37,7 +36,6 @@ global $CFG;
  * @group sol
  */
 final class soltemplate_test extends advanced_testcase {
-
     /**
      * Get template records that match the criteria
      * @covers \local_solsits\soltemplate::get_templateapplied_records

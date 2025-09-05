@@ -24,6 +24,11 @@
  */
 
 use core\context;
+use core\exception\moodle_exception;
+use core\lang_string;
+use core\output\html_writer;
+use core\output\single_button;
+use core\url;
 use local_solsits\sitsassign;
 
 require_once('../../config.php');
@@ -72,7 +77,8 @@ if (($confirmdelete || $confirmrecreate) && confirm_sesskey()) {
     }
 
     if ($message) {
-        redirect(new moodle_url('/local/solsits/manageassignments.php'),
+        redirect(
+            new url('/local/solsits/manageassignments.php'),
             $message,
             null,
             \core\output\notification::NOTIFY_SUCCESS
@@ -84,7 +90,7 @@ $PAGE->set_context($context);
 $PAGE->set_heading(get_string('manageassignments', 'local_solsits'));
 $PAGE->set_pagelayout('admin');
 $PAGE->set_title(get_string('manageassignments', 'local_solsits'));
-$PAGE->set_url($CFG->wwwroot.'/local/solsits/manageassignments.php');
+$PAGE->set_url($CFG->wwwroot . '/local/solsits/manageassignments.php');
 
 echo $OUTPUT->header();
 
@@ -142,12 +148,12 @@ if (in_array($action, ['delete', 'recreate'])) {
 
     if ($candelete || $canrecreate) {
         echo html_writer::tag('h3', $heading);
-        $actionurl = new moodle_url('/local/solsits/manageassignments.php', $buttonparams);
+        $actionurl = new url('/local/solsits/manageassignments.php', $buttonparams);
         $actionbutton = new single_button($actionurl, $actionlabel);
         echo $OUTPUT->confirm(
             $body,
             $actionbutton,
-            new moodle_url('/local/solsits/manageassignments.php')
+            new url('/local/solsits/manageassignments.php')
         );
         echo $OUTPUT->footer();
         exit();

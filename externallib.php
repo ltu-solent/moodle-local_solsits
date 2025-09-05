@@ -23,8 +23,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_solsits\helper;
-use local_solsits\sitsassign;
+use core_external\external_function_parameters;
 
 defined('MOODLE_INTERNAL') || die();
 

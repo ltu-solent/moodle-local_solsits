@@ -43,7 +43,6 @@ require_once($CFG->dirroot . '/mod/assign/locallib.php');
  * Helper class for common functions.
  */
 class helper {
-
     /**
      * Gets key/value pairs for Pagetypes menu.
      *
@@ -353,7 +352,7 @@ class helper {
         if (count($solscales) == 0) {
             return $scales;
         }
-        $scales = array_filter($scales, function($scaleid) use ($solscales) {
+        $scales = array_filter($scales, function ($scaleid) use ($solscales) {
             return in_array($scaleid, $solscales);
         }, ARRAY_FILTER_USE_KEY);
         // Format: [id => 'scale name'].
@@ -386,7 +385,7 @@ class helper {
      * @return boolean
      */
     public static function can_release_grades($cmid): bool {
-        global $DB, $PAGE;
+        global $DB;
         $issummative = self::is_summative_assignment($cmid);
         if (!$issummative) {
             return true;
@@ -749,4 +748,3 @@ class helper {
         return $assignment;
     }
 }
-

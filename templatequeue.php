@@ -24,6 +24,8 @@
  */
 
 use core\context;
+use core\output\html_writer;
+
 require_once('../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
@@ -46,7 +48,7 @@ $PAGE->set_context($context);
 $PAGE->set_heading(get_string('templatequeue', 'local_solsits'));
 $PAGE->set_pagelayout('admin');
 $PAGE->set_title(get_string('templatequeue', 'local_solsits'));
-$PAGE->set_url($CFG->wwwroot.'/local/solsits/templatequeue.php');
+$PAGE->set_url($CFG->wwwroot . '/local/solsits/templatequeue.php');
 
 $filterform = new \local_solsits\forms\template_filter_form(null, $params);
 if ($filterdata = $filterform->get_data()) {

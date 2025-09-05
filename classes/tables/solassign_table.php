@@ -25,14 +25,14 @@
 
 namespace local_solsits\tables;
 
-use core_user;
+use core\lang_string;
+use core\output\html_writer;
+use core\url;
+use core_table\sql_table;
 use Exception;
-use html_writer;
-use lang_string;
 use local_solsits\helper;
-use moodle_url;
 use stdClass;
-use table_sql;
+
 
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/tablelib.php');
@@ -40,7 +40,7 @@ require_once($CFG->libdir . '/tablelib.php');
 /**
  * Table of assignments from SITS and references to course modules.
  */
-class solassign_table extends table_sql {
+class solassign_table extends sql_table {
     /**
      * Scales available
      *
@@ -102,7 +102,7 @@ class solassign_table extends table_sql {
             'session' => $filters['session'],
         ];
         $sc = [];
-        $baseurl = new moodle_url('/local/solsits/manageassignments.php', $urlparams);
+        $baseurl = new url('/local/solsits/manageassignments.php', $urlparams);
         foreach ($filters['selectedcourses'] as $key => $selectedcourse) {
             $sc['selectedcourses[' . $key . ']'] = $selectedcourse;
         }
@@ -136,8 +136,12 @@ class solassign_table extends table_sql {
         if (!empty($wheres)) {
             $wherestring = join(' AND ', $wheres);
         }
-        $this->set_sql('ssa.*, c.fullname, c.idnumber course_idnumber, cm.visible cmvisible, c.visible cvisible',
-            $from, $wherestring, $params);
+        $this->set_sql(
+            'ssa.*, c.fullname, c.idnumber course_idnumber, cm.visible cmvisible, c.visible cvisible',
+            $from,
+            $wherestring,
+            $params
+        );
     }
 
     /**
@@ -155,17 +159,17 @@ class solassign_table extends table_sql {
             } catch (Exception $ex) {
                 // Only allow actions if the assignment has already been deleted.
                 $params['action'] = 'delete';
-                $delete = new moodle_url('/local/solsits/manageassignments.php', $params);
+                $delete = new url('/local/solsits/manageassignments.php', $params);
                 $links[] = html_writer::link($delete, get_string('delete'));
 
                 $params['action'] = 'recreate';
-                $recreate = new moodle_url('/local/solsits/manageassignments.php', $params);
+                $recreate = new url('/local/solsits/manageassignments.php', $params);
                 $links[] = html_writer::link($recreate, get_string('recreate', 'local_solsits'));
             }
         } else {
             // Only allow delete if the assignment has not yet been created.
             $params['action'] = 'delete';
-            $delete = new moodle_url('/local/solsits/manageassignments.php', $params);
+            $delete = new url('/local/solsits/manageassignments.php', $params);
             $links[] = html_writer::link($delete, get_string('delete'));
         }
 
@@ -195,7 +199,7 @@ class solassign_table extends table_sql {
         if ($row->cmid > 0) {
             try {
                 [$course, $cm] = get_course_and_cm_from_cmid($row->cmid, 'assign');
-                $url = new moodle_url('/mod/assign/view.php', ['id' => $row->cmid]);
+                $url = new url('/mod/assign/view.php', ['id' => $row->cmid]);
                 return html_writer::link($url, $cm->name);
             } catch (Exception $ex) {
                 return get_string('nolongerexists', 'local_solsits');
@@ -212,7 +216,7 @@ class solassign_table extends table_sql {
      * @return string HTML for row's column value
      */
     public function col_course($row) {
-        $url = new moodle_url('/course/view.php', ['id' => $row->courseid]);
+        $url = new url('/course/view.php', ['id' => $row->courseid]);
         return html_writer::link($url, $row->fullname) . '<br><small>' . $row->course_idnumber . '</small>';
     }
 
@@ -286,7 +290,7 @@ class solassign_table extends table_sql {
         if (!$row->cmid) {
             return $row->title;
         }
-        return html_writer::link(new moodle_url('/mod/assign/view.php', ['id' => $row->cmid]), $row->title);
+        return html_writer::link(new url('/mod/assign/view.php', ['id' => $row->cmid]), $row->title);
     }
 
     /**

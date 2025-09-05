@@ -29,7 +29,6 @@ use advanced_testcase;
 use local_solsits\generator;
 use local_solsits\helper;
 use mod_assign_test_generator;
-use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -46,7 +45,6 @@ require_once($CFG->dirroot . '/mod/assign/tests/generator.php');
  * @group sol
  */
 final class get_new_grades_task_test extends advanced_testcase {
-
     use task_trait;
     use mod_assign_test_generator;
     use generator;
@@ -196,8 +194,10 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
             switch ($x) {
                 case 100:
                     $grades[$x]['grade'] = null;
+                    // No break; intentional fall-through.
                 case 101:
                     $grades[$x]['grade'] = -1;
+                    // No break; intentional fall-through.
                 default:
                     $grades[$x]['grade'] = (float)$x;
             }
@@ -471,8 +471,8 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
             'idnumber' => 'ABC101_A_SEM1_2022/23',
         ]);
         $inputgrades = [
-            'input' => [-1 , 0, 39, 50, 59.4, 59.5, 59.6, 70, 71, 100],
-            'output' => [ 0, 0, 39, 50, 59  , 60  , 60  , 70, 71, 100],
+            'input' => [-1, 0, 39, 50, 59.4, 59.5, 59.6, 70, 71, 100],
+            'output' => [ 0, 0, 39, 50, 59, 60, 60, 70, 71, 100],
         ];
         $inputcount = count($inputgrades['input']);
         $students = [];

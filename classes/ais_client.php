@@ -25,8 +25,8 @@
 
 namespace local_solsits;
 
+use core\exception\moodle_exception;
 use curl;
-use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
 

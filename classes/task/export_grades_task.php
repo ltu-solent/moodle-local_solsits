@@ -28,7 +28,6 @@ namespace local_solsits\task;
 use core\task\scheduled_task;
 use local_solsits\ais_client;
 use local_solsits\sitsassign;
-use stdClass;
 
 /**
  * Get newly released grades. Used in conjunction with export_grades.

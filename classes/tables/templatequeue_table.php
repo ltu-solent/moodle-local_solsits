@@ -122,10 +122,12 @@ class templatequeue_table extends sql_table {
         $link = get_string('notemplate', 'local_solsits');
         if ($templatecourse) {
             $template = $DB->get_record('course', ['id' => $templatecourse->get('courseid')]);
-            $link = html_writer::link(
-                new url('/course/view.php', ['id' => $template->id]),
-                $template->fullname
-            );
+            if ($template) {
+                $link = html_writer::link(
+                    new url('/course/view.php', ['id' => $template->id]),
+                    $template->fullname
+                );
+            }
         }
         return $link;
     }

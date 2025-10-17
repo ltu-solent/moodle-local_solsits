@@ -28,6 +28,7 @@ namespace local_solsits\task;
 use core\task\scheduled_task;
 use core_course_external;
 use local_solsits\soltemplate;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -74,6 +75,15 @@ class applytemplate_task extends scheduled_task {
                 $activetemplate->get('session'),
                 0
             );
+            // Check the template course exists.
+            if (!$DB->record_exists('course', ['id' => $activetemplate->get('courseid')])) {
+                $deadtemplate = $activetemplate->to_record();
+                $deadtemplate->enabled = 0;
+                $deadtemplate->timemodified = time();
+                mtrace('The template course for ' . $templatekey . ' no longer exists');
+                $DB->update_record('local_solsits_templates', $deadtemplate);
+                continue;
+            }
             $countuntemplateds = count($untemplateds);
             if ($countuntemplateds == 0) {
                 // No courses to process for this template.

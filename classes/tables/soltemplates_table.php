@@ -29,6 +29,7 @@ use core\output\html_writer;
 use core\url;
 use core\user;
 use core_table\sql_table;
+use local_solsits\soltemplate;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -137,6 +138,11 @@ class soltemplates_table extends sql_table {
         global $DB;
         $course = $DB->get_field('course', 'fullname', ['id' => $row->courseid]);
         if (!$course) {
+            if ($row->enabled) {
+                $row->enabled = 0;
+                $row->timemodified = time();
+                $DB->update_record('local_solsits_templates', $row);
+            }
             return get_string('checkcoursedeleted', 'local_solsits');
         }
         $url = new url('/course/view.php', ['id' => $row->courseid]);

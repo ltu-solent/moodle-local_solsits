@@ -164,7 +164,7 @@ class sitsassign extends persistent {
                     continue;
                 }
                 $limitsql[] = $DB->sql_like('sitsref', ':limit' . $k, false, false);
-                $params['limit' . $k] = '%' . $year . '%';
+                $params['limit' . $k] = '%\_' . $year . '\_%';
             }
             if (count($limitsql) > 0) {
                 $wheres = ' AND (' . join(' OR ', $limitsql) . ') ';

@@ -146,4 +146,49 @@ $page->add(
     )
 );
 
+$page->add(
+    new admin_setting_heading(
+        'local_solsits/moduleconfigurationwarning',
+        new lang_string('moduleconfigurationwarning', 'local_solsits'),
+        new lang_string('moduleconfigurationwarning_desc', 'local_solsits')
+    )
+);
+
+$page->add(
+    new admin_setting_configmultiselect(
+        'local_solsits/moduleconfigurationwarning_ranges',
+        new lang_string('moduleconfigurationwarning_ranges', 'local_solsits'),
+        new lang_string('moduleconfigurationwarning_ranges_desc', 'local_solsits'),
+        [],
+        $rangesmenu
+    )
+);
+
+$page->add(
+    new admin_setting_configtext(
+        'local_solsits/moduleconfigurationwarning_mailinglist',
+        new lang_string('moduleconfigurationwarning_mailinglist', 'local_solsits'),
+        new lang_string('moduleconfigurationwarning_mailinglist_desc', 'local_solsits'),
+        '',
+        PARAM_TEXT
+    )
+);
+
+$page->add(
+    new admin_setting_configtextarea(
+        'local_solsits/moduleconfigurationwarning_body',
+        new lang_string('moduleconfigurationwarning_body', 'local_solsits'),
+        new lang_string('moduleconfigurationwarning_body_desc', 'local_solsits'),
+        '<p>Dear {MODULELEADER}</p>
+        <p>The following modules may not be set up correctly. Please check the following:</p>
+        <ul>
+            <li>Has content been added to the module?</li>
+            <li>Are the start and end dates correct?</li>
+        </ul>
+        <p>For information on how to set up modules correctly, please refer to the ' .
+        '<a href="https://www.solent.ac.uk/guided-learning">Guided Learning documentation</a>.</p>
+        <p>Kind regards, Guided Learning</p>'
+    )
+);
+
 $settings->add($page);

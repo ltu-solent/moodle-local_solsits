@@ -199,6 +199,15 @@ $string['maxtemplates'] = 'Max templates';
 $string['maxtemplates_desc'] = 'Maximum number of courses to apply templates to in a single run.';
 $string['modifiedby'] = 'Modified by';
 $string['module'] = 'Module';
+$string['moduleconfigurationwarning'] = 'Module configuration warning digest';
+$string['moduleconfigurationwarning_body'] = 'Module config warning body';
+$string['moduleconfigurationwarning_body_desc'] = 'Message sent to Module leaders and extra recipients';
+$string['moduleconfigurationwarning_desc'] = 'This message will be sent to Module leaders at weekly intervals leading up to the start date, when there are configuration issues with the module that may affect students\'s ability to access the course and submit assignments.
+Appropriate warnings will be appended to the message.';
+$string['moduleconfigurationwarning_mailinglist'] = 'Module config warning mailing list';
+$string['moduleconfigurationwarning_mailinglist_desc'] = 'List of usernames (comma separated) of those who are to receive a module config warning in addition to the Module leaders';
+$string['moduleconfigurationwarning_ranges'] = 'Message date ranges';
+$string['moduleconfigurationwarning_ranges_desc'] = 'The date ranges for sending config warning messages.';
 $string['muptimeoutmessage'] = 'Check with Registry. The results may have been successfully uploaded.';
 
 $string['newduedate'] = 'New due date';

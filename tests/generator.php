@@ -28,6 +28,8 @@ namespace local_solsits;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
+use core\exception\moodle_exception;
+use core_course_external;
 use stdClass;
 use mod_assign_testable_assign;
 
@@ -101,6 +103,46 @@ trait generator {
         if ($workflowstate == ASSIGN_MARKING_WORKFLOW_STATE_RELEASED) {
             $gradeitem = $assign->get_grade_item();
             $gradeitem->set_locked(time(), false, true);
+        }
+    }
+
+    /**
+     * Apply template to course
+     *
+     * @param int $courseid
+     * @param string $session
+     * @param string $pagetype
+     * @return void
+     */
+    private function apply_template($courseid, $session, $pagetype = 'module') {
+        global $DB;
+        $courseexternal = new core_course_external();
+        $template = soltemplate::get_record(['pagetype' => $pagetype, 'session' => $session, 'enabled' => 1]);
+        if (!$template) {
+            throw new moodle_exception('notemplate', 'local_solsits', '', $pagetype . ' ' . $session);
+        }
+
+        $courseexternal->import_course($template->get('courseid'), $courseid, 1);
+        $course = get_course($courseid);
+        $course->visible = 1;
+        $course->customfield_templateapplied = 1;
+        $course->format_coursedisplay = 0;
+        update_course($course);
+        rebuild_course_cache($courseid);
+        // Re-add manual enrolment method.
+        $plugin = enrol_get_plugin('manual');
+        $instance = $DB->get_record('enrol', ['courseid' => $course->id, 'enrol' => 'manual'], '*');
+
+        if (!$instance) {
+            $fields = [
+                'status'          => '0',
+                'roleid'          => '5',
+                'enrolperiod'     => '0',
+                'expirynotify'    => '0',
+                'notifyall'       => '0',
+                'expirythreshold' => '86400',
+            ];
+            $instance = $plugin->add_instance($course, $fields);
         }
     }
 }

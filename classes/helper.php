@@ -135,9 +135,14 @@ class helper {
         if ($result) {
             $start = $matches[1];
             $end = $matches[2];
+            $nf = new NumberFormatter(current_language(), NumberFormatter::SPELLOUT);
             return [
                 'start' => strtotime("+{$start} weeks"),
                 'end' => strtotime("+{$end} weeks"),
+                'label' => get_string('rangeweeks', 'local_solsits', [
+                    'start' => $nf->format($start),
+                    'end' => $nf->format($end),
+                ]),
             ];
         }
         return null;
@@ -746,5 +751,49 @@ class helper {
         }
 
         return $assignment;
+    }
+
+    /**
+     * Modules have the pagetype of modules
+     *
+     * @param int $startwindow
+     * @param int $endwindow
+     * @return array
+     */
+    public static function get_modules_with_config_issues(int $startwindow = 0, int $endwindow = 0): array {
+        global $DB;
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
+        if ($startwindow == 0) {
+            $startwindow = time();
+        }
+        if ($endwindow < $startwindow) {
+            $endwindow = $startwindow + (WEEKSECS);
+        }
+        // Find all visible courses that start in this timeframe. If the number of sections is 6 or less (including section zero)
+        // and there are students enrolled, and the course customfield "pagetype" is set to "module", then we send a message
+        // to the module leader.
+        $sql = "SELECT c.id, c.shortname, c.fullname, c.startdate, c.enddate, COUNT(DISTINCT(ra.id)) studentcount
+            FROM {course} c
+            JOIN {course_sections} cs ON cs.course = c.id
+            JOIN {context} cx ON cx.instanceid = c.id AND cx.contextlevel = :contextlevel
+            JOIN {role_assignments} ra ON ra.contextid = cx.id AND ra.roleid = :studentroleid
+            JOIN {customfield_data} cfd ON cfd.instanceid = c.id AND cfd.fieldid = (
+                SELECT id FROM {customfield_field} WHERE shortname = 'pagetype' AND categoryid = (
+                    SELECT id FROM {customfield_category} WHERE name = 'Student Records System' AND area = 'course'
+                )
+            ) AND cfd.value = 'module'
+            WHERE c.visible = 1
+                AND c.startdate >= :startwindow
+                AND c.startdate <= :endwindow
+            GROUP BY c.id
+            HAVING COUNT(DISTINCT cs.id) <= :sections";
+        $params = [
+            'startwindow' => $startwindow,
+            'endwindow' => $endwindow,
+            'sections' => 6,
+            'contextlevel' => CONTEXT_COURSE,
+            'studentroleid' => $studentrole->id,
+        ];
+        return $DB->get_records_sql($sql, $params);
     }
 }

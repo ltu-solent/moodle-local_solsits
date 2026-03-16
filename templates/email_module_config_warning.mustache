@@ -1,0 +1,89 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_solsits/email_module_config_warning
+
+    Outputs a message and a list of modules that are not configured correctly.
+
+    Example context (json):
+    {
+        "title": "Module configuration error",
+        "message": "The following modules have no content and is due to start soon",
+        "modules": {
+            "courseid": 5,
+            "startdate": 1744707995,
+            "enddate": 1744807995,
+            "fullname": "Making widgets (ABC101)",
+            "shortname": "ABC101_A_SEM1_2024/25",
+            "student_count": 10
+        }
+    }
+}}
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+    .styled-table {
+        border-collapse: collapse;
+        margin: 25px 50px;
+        font-size: 0.9em;
+        font-family: courier;
+        min-width: 400px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    }
+    .styled-table thead tr {
+        background-color: darkred;
+        color: #ffffff;
+        text-align: left;
+    }
+
+    .styled-table th,
+    .styled-table td {
+        padding: 12px 15px;
+    }
+    .styled-table tbody tr {border-bottom: 1px solid #dddddd;}
+    .styled-table tbody tr:nth-of-type(even) {background-color: #f3f3f3;}
+    </style>
+    <title>{{title}}</title>
+</head>
+<body>
+<div>
+<h3>{{title}}</h3>
+{{{message}}}
+<table class="styled-table">
+    <thead>
+        <tr>
+            <th>{{#str}} module, local_solsits {{/str}}</th>
+            <th>{{#str}} startenddates, local_solsits{{/str}}</th>
+            <th>{{#str}} enrolledstudents, local_solsits{{/str}}</th>
+        </tr>
+    </thead>
+    <tbody>
+    {{#modules}}
+        <tr>
+            <td><a href="{{config.wwwroot}}/course/view.php?id={{id}}">{{fullname}}</a><br><small>{{shortname}}</small></td>
+            <td>{{#userdate}} {{startdate}}, {{#str}} strftimedate, core_langconfig {{/str}} {{/userdate}} -
+                {{#userdate}} {{enddate}}, {{#str}} strftimedate, core_langconfig {{/str}} {{/userdate}}
+            </td>
+            <td>{{studentcount}}</td>
+        </tr>
+    {{/modules}}
+    </tbody>
+</table>
+</div>
+</body>
+</html>

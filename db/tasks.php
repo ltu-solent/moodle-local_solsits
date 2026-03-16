@@ -66,5 +66,13 @@ $tasks = [
         'day' => '*',
         'month' => '*',
         'dayofweek' => '6',
+    ], [
+        'classname' => '\local_solsits\task\send_module_config_errors_message_task',
+        'blocking' => 0,
+        'minute' => '0',
+        'hour' => '23',
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '6',
     ],
 ];

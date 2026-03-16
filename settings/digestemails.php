@@ -180,14 +180,23 @@ $page->add(
         new lang_string('moduleconfigurationwarning_body', 'local_solsits'),
         new lang_string('moduleconfigurationwarning_body_desc', 'local_solsits'),
         '<p>Dear {MODULELEADER}</p>
-        <p>The following modules may not be set up correctly. Please check the following:</p>
+        <p>This message is to remind you that you are listed as Module Leader on the modules below.' .
+        ' These modules have students enrolled and are scheduled to start within the next {PERIOD}.</p>
+        <h3>Incorrect Details</h3>
+        <p>If students are enrolled on these pages incorrectly, or you are not the Module Leader please contact: ' .
+            '<a href="mailto:qact@solent.ac.uk">qact@solent.ac.uk</a></p>
+        <h3>Setting up the SOL page</h3>
+        <p>Otherwise, please take the following actions to ensure content is available to learners ' .
+        'for the start of the modules below:</p>
         <ul>
-            <li>Has content been added to the module?</li>
-            <li>Are the start and end dates correct?</li>
+            <li>Populate the first 5 tabs with core module information: ' .
+                '<a href="https://learn.solent.ac.uk/module-template">step-by-step guide for Module Leaders</a></li>
+            <li>Design or import tabs with learning outcomes, resources and activities, follow: ' .
+            '<a href="https://learn.solent.ac.uk/staff-help">Help Guide path for using SOL</a></li>
+            <li>If you need support to design the SOL page, please contact ' .
+            '<a href="mailto:learning.design@solent.ac.uk">learning.design@solent.ac.uk</a></li>
         </ul>
-        <p>For information on how to set up modules correctly, please refer to the ' .
-        '<a href="https://www.solent.ac.uk/guided-learning">Guided Learning documentation</a>.</p>
-        <p>Kind regards, Guided Learning</p>'
+        <p>Kind regards, Learning design</p>'
     )
 );
 

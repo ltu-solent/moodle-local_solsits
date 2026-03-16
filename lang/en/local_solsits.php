@@ -198,6 +198,7 @@ $string['maxassignments'] = 'Max assignments';
 $string['maxassignments_desc'] = 'Maximum number of assignments to create in a single run.';
 $string['maxtemplates'] = 'Max templates';
 $string['maxtemplates_desc'] = 'Maximum number of courses to apply templates to in a single run.';
+$string['messageprovider:configissue'] = 'Configuration issue notifications for assignments and modules';
 $string['modifiedby'] = 'Modified by';
 $string['module'] = 'Module';
 $string['moduleconfigurationwarning'] = 'Module configuration warning digest';

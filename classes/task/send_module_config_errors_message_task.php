@@ -124,8 +124,15 @@ class send_module_config_errors_message_task extends scheduled_task {
                 $data->message = $body;
                 $htmlbody = $OUTPUT->render_from_template('local_solsits/email_module_config_warning', $data);
                 $textbody = html_to_text($htmlbody);
-                email_to_user($user, $noreplyuser, $subject, $textbody, $htmlbody);
-                mtrace("Email sent to $moduleleader for modules starting between $startdate and $enddate");
+                $message = new stdClass();
+                $message->subject = $subject;
+                $message->fullmessagehtml = $htmlbody;
+                $message->fullmessageformat = FORMAT_HTML;
+                $message->fullmessage = $textbody;
+                $messagesent = helper::send_message($user, $message);
+                if ($messagesent) {
+                    mtrace("Email sent to $moduleleader for modules starting between $startdate and $enddate");
+                }
             }
         }
     }

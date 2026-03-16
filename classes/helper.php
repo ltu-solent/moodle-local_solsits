@@ -27,6 +27,7 @@ namespace local_solsits;
 
 use assign;
 use core\context;
+use core\user;
 use core_course\customfield\course_handler;
 use core_customfield\category;
 use core_customfield\field;
@@ -795,5 +796,31 @@ class helper {
             'studentroleid' => $studentrole->id,
         ];
         return $DB->get_records_sql($sql, $params);
+    }
+
+    /**
+     * Send message via core provider
+     *
+     * @param stdClass $recipient
+     * @param stdClass $message
+     * @return mixed The id of the message or false if it fails.
+     */
+    public static function send_message($recipient, $message) {
+        // We are going to send these emails from 'noreplyaddress'.
+        $noreplyuser = user::get_noreply_user();
+        $eventdata = new \core\message\message();
+        $eventdata->component = 'local_solsits';
+        $eventdata->name = 'configissue';
+        $eventdata->notification = 1;
+        $eventdata->courseid = SITEID;
+        $eventdata->userfrom = $noreplyuser;
+        $eventdata->userto = $recipient;
+        $eventdata->subject = $message->subject;
+        $eventdata->fullmessage = $message->fullmessage;
+        $eventdata->fullmessageformat = FORMAT_MOODLE;
+        $eventdata->fullmessagehtml = $message->fullmessagehtml;
+        $eventdata->smallmessage = null;
+        $id = message_send($eventdata);
+        return $id;
     }
 }

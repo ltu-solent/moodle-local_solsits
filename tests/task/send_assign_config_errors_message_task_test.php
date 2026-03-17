@@ -89,19 +89,25 @@ final class send_assign_config_errors_message_task_test extends advanced_testcas
             $this->assertSame($subject, $email->subject);
             $this->assertStringContainsString($sitsassign->get('sitsref'), $email->body);
             foreach ($ranges as $k => $r) {
-                $itemcount = 0;
-                if ($range == $k) {
-                    $itemcount = 1;
-                }
                 $map = helper::map_range($k);
                 $startdate = date('Y-m-d', $map['start']);
                 $enddate = date('Y-m-d', $map['end']);
+                $itemcount = 0;
+                if ($range == $k) {
+                    $itemcount = 1;
+                    $expectedoutput .= "Email sent to " . fullname($ml) .
+                        " for assignments with due dates between $startdate and $enddate" . PHP_EOL;
+                }
                 $rangestring = get_string('rangedates', 'local_solsits', [
                     'start' => $startdate,
                     'end' => $enddate,
                 ]);
                 $expectedoutput .= $itemcount . ' ' . $rangestring . '
 ';
+                if ($range == $k) {
+                    $expectedoutput .= "Email sent to " . fullname($registryuser) .
+                        " for assignments with due dates between $startdate and $enddate" . PHP_EOL;
+                }
             }
         } else {
             $this->assertEquals(0, $sink->count());

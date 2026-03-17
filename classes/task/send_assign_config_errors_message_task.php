@@ -130,7 +130,15 @@ class send_assign_config_errors_message_task extends scheduled_task {
                 $data->message = $body;
                 $htmlbody = $OUTPUT->render_from_template('local_solsits/assign_config_errors', $data);
                 $textbody = html_to_text($htmlbody);
-                email_to_user($user, $noreplyuser, $subject, $textbody, $htmlbody);
+                $message = new stdClass();
+                $message->subject = $subject;
+                $message->fullmessagehtml = $htmlbody;
+                $message->fullmessageformat = FORMAT_HTML;
+                $message->fullmessage = $textbody;
+                $messagesent = helper::send_message($user, $message);
+                if ($messagesent) {
+                    mtrace("Email sent to $moduleleader for assignments with due dates between $startdate and $enddate");
+                }
             }
             // Gateway content.
             mtrace(count($gatewaylist) . ' ' . get_string('rangedates', 'local_solsits', [
@@ -150,7 +158,15 @@ class send_assign_config_errors_message_task extends scheduled_task {
                     $data->message = $body;
                     $htmlbody = $OUTPUT->render_from_template('local_solsits/assign_config_errors', $data);
                     $textbody = html_to_text($htmlbody);
-                    email_to_user($gatewayuser, $noreplyuser, $subject, $textbody, $htmlbody);
+                    $message = new stdClass();
+                    $message->subject = $subject;
+                    $message->fullmessagehtml = $htmlbody;
+                    $message->fullmessageformat = FORMAT_HTML;
+                    $message->fullmessage = $textbody;
+                    $messagesent = helper::send_message($user, $message);
+                    if ($messagesent) {
+                        mtrace("Email sent to $moduleleader for assignments with due dates between $startdate and $enddate");
+                    }
                 }
             }
         }

@@ -907,9 +907,10 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_ABC10
      * @param int $endwindow
      * @param int $duedate
      * @param bool $inside Is due date inside window
+     * @param int $students Number of students enrolled (if 0, assignment is not unconfigured as it won't be visible to students).
      * @return void
      */
-    public function test_get_unconfigured_assignments($startwindow, $endwindow, $duedate, $inside): void {
+    public function test_get_unconfigured_assignments($startwindow, $endwindow, $duedate, $inside, $students): void {
         $this->resetAfterTest();
         $this->setAdminUser();
         $this->set_settings();
@@ -927,11 +928,23 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_ABC10
             'courseid' => $course->id,
         ]);
         $sitsassign->create_assignment();
+        if ($students > 0) {
+            for ($x = 0; $x < $students; $x++) {
+                $student = $this->getDataGenerator()->create_user();
+                $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
+            }
+        }
         // This assignment is not configured.
         $unconfigured = sitsassign::get_unconfigured_assignments($startwindow, $endwindow);
+
         if (!$inside) {
             $this->assertCount(0, $unconfigured);
         } else {
+            if ($students == 0) {
+                // No students, so not unconfigured as won't be visible to students.
+                $this->assertCount(0, $unconfigured);
+                return;
+            }
             $this->assertCount(1, $unconfigured);
             foreach ($unconfigured as $unconf) {
                 $this->assertEquals($sitsassign->get('id'), $unconf->id);
@@ -963,42 +976,56 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_ABC10
                 'endwindow' => strtotime('+1 weeks'),
                 'duedate' => strtotime('+10 days'),
                 'inside' => false,
+                'students' => 1,
             ],
             '0-1 week window dd 5 days' => [
                 'startwindow' => 0,
                 'endwindow' => strtotime('+1 weeks'),
                 'duedate' => strtotime('+5 days'),
                 'inside' => true,
+                'students' => 1,
             ],
             '1-2 week window dd 10 days' => [
                 'startwindow' => strtotime('+1 week'),
                 'endwindow' => strtotime('+2 weeks'),
                 'duedate' => strtotime('+10 days'),
                 'inside' => true,
+                'students' => 1,
             ],
             '1-2 week window dd 5 days' => [
                 'startwindow' => strtotime('+1 week'),
                 'endwindow' => strtotime('+2 weeks'),
                 'duedate' => strtotime('+5 days'),
                 'inside' => false,
+                'students' => 1,
             ],
             '2-3 week window dd 30 days' => [
                 'startwindow' => strtotime('+2 week'),
                 'endwindow' => strtotime('+3 weeks'),
                 'duedate' => strtotime('+30 days'),
                 'inside' => false,
+                'students' => 1,
             ],
             '2-3 week window dd 15 days' => [
                 'startwindow' => strtotime('+2 week'),
                 'endwindow' => strtotime('+3 weeks'),
                 'duedate' => strtotime('+15 days'),
                 'inside' => true,
+                'students' => 1,
             ],
             'up to 3 week window dd 30 days' => [
                 'startwindow' => 0,
                 'endwindow' => strtotime('+3 weeks'),
                 'duedate' => strtotime('+30 days'),
                 'inside' => false,
+                'students' => 1,
+            ],
+            '1-2 week window dd 10 days no students' => [
+                'startwindow' => strtotime('+1 week'),
+                'endwindow' => strtotime('+2 weeks'),
+                'duedate' => strtotime('+10 days'),
+                'inside' => true,
+                'students' => 0,
             ],
         ];
     }

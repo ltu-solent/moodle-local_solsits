@@ -69,7 +69,7 @@ final class send_assign_config_errors_message_task_test extends advanced_testcas
         $ml = $this->getDataGenerator()->create_and_enrol($course, 'moduleleader');
         $registryuser = $this->getDataGenerator()->create_user();
         set_config('assignmentconfigwarning_mailinglist', join(',', [$registryuser->username]), 'local_solsits');
-
+        $this->getDataGenerator()->create_and_enrol($course, 'student');
         $sink = $this->redirectEmails();
         $task = new \local_solsits\task\send_assign_config_errors_message_task();
         $task->execute();
@@ -191,6 +191,7 @@ final class send_assign_config_errors_message_task_test extends advanced_testcas
         $this->getDataGenerator()->create_and_enrol($course, 'moduleleader');
         $registryuser = $this->getDataGenerator()->create_user();
         set_config('assignmentconfigwarning_mailinglist', join(',', [$registryuser->username]), 'local_solsits');
+        $this->getDataGenerator()->create_and_enrol($course, 'student');
         $expectedoutput = '';
         $sink = $this->redirectEmails();
         $task = new \local_solsits\task\send_assign_config_errors_message_task();

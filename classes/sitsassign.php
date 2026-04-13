@@ -27,6 +27,7 @@ namespace local_solsits;
 
 use assign;
 use core\context;
+use core\context\course;
 use core\lang_string;
 use core\persistent;
 use plagiarism_plugin_turnitin;
@@ -982,6 +983,17 @@ class sitsassign extends persistent {
             'startwindow' => $startwindow,
             'endwindow' => $endwindow,
         ]);
+        // Exclude assignments on courses with no students enrolled.
+        foreach ($results as $key => $result) {
+            $enrolledusers = get_enrolled_users(
+                context: course::instance($result->courseid),
+                withcapability: 'mod/assign:submit',
+                onlyactive: true
+            );
+            if (empty($enrolledusers)) {
+                unset($results[$key]);
+            }
+        }
         return $results;
     }
 

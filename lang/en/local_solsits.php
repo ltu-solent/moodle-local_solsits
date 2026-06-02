@@ -210,7 +210,7 @@ $string['moduleconfigurationwarning_mailinglist'] = 'Module config warning maili
 $string['moduleconfigurationwarning_mailinglist_desc'] = 'List of usernames (comma separated) of those who are to receive a module config warning in addition to the Module leaders';
 $string['moduleconfigurationwarning_ranges'] = 'Message date ranges';
 $string['moduleconfigurationwarning_ranges_desc'] = 'The date ranges for sending config warning messages.';
-$string['modulerangedates'] = 'Unconfigured modules due to start within {$a->range}';
+$string['modulerangedatessubject'] = 'Module set-up reminder';
 $string['muptimeoutmessage'] = 'Check with Registry. The results may have been successfully uploaded.';
 
 $string['newduedate'] = 'New due date';

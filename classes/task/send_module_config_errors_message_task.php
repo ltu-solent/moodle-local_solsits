@@ -102,7 +102,7 @@ class send_module_config_errors_message_task extends scheduled_task {
             }
             $startdate = date('Y-m-d', $range['start']);
             $enddate = date('Y-m-d', $range['end']);
-            $subject = get_string('forinformation', 'local_solsits') . get_string('modulerangedates', 'local_solsits', [
+            $subject = get_string('forinformation', 'local_solsits') . get_string('modulerangedatessubject', 'local_solsits', [
                 'start' => $startdate,
                 'end' => $enddate,
                 'range' => $range['label'],

@@ -99,42 +99,42 @@ $page->add(
 );
 
 $page->add(
-    new admin_setting_configselect(
+    new admin_setting_configduration(
         'local_solsits/cutoffinterval',
         new lang_string('cutoffinterval', 'local_solsits'),
         new lang_string('cutoffinterval_desc', 'local_solsits'),
         1,
-        $onetotenoptions
+        WEEKSECS
     )
 );
 
 $page->add(
-    new admin_setting_configselect(
+    new admin_setting_configduration(
         'local_solsits/cutoffintervalsecondplus',
         new lang_string('cutoffintervalsecondplus', 'local_solsits'),
         new lang_string('cutoffintervalsecondplus_desc', 'local_solsits'),
         1,
-        $onetotenoptions
+        WEEKSECS
     )
 );
 
 $page->add(
-    new admin_setting_configselect(
+    new admin_setting_configduration(
         'local_solsits/gradingdueinterval',
         new lang_string('gradingdueinterval', 'local_solsits'),
         new lang_string('gradingdueinterval_desc', 'local_solsits'),
         1,
-        $onetotenoptions
+        WEEKSECS
     )
 );
 
 $page->add(
-    new admin_setting_configselect(
+    new admin_setting_configduration(
         'local_solsits/gradingdueintervalsecondplus',
         new lang_string('gradingdueintervalsecondplus', 'local_solsits'),
         new lang_string('gradingdueintervalsecondplus_desc', 'local_solsits'),
         1,
-        $onetotenoptions
+        WEEKSECS
     )
 );
 

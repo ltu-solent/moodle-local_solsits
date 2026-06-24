@@ -61,7 +61,7 @@ final class add_assignments_test extends externallib_advanced_testcase {
      */
     public function test_add_assignments($assign, $courseidnumber, $expectederror, $cmexists = false): void {
         $this->resetAfterTest();
-        /** @var local_solsits_generator $dg */
+        /** @var \local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $dg->create_solent_gradescales();
         $config = get_config('local_solsits');
@@ -150,7 +150,7 @@ final class add_assignments_test extends externallib_advanced_testcase {
      */
     public function test_add_assignments_points($assign, $courseidnumber, $expectederror, $cmexists): void {
         $this->resetAfterTest();
-        /** @var local_solsits_generator $dg */
+        /** @var \local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $dg->create_solent_gradescales();
         set_config('defaultscale', 'points', 'local_solsits');
@@ -420,7 +420,7 @@ final class add_assignments_test extends externallib_advanced_testcase {
     public function test_reattempt_adopt_a_scale(): void {
         global $DB;
         $this->resetAfterTest();
-        /** @var local_solsits_generator $dg */
+        /** @var \local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $dg->create_solent_gradescales();
         set_config('defaultscale', '', 'local_solsits');

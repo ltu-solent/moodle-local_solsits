@@ -138,7 +138,7 @@ final class update_assignments_test extends externallib_advanced_testcase {
             }
         }
         // Need this for creating the assign activities.
-        /** @var local_solsits_generator $ssdg */
+        /** @var \local_solsits_generator $ssdg */
         $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $ssdg->create_solent_gradescales();
         $config = get_config('local_solsits');
@@ -210,7 +210,7 @@ final class update_assignments_test extends externallib_advanced_testcase {
 
         $duedate = helper::set_time($after['duedate']);
         $availablefrom = $after['availablefrom'] == 0 ? 0 : helper::set_time($after['availablefrom'], '');
-        $gradingduedate = helper::set_time($duedate, '16:00', "+{$config->gradingdueinterval} week");
+        $gradingduedate = $duedate + $config->gradingdueinterval;
 
         $this->assertEquals($sitsassignafter->get('sitsref'), $assign->get_course_module()->idnumber);
         $this->assertEquals($sitsassignafter->get('title'), $assign->get_course_module()->name);
@@ -372,7 +372,7 @@ final class update_assignments_test extends externallib_advanced_testcase {
             }
         }
         // Need this for creating the assign activities.
-        /** @var local_solsits_generator $ssdg */
+        /** @var \local_solsits_generator $ssdg */
         $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $ssdg->create_solent_gradescales();
         $config = get_config('local_solsits');
@@ -453,7 +453,7 @@ final class update_assignments_test extends externallib_advanced_testcase {
         // Ensure other changes have been applied.
         $duedate = helper::set_time($after['duedate']);
         $availablefrom = $after['availablefrom'] == 0 ? 0 : helper::set_time($after['availablefrom'], '');
-        $gradingduedate = helper::set_time($duedate, '16:00', "+{$config->gradingdueinterval} week");
+        $gradingduedate = $duedate + $config->gradingdueinterval;
 
         $this->assertEquals($sitsassignafter->get('sitsref'), $assign->get_course_module()->idnumber);
         $this->assertEquals($sitsassignafter->get('title'), $assign->get_course_module()->name);

@@ -115,7 +115,7 @@ final class helper_test extends advanced_testcase {
         $sitscm = get_coursemodule_from_instance('assign', $sits->id);
         $quercuscm = get_coursemodule_from_instance('assign', $quercus->id);
         $formativecm = get_coursemodule_from_instance('assign', $formative->id);
-        /** @var local_solsits_generator $dg */
+        /** @var \local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $dg->create_sits_assign(['cmid' => $sitscm->id, 'courseid' => $course->id]);
         $this->assertTrue(local_solsits\helper::is_sits_assignment($sitscm->id));
@@ -146,7 +146,7 @@ final class helper_test extends advanced_testcase {
 
         $cm = get_coursemodule_from_instance('assign', $assign->id);
         if ($sitsassign) {
-            /** @var local_solsits_generator $dg */
+            /** @var \local_solsits_generator $dg */
             $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
             $dg->create_sits_assign(['cmid' => $cm->id, 'courseid' => $course->id]);
         }
@@ -252,7 +252,7 @@ final class helper_test extends advanced_testcase {
      */
     public function test_convert_grade(): void {
         $this->resetAfterTest();
-        /** @var local_solsits_generator $ssdg */
+        /** @var \local_solsits_generator $ssdg */
         $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $ssdg->create_solent_gradescales();
         $scaleid = get_config('local_solsits', 'grademarkscale');
@@ -344,15 +344,15 @@ final class helper_test extends advanced_testcase {
      */
     public function test_badassignalerts($coursedata, $assigndata, $response, $alertcount): void {
         $this->resetAfterTest();
-        /** @var local_solsits_generator $ssdg */
+        /** @var \local_solsits_generator $ssdg */
         $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $ssdg->create_solent_gradescales();
         $this->setAdminUser();
 
         $course = $this->getDataGenerator()->create_course($coursedata);
-        /** @var mod_assign_generator $assigngen */
+        /** @var \mod_assign_generator $assigngen */
         $assigngen = $this->getDataGenerator()->get_plugin_generator('mod_assign');
-        /** @var local_solsits_generator $sitsgen */
+        /** @var \local_solsits_generator $sitsgen */
         $sitsgen = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         if ($assigndata['issits'] == true) {
             $assign = $sitsgen->create_sits_assign([

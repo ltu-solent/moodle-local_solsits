@@ -60,7 +60,7 @@ final class sitsassign_test extends advanced_testcase {
      */
     public function test_get_create_list(): void {
         $this->resetAfterTest();
-        /** @var local_solsits_generator $ssdg */
+        /** @var \local_solsits_generator $ssdg */
         $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $tcourse = $this->getDataGenerator()->create_course([
             'fullname' => 'Template applied',
@@ -121,7 +121,7 @@ final class sitsassign_test extends advanced_testcase {
         $config = get_config('local_solsits');
         // Perhaps change this is to a WS user with permissions to "Manage activities".
         $this->setAdminUser();
-        /** @var local_solsits_generator $ssdg */
+        /** @var \local_solsits_generator $ssdg */
         $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $course = $this->getDataGenerator()->create_course();
         // Pretend to apply template to the course.
@@ -172,19 +172,19 @@ final class sitsassign_test extends advanced_testcase {
         $this->assertEquals($duedate, $assignment->get_instance()->duedate);
         $this->assertEquals($availablefrom, $assignment->get_instance()->allowsubmissionsfromdate);
         if ($sitsassign['reattempt'] == 0) {
-            $cutoffdate = helper::set_time($duedate, '16:00', "+{$config->cutoffinterval} week");
+            $cutoffdate = $duedate + $config->cutoffinterval;
             if ($assign->is_exam()) {
                 $cutoffdate = $duedate;
             }
-            $gradingduedate = helper::set_time($duedate, '16:00', "+{$config->gradingdueinterval} week");
+            $gradingduedate = $duedate + $config->gradingdueinterval;
             $this->assertEquals($cutoffdate, $assignment->get_instance()->cutoffdate);
             $this->assertEquals($gradingduedate, $assignment->get_instance()->gradingduedate);
             $this->assertEquals(1, $cm->visible);
             $this->assertEquals(2, $cm->completion);
             $this->assertEquals('[assignmentintro note="Do not remove"]', $assignment->get_instance()->intro);
         } else {
-            $cutoffdate = helper::set_time($duedate, '16:00', "+{$config->cutoffintervalsecondplus} week");
-            $gradingduedate = helper::set_time($duedate, '16:00', "+{$config->gradingdueintervalsecondplus} week");
+            $cutoffdate = $duedate + $config->cutoffintervalsecondplus;
+            $gradingduedate = $duedate + $config->gradingdueintervalsecondplus;
             $this->assertEquals($cutoffdate, $assignment->get_instance()->cutoffdate);
             $this->assertEquals($gradingduedate, $assignment->get_instance()->gradingduedate);
             $this->assertEquals(0, $cm->visible);
@@ -358,7 +358,7 @@ final class sitsassign_test extends advanced_testcase {
         set_config('enablecompletion', COMPLETION_ENABLED);
         // Perhaps change this is to a WS user with permissions to "Manage activities".
         $this->setAdminUser();
-        /** @var local_solsits_generator $ssdg */
+        /** @var \local_solsits_generator $ssdg */
         $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $course = $this->getDataGenerator()->create_course();
         // Pretend to apply template to the course.
@@ -441,10 +441,10 @@ final class sitsassign_test extends advanced_testcase {
 
         $this->assertEquals(1, $assignment->get_instance()->markingallocation);
 
-        $gradingduedate = helper::set_time($newduedate, '16:00', "+{$config->gradingdueinterval} week");
+        $gradingduedate = $newduedate + $config->gradingdueinterval;
         $this->assertEquals($gradingduedate, $assignment->get_instance()->gradingduedate);
         if ($newassign['reattempt'] == 0) {
-            $cutoffdate = helper::set_time($newduedate, '16:00', "+{$config->cutoffinterval} week");
+            $cutoffdate = $newduedate + $config->cutoffinterval;
             // Does an exam have a completion due setting?
             if ($newsitsassign->is_exam()) {
                 $cutoffdate = $newduedate;
@@ -453,7 +453,7 @@ final class sitsassign_test extends advanced_testcase {
             $this->assertEquals(1, $cm->visible);
             $this->assertEquals(2, $cm->completion);
         } else {
-            $cutoffdate = helper::set_time($newduedate, '16:00', "+{$config->cutoffintervalsecondplus} week");
+            $cutoffdate = $newduedate + $config->cutoffintervalsecondplus;
             $this->assertEquals($cutoffdate, $assignment->get_instance()->cutoffdate);
             $this->assertEquals(0, $cm->visible);
             $this->assertEquals(0, $cm->completion);
@@ -652,7 +652,7 @@ final class sitsassign_test extends advanced_testcase {
         global $DB;
         $this->resetAfterTest();
         $this->setAdminUser();
-        /** @var local_solsits_generator $dg */
+        /** @var \local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $dg->create_solent_gradescales();
         $config = get_config('local_solsits');
@@ -840,7 +840,7 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_ABC10
         global $DB;
         $this->resetAfterTest();
         $this->setAdminUser();
-        /** @var local_solsits_generator $dg */
+        /** @var \local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $dg->create_solent_gradescales();
         $config = get_config('local_solsits');
@@ -892,11 +892,11 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_ABC10
      * @return void
      */
     private function set_settings() {
-        /** @var local_solsits_generator $ssdg */
+        /** @var \local_solsits_generator $ssdg */
         $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $ssdg->create_solent_gradescales();
-        set_config('gradingdueinterval', '4', 'local_solsits');
-        set_config('gradingdueintervalsecondplus', '2', 'local_solsits');
+        set_config('gradingdueinterval', (4 * WEEKSECS), 'local_solsits');
+        set_config('gradingdueintervalsecondplus', (2 * WEEKSECS), 'local_solsits');
     }
 
     /**
@@ -914,7 +914,7 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_ABC10
         $this->resetAfterTest();
         $this->setAdminUser();
         $this->set_settings();
-        /** @var local_solsits_generator $ssdg */
+        /** @var \local_solsits_generator $ssdg */
         $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $course = $this->getDataGenerator()->create_course();
         $sitsassign = $ssdg->create_sits_assign([

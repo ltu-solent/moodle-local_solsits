@@ -53,7 +53,7 @@ final class create_assignment_task_test extends advanced_testcase {
      */
     public function test_template_applied(): void {
         $this->resetAfterTest();
-        /** @var local_solsits_generator $dg */
+        /** @var \local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         set_config('maxassignments', 10, 'local_solsits');
         $dg->create_solent_gradescales();
@@ -92,7 +92,7 @@ final class create_assignment_task_test extends advanced_testcase {
      */
     public function test_template_not_applied(): void {
         $this->resetAfterTest();
-        /** @var local_solsits_generator $dg */
+        /** @var \local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         set_config('maxassignments', 5, 'local_solsits');
 
@@ -120,7 +120,7 @@ No assignments found to process.
      */
     public function test_no_duedate(): void {
         $this->resetAfterTest();
-        /** @var local_solsits_generator $dg */
+        /** @var \local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         set_config('maxassignments', 10, 'local_solsits');
         $dg->create_solent_gradescales();
@@ -172,7 +172,7 @@ No assignments found to process.
     public function test_maxassignments(): void {
         global $DB;
         $this->resetAfterTest();
-        /** @var local_solsits_generator $dg */
+        /** @var \local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         set_config('maxassignments', 1, 'local_solsits');
         $dg->create_solent_gradescales();
@@ -232,7 +232,7 @@ No assignments found to process.
     public function test_limittoyears(): void {
         global $DB;
         $this->resetAfterTest();
-        /** @var local_solsits_generator $dg */
+        /** @var \local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         set_config('maxassignments', 1, 'local_solsits');
         $dg->create_solent_gradescales();

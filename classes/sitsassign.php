@@ -283,27 +283,24 @@ class sitsassign extends persistent {
         $this->formdata->duedate = $duedate;
 
         // Cut off date.
+        $cutoffdate = $duedate;
+        $cutoffinterval = 0;
         if (!$this->is_exam()) {
             if ($this->get('reattempt') == 0) {
-                $modifystring = '+' . $config->cutoffinterval . ' week';
+                $cutoffinterval = $config->cutoffinterval;
             } else {
-                $modifystring = '+' . $config->cutoffintervalsecondplus . ' week';
+                $cutoffinterval = $config->cutoffintervalsecondplus;
             }
-            $dt = helper::set_time($this->get('duedate'), '16:00', $modifystring);
-            $this->formdata->cutoffdate = $dt;
-        } else {
-            // Cutoff date for exam must be the same as the duedate.
-            $this->formdata->cutoffdate = $duedate;
         }
+        $this->formdata->cutoffdate = $cutoffdate + $cutoffinterval;
 
         // Grading due date.
-        $gradingdueinterval = $config->gradingdueinterval ?? 1;
+        $gradingdueinterval = $config->gradingdueinterval ?? (4 * WEEKSECS);
         if ($this->get('reattempt') != 0) {
             $gradingdueinterval = $config->gradingdueintervalsecondplus ?? $gradingdueinterval;
         }
-        $modifystring = '+' . $gradingdueinterval . ' week';
-        $dt = helper::set_time($this->get('duedate'), '16:00', $modifystring);
-        $this->formdata->gradingduedate = $dt;
+        $gradingdue = $duedate + $gradingdueinterval;
+        $this->formdata->gradingduedate = $gradingdue;
     }
 
     /**

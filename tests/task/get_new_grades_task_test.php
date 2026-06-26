@@ -57,7 +57,7 @@ final class get_new_grades_task_test extends advanced_testcase {
     public function test_grademark_assignment(): void {
         global $DB;
         $this->resetAfterTest();
-        /** @var local_solsits_generator $dg */
+        /** @var \local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $this->setAdminUser();
         $course = $this->getDataGenerator()->create_course([
@@ -176,7 +176,7 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
     public function test_grademarkexempt_assignment(): void {
         global $DB;
         $this->resetAfterTest();
-        /** @var local_solsits_generator $dg */
+        /** @var \local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $this->setAdminUser();
 
@@ -461,7 +461,7 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_PROJ1
         global $DB;
         $this->resetAfterTest();
         $config = get_config('local_solsits');
-        /** @var local_solsits_generator $dg */
+        /** @var \local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $dg->create_solent_gradescales();
 
@@ -554,7 +554,7 @@ Queued - Course: ABC101_A_SEM1_2022/23, Assignment code: ABC101_A_SEM1_2022/23_P
     public function test_not_released(): void {
         global $DB;
         $this->resetAfterTest();
-        /** @var local_solsits_generator $dg */
+        /** @var \local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $this->setAdminUser();
         $course = $this->getDataGenerator()->create_course([
@@ -643,7 +643,7 @@ Queued - Course: ABC101_A_SEM1_2022/23, Assignment code: ABC101_A_SEM1_2022/23_P
             'lastname' => 'Leader',
         ]);
         $this->getDataGenerator()->enrol_user($moduleleader->id, $course->id, 'editingteacher');
-        /** @var local_solsits_generator $dg */
+        /** @var \local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $dg->create_solent_gradescales();
 
@@ -705,7 +705,7 @@ Queued - Course: ABC101_A_SEM1_2022/23, Assignment code: ABC101_A_SEM1_2022/23_P
             'lastname' => 'Leader',
         ]);
         $this->getDataGenerator()->enrol_user($moduleleader->id, $course->id, 'editingteacher');
-        /** @var local_solsits_generator $dg */
+        /** @var \local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $dg->create_solent_gradescales();
 

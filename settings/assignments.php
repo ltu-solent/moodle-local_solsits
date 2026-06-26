@@ -99,6 +99,14 @@ $page->add(
 );
 
 $page->add(
+    new admin_setting_heading(
+        'local_solsits/assignmentdates',
+        new lang_string('assignmentdates', 'local_solsits'),
+        new lang_string('assignmentdates_desc', 'local_solsits')
+    )
+);
+
+$page->add(
     new admin_setting_configduration(
         'local_solsits/cutoffinterval',
         new lang_string('cutoffinterval', 'local_solsits'),
@@ -134,6 +142,47 @@ $page->add(
         new lang_string('gradingdueintervalsecondplus', 'local_solsits'),
         new lang_string('gradingdueintervalsecondplus_desc', 'local_solsits'),
         1,
+        WEEKSECS
+    )
+);
+
+// Block delivery dates.
+$page->add(
+    new admin_setting_configduration(
+        name: 'local_solsits/cutoffintervalblock',
+        visiblename: new lang_string('cutoffintervalblock', 'local_solsits'),
+        description: new lang_string('cutoffintervalblock_desc', 'local_solsits'),
+        defaultsetting: 2,
+        defaultunit: DAYSECS
+    )
+);
+
+$page->add(
+    new admin_setting_configduration(
+        'local_solsits/cutoffintervalsecondplusblock',
+        new lang_string('cutoffintervalsecondplusblock', 'local_solsits'),
+        new lang_string('cutoffintervalsecondplusblock_desc', 'local_solsits'),
+        2,
+        DAYSECS
+    )
+);
+
+$page->add(
+    new admin_setting_configduration(
+        'local_solsits/gradingdueintervalblock',
+        new lang_string('gradingdueintervalblock', 'local_solsits'),
+        new lang_string('gradingdueintervalblock_desc', 'local_solsits'),
+        3,
+        WEEKSECS
+    )
+);
+
+$page->add(
+    new admin_setting_configduration(
+        'local_solsits/gradingdueintervalsecondplusblock',
+        new lang_string('gradingdueintervalsecondplusblock', 'local_solsits'),
+        new lang_string('gradingdueintervalsecondplusblock_desc', 'local_solsits'),
+        3,
         WEEKSECS
     )
 );

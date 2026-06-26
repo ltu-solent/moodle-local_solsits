@@ -45,7 +45,7 @@ final class send_assign_config_errors_message_task_test extends advanced_testcas
         set_config('assignmentconfigwarning_ranges', 'r0-1,r1-2,r2-3', 'local_solsits');
         $ranges = send_assign_config_errors_message_task::get_ranges();
         $menu = helper::get_ranges_menu();
-        /** @var local_solsits_generator $ssdg */
+        /** @var \local_solsits_generator $ssdg */
         $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $course = $this->getDataGenerator()->create_course();
         $coursecontext = context\course::instance($course->id);
@@ -167,7 +167,7 @@ final class send_assign_config_errors_message_task_test extends advanced_testcas
         set_config('assignmentconfigwarning_ranges', 'r0-1,r1-2,r2-3', 'local_solsits');
         $ranges = send_assign_config_errors_message_task::get_ranges();
         $menu = helper::get_ranges_menu();
-        /** @var local_solsits_generator $ssdg */
+        /** @var \local_solsits_generator $ssdg */
         $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $course = $this->getDataGenerator()->create_course();
         $coursecontext = context\course::instance($course->id);
@@ -234,7 +234,7 @@ final class send_assign_config_errors_message_task_test extends advanced_testcas
      * @return void
      */
     private function set_settings() {
-        /** @var local_solsits_generator $ssdg */
+        /** @var \local_solsits_generator $ssdg */
         $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $ssdg->create_solent_gradescales();
         set_config('gradingdueinterval', '4', 'local_solsits');

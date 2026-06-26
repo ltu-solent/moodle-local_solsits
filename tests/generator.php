@@ -125,7 +125,7 @@ trait generator {
         $courseexternal->import_course($template->get('courseid'), $courseid, 1);
         $course = get_course($courseid);
         $course->visible = 1;
-        $course->customfield_templateapplied = 1;
+        $course->customfield_templateapplied = '1';
         $course->format_coursedisplay = 0;
         update_course($course);
         rebuild_course_cache($courseid);

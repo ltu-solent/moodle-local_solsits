@@ -271,6 +271,8 @@ class sitsassign extends persistent {
         // Or we get UTC and apply it ourselves.
         // Or we get UTC and let the Moodle server do all the grunt when displaying the time.
         // What about course start end dates?
+
+        $delivery = helper::get_deliverymode($this->get('courseid'));
         if ($this->get('availablefrom') == 0) {
             $this->formdata->allowsubmissionsfromdate = 0;
         } else {
@@ -285,22 +287,15 @@ class sitsassign extends persistent {
         // Cut off date.
         $cutoffdate = $duedate;
         $cutoffinterval = 0;
+        $isreattempt = $this->get('reattempt') > 0;
         if (!$this->is_exam()) {
-            if ($this->get('reattempt') == 0) {
-                $cutoffinterval = $config->cutoffinterval;
-            } else {
-                $cutoffinterval = $config->cutoffintervalsecondplus;
-            }
+            $cutoffinterval = helper::calculate_interval($delivery, 'cutoff', $isreattempt);
         }
         $this->formdata->cutoffdate = $cutoffdate + $cutoffinterval;
 
         // Grading due date.
-        $gradingdueinterval = $config->gradingdueinterval ?? (4 * WEEKSECS);
-        if ($this->get('reattempt') != 0) {
-            $gradingdueinterval = $config->gradingdueintervalsecondplus ?? $gradingdueinterval;
-        }
-        $gradingdue = $duedate + $gradingdueinterval;
-        $this->formdata->gradingduedate = $gradingdue;
+        $gradingdueinterval = helper::calculate_interval($delivery, 'gradingdue', $isreattempt);
+        $this->formdata->gradingduedate = $duedate + $gradingdueinterval;
     }
 
     /**

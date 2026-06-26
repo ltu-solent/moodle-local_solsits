@@ -45,6 +45,14 @@ require_once($CFG->dirroot . '/mod/assign/locallib.php');
  */
 class helper {
     /**
+     * Delivery mode Block
+     */
+    const DELIVERY_BLOCK = 'block';
+    /**
+     * Delivery mode Standard
+     */
+    const DELIVERY_STANDARD = 'standard';
+    /**
      * Gets key/value pairs for Pagetypes menu.
      *
      * @return array
@@ -219,6 +227,10 @@ class helper {
             'subject_area' => [
                 'name' => 'Subject area',
             ],
+            'deliverymode' => [
+                'name' => 'Delivery mode',
+                'configdata' => $configdatainvisible,
+            ],
             'templateapplied' => [
                 'name' => 'Template applied',
                 'configdata' => json_encode([
@@ -300,13 +312,46 @@ class helper {
     }
 
     /**
+     * Get delivery mode custom field for given course
+     *
+     * @param int $courseid
+     * @return string
+     */
+    public static function get_deliverymode(int $courseid): string {
+        $value = self::get_customfield($courseid, 'deliverymode');
+        return match ($value) {
+            'B' => self::DELIVERY_BLOCK,
+            default => self::DELIVERY_STANDARD,
+        };
+    }
+
+    /**
+     * Calculate the interval for a given delivery mode, interval type, and reattempt status.
+     *
+     * @param string $deliverymode
+     * @param string $intervaltype
+     * @param bool $isreattempt
+     * @return int
+     */
+    public static function calculate_interval(string $deliverymode, string $intervaltype, bool $isreattempt): int {
+        $setting = $intervaltype . 'interval';
+        if ($isreattempt) {
+            $setting .= 'secondplus';
+        }
+        if ($deliverymode == self::DELIVERY_BLOCK) {
+            $setting .= 'block';
+        }
+        return get_config('local_solsits', $setting) ?? 1 * WEEKSECS;
+    }
+
+    /**
      * Get field value for given course and field name
      *
      * @param int $courseid
      * @param string $shortname
      * @return mixed
      */
-    public static function get_customfield($courseid, $shortname) {
+    public static function get_customfield(int $courseid, string $shortname) {
         $handler = course_handler::create();
         $datas = $handler->get_instance_data($courseid, true);
         foreach ($datas as $data) {

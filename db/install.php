@@ -46,6 +46,7 @@ function xmldb_local_solsits_install() {
         'related_courses',
         'subject_area',
         'templateapplied',
+        'deliverymode',
     ];
     foreach ($fields as $field) {
         \local_solsits\helper::create_sits_coursecustomfields($field);

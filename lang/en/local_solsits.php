@@ -47,7 +47,8 @@ $string['assignmentconfigwarning_mailinglist'] = 'Assignment config warning mail
 $string['assignmentconfigwarning_mailinglist_desc'] = 'List of usernames (comma separated) of those who are to receive an assignment config warning in addition to the Module leaders';
 $string['assignmentconfigwarning_ranges'] = 'Message date ranges';
 $string['assignmentconfigwarning_ranges_desc'] = 'The date ranges for sending config warning messages.';
-
+$string['assignmentdates'] = 'Assignment dates';
+$string['assignmentdates_desc'] = 'Settings to manage the assignment cut-off and grading due by dates. These dates are all relative to the due date.';
 $string['assignmentduedatechange_body'] = 'Due date change body';
 $string['assignmentduedatechange_body_desc'] = 'The message that will be sent to Assessments to change the due date.';
 $string['assignmentduedatechange_description'] = '<p>A message will be sent to the Assessments team to update the due date for "<strong>{$a->title}</strong>" with the date you select below.</p>
@@ -103,10 +104,14 @@ $string['createreattemptgroups_desc'] = 'Create hidden groups when a reattempt a
     visibility of reattempts to only those students who need to take the reattempt.';
 $string['currentcourses'] = 'Display only current courses';
 $string['currentcourses_help'] = 'Current courses are courses or modules that are currently running or have no end date';
-$string['cutoffinterval'] = 'Cut off interval';
-$string['cutoffinterval_desc'] = 'Cut off date interval in weeks';
-$string['cutoffintervalsecondplus'] = 'Cut off second/third+ sittings';
-$string['cutoffintervalsecondplus_desc'] = 'Cut off date interval in weeks for second/third+ sittings';
+$string['cutoffinterval'] = 'Cut off interval (Standard)';
+$string['cutoffinterval_desc'] = 'Cut off date interval for "Standard" delivered modules.';
+$string['cutoffintervalblock'] = 'Cut off interval (Block)';
+$string['cutoffintervalblock_desc'] = 'Cut off date interval for "Block" delivered modules.';
+$string['cutoffintervalsecondplus'] = 'Reattempt Cut off interval (Standard)';
+$string['cutoffintervalsecondplus_desc'] = 'Reattempt Cut off date interval for "Standard" delivered modules.';
+$string['cutoffintervalsecondplusblock'] = 'Reattempt Cut off interval (Block)';
+$string['cutoffintervalsecondplusblock_desc'] = 'Reattempt Cut off date interval for "Block" delivered modules.';
 
 $string['defaultfilesubmissionfilesize'] = 'Default submission filesize';
 $string['defaultfilesubmissionfilesize_desc'] = 'Default filesize for file submissions';
@@ -160,10 +165,14 @@ $string['graderidnotexists'] = 'Graderid user does not exist';
 $string['gradernotset'] = 'Graderid not set';
 $string['gradeslocked'] = '<strong>Grades for this assignment have been released and locked.</strong>';
 $string['gradingdueby'] = 'Grading due by {$a}';
-$string['gradingdueinterval'] = 'Grading due interval';
-$string['gradingdueinterval_desc'] = 'Grading due date interval in weeks';
-$string['gradingdueintervalsecondplus'] = 'Reattempt Grading due interval';
-$string['gradingdueintervalsecondplus_desc'] = 'Grading due date for reattempts interval in weeks';
+$string['gradingdueinterval'] = 'Grading due interval (Standard)';
+$string['gradingdueinterval_desc'] = 'Grading due date interval for "Standard" delivered modules.';
+$string['gradingdueintervalblock'] = 'Grading due interval (Block)';
+$string['gradingdueintervalblock_desc'] = 'Grading due date interval for "Block" delivered modules.';
+$string['gradingdueintervalsecondplus'] = 'Reattempt Grading due interval (Standard)';
+$string['gradingdueintervalsecondplus_desc'] = 'Grading due date for reattempts interval for "Standard" delivered modules.';
+$string['gradingdueintervalsecondplusblock'] = 'Reattempt Grading due interval (Block)';
+$string['gradingdueintervalsecondplusblock_desc'] = 'Grading due date for reattempts interval for "Block" delivered modules.';
 
 $string['immediately'] = 'Immediately';
 $string['importantdates'] = 'Important dates for your calendar';

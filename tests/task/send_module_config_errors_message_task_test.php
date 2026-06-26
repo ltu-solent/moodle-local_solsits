@@ -63,12 +63,12 @@ final class send_module_config_errors_message_task_test extends advanced_testcas
             'idnumber' => 'TEST101_A_SEM1_2023/24',
             'customfield_pagetype' => 'module',
             'customfield_session' => '2023/24',
-            'customfield_templateapplied' => 0,
+            'customfield_templateapplied' => '0',
             'visible' => 0,
         ]);
         if ($templateapplied) {
             // Apply template to create the custom fields and values.
-            $this->apply_template($course->id, '2023/24', 'module', 1);
+            $this->apply_template($course->id, '2023/24', 'module');
         }
 
         $course = get_course($course->id);

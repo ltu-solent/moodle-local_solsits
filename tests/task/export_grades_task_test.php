@@ -67,7 +67,7 @@ final class export_grades_task_test extends advanced_testcase {
     public function test_task_execute($module, $assignment, $unitleader, $grades, $response): void {
         global $DB;
         $this->resetAfterTest();
-        /** @var local_solsits_generator $dg */
+        /** @var \local_solsits_generator $dg */
         $dg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $dg->create_solent_gradescales();
         set_config('default', 1, 'assignfeedback_misconduct');

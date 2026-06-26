@@ -464,4 +464,147 @@ final class helper_test extends advanced_testcase {
             ],
         ];
     }
+
+    /**
+     * Helper to get delivery mode from course custom fields.
+     *
+     * @param array $coursecustomfields Custom fields to set on the course.
+     * @param string $expected Expected delivery mode.
+     * @return void
+     *
+     * @covers \local_solsits\helper::get_deliverymode
+     * @dataProvider get_deliverymode_dataprovider
+     */
+    public function test_get_deliverymode(array $coursecustomfields, string $expected): void {
+        global $DB;
+        $this->resetAfterTest();
+        $course = $this->getDataGenerator()->create_course();
+        // Set the custom fields on the course.
+        $handler = \core_customfield\handler::get_handler('core_course', 'course');
+        $customfields = $handler->get_instance_data($course->id, true);
+        $context = $handler->get_instance_context($course->id);
+        foreach ($customfields as $key => $customfield) {
+            $shortname = $customfield->get_field()->get('shortname');
+            if (isset($coursecustomfields[$shortname])) {
+                // Need to set both value and charvalue for text fields.
+                $customfield->set('value', $coursecustomfields[$shortname]);
+                $customfield->set($customfield->datafield(), $coursecustomfields[$shortname]);
+                $customfield->set('contextid', $context->id);
+                $customfield->save();
+            }
+        }
+        $deliverymode = helper::get_deliverymode($course->id);
+        $this->assertEquals($expected, $deliverymode);
+    }
+
+    /**
+     * Get delivery mode data provider
+     *
+     * @return array
+     */
+    public static function get_deliverymode_dataprovider(): array {
+        return [
+            'not set' => [
+                'coursecustomfields' => ['templated' => '1'],
+                'expected' => helper::DELIVERY_STANDARD,
+            ],
+            'standard' => [
+                'coursecustomfields' => ['deliverymode' => 'S'],
+                'expected' => helper::DELIVERY_STANDARD,
+            ],
+            'block' => [
+                'coursecustomfields' => ['deliverymode' => 'B'],
+                'expected' => helper::DELIVERY_BLOCK,
+            ],
+        ];
+    }
+
+    /**
+     * Calculate interval given module delivery mode, interval type and whether this is a reattempt.
+     *
+     * @param string $deliverymode The delivery mode of the module.
+     * @param string $intervaltype The type of interval to calculate.
+     * @param bool $isreattempt Whether this is a reattempt.
+     * @param string $expected The expected interval in seconds.
+     * @return void
+     *
+     * @covers \local_solsits\helper::calculate_interval
+     * @dataProvider calculate_interval_dataprovider
+     */
+    public function test_calculate_interval(string $deliverymode, string $intervaltype, bool $isreattempt, string $expected): void {
+        $this->resetAfterTest();
+        $defaultintervalsettings = [
+            'cutoffinterval' => (2 * WEEKSECS),
+            'cutoffintervalsecondplus' => (1 * WEEKSECS),
+            'gradingdueinterval' => (4 * WEEKSECS),
+            'gradingdueintervalsecondplus' => (2 * WEEKSECS),
+            'cutoffintervalblock' => (2 * DAYSECS),
+            'cutoffintervalsecondplusblock' => (2 * DAYSECS),
+            'gradingdueintervalblock' => (3 * WEEKSECS),
+            'gradingdueintervalsecondplusblock' => (2 * WEEKSECS),
+        ];
+        foreach ($defaultintervalsettings as $setting => $value) {
+            set_config($setting, $value, 'local_solsits');
+        }
+        $result = helper::calculate_interval($deliverymode, $intervaltype, $isreattempt);
+        $this->assertEquals($defaultintervalsettings[$expected], $result);
+    }
+
+    /**
+     * Calculate interval dataprovider
+     *
+     * @return array
+     */
+    public static function calculate_interval_dataprovider(): array {
+        return [
+            'standard, first attempt cutoff' => [
+                'deliverymode' => helper::DELIVERY_STANDARD,
+                'intervaltype' => 'cutoff',
+                'isreattempt' => false,
+                'expected' => 'cutoffinterval',
+            ],
+            'standard, reattempt cutoff' => [
+                'deliverymode' => helper::DELIVERY_STANDARD,
+                'intervaltype' => 'cutoff',
+                'isreattempt' => true,
+                'expected' => 'cutoffintervalsecondplus',
+            ],
+            'block, first attempt cutoff' => [
+                'deliverymode' => helper::DELIVERY_BLOCK,
+                'intervaltype' => 'cutoff',
+                'isreattempt' => false,
+                'expected' => 'cutoffintervalblock',
+            ],
+            'block, reattempt cutoff' => [
+                'deliverymode' => helper::DELIVERY_BLOCK,
+                'intervaltype' => 'cutoff',
+                'isreattempt' => true,
+                'expected' => 'cutoffintervalsecondplusblock',
+            ],
+            'standard, first attempt gradingdue' => [
+                'deliverymode' => helper::DELIVERY_STANDARD,
+                'intervaltype' => 'gradingdue',
+                'isreattempt' => false,
+                'expected' => 'gradingdueinterval',
+            ],
+            'standard, reattempt gradingdue' => [
+                'deliverymode' => helper::DELIVERY_STANDARD,
+                'intervaltype' => 'gradingdue',
+                'isreattempt' => true,
+                'expected' => 'gradingdueintervalsecondplus',
+            ],
+            'block, first attempt gradingdue' => [
+                'deliverymode' => helper::DELIVERY_BLOCK,
+                'intervaltype' => 'gradingdue',
+                'isreattempt' => false,
+                'expected' => 'gradingdueintervalblock',
+            ],
+            'block, reattempt gradingdue' => [
+                'deliverymode' => helper::DELIVERY_BLOCK,
+                'intervaltype' => 'gradingdue',
+                'isreattempt' => true,
+                'expected' => 'gradingdueintervalsecondplusblock',
+            ],
+        ];
+    }
 }

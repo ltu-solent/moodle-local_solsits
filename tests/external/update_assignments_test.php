@@ -132,7 +132,8 @@ final class update_assignments_test extends externallib_advanced_testcase {
         $context = $handler->get_instance_context($course->id);
         foreach ($customfields as $key => $customfield) {
             if ($customfield->get_field()->get('shortname') == 'templateapplied') {
-                $customfield->set('value', 1);
+                $customfield->set('value', '1');
+                $customfield->set($customfield->datafield(), '1');
                 $customfield->set('contextid', $context->id);
                 $customfield->save();
             }
@@ -366,7 +367,8 @@ final class update_assignments_test extends externallib_advanced_testcase {
         $context = $handler->get_instance_context($course->id);
         foreach ($customfields as $key => $customfield) {
             if ($customfield->get_field()->get('shortname') == 'templateapplied') {
-                $customfield->set('value', 1);
+                $customfield->set('value', '1');
+                $customfield->set($customfield->datafield(), '1');
                 $customfield->set('contextid', $context->id);
                 $customfield->save();
             }

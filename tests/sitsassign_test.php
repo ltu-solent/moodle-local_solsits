@@ -53,6 +53,19 @@ final class sitsassign_test extends advanced_testcase {
     use task_trait;
 
     /**
+     * Default interval settings for assignments.
+     * @var array<string, int> $defaultintervalsettings
+     */
+    private $defaultintervalsettings = [
+        'cutoffinterval' => (2 * WEEKSECS),
+        'cutoffintervalsecondplus' => (1 * WEEKSECS),
+        'gradingdueinterval' => (4 * WEEKSECS),
+        'cutoffintervalblock' => (2 * DAYSECS),
+        'cutoffintervalsecondplusblock' => (1 * DAYSECS),
+        'gradingdueintervalblock' => (3 * WEEKSECS),
+    ];
+
+    /**
      * Test getting a list of assignments that can now be created
      *
      * @covers \local_solsits\sitsassign::get_create_list
@@ -95,7 +108,8 @@ final class sitsassign_test extends advanced_testcase {
         $context = $handler->get_instance_context($tcourse->id);
         foreach ($customfields as $key => $customfield) {
             if ($customfield->get_field()->get('shortname') == 'templateapplied') {
-                $customfield->set('value', 1);
+                $customfield->set('value', '1');
+                $customfield->set($customfield->datafield(), '1');
                 $customfield->set('contextid', $context->id);
                 $customfield->save();
             }
@@ -111,10 +125,11 @@ final class sitsassign_test extends advanced_testcase {
      *
      * @param array $sitsassign Settings for sitsassign table
      * @param bool $coursedeleted Create a course to get an id for sitsassign, then delete it.
+     * @param array $coursecustomfields Custom fields to apply to the course
      * @dataProvider create_assignment_provider
      * @return void
      */
-    public function test_create_assignment($sitsassign, $coursedeleted = false): void {
+    public function test_create_assignment($sitsassign, $coursedeleted = false, $coursecustomfields = []): void {
         $this->resetAfterTest();
         $this->set_settings();
         $this->setTimezone('UTC');
@@ -129,8 +144,9 @@ final class sitsassign_test extends advanced_testcase {
         $customfields = $handler->get_instance_data($course->id, true);
         $context = $handler->get_instance_context($course->id);
         foreach ($customfields as $key => $customfield) {
-            if ($customfield->get_field()->get('shortname') == 'templateapplied') {
-                $customfield->set('value', 1);
+            if (isset($coursecustomfields[$customfield->get_field()->get('shortname')])) {
+                $customfield->set('value', $coursecustomfields[$customfield->get_field()->get('shortname')]);
+                $customfield->set($customfield->datafield(), $coursecustomfields[$customfield->get_field()->get('shortname')]);
                 $customfield->set('contextid', $context->id);
                 $customfield->save();
             }
@@ -171,22 +187,21 @@ final class sitsassign_test extends advanced_testcase {
         $assignment = new assign($context, $cm, $course);
         $this->assertEquals($duedate, $assignment->get_instance()->duedate);
         $this->assertEquals($availablefrom, $assignment->get_instance()->allowsubmissionsfromdate);
+        $deliverymode = helper::get_deliverymode($course->id);
+        $cutoffinterval = helper::calculate_interval($deliverymode, 'cutoff', $sitsassign['reattempt']);
+        $gradingdueinterval = helper::calculate_interval($deliverymode, 'gradingdue', $sitsassign['reattempt']);
+        if ($assign->is_exam()) {
+            $cutoffinterval = 0;
+        }
+        $cutoffdate = $duedate + $cutoffinterval;
+        $gradingduedate = $duedate + $gradingdueinterval;
+        $this->assertEquals($cutoffdate, $assignment->get_instance()->cutoffdate);
+        $this->assertEquals($gradingduedate, $assignment->get_instance()->gradingduedate);
         if ($sitsassign['reattempt'] == 0) {
-            $cutoffdate = $duedate + $config->cutoffinterval;
-            if ($assign->is_exam()) {
-                $cutoffdate = $duedate;
-            }
-            $gradingduedate = $duedate + $config->gradingdueinterval;
-            $this->assertEquals($cutoffdate, $assignment->get_instance()->cutoffdate);
-            $this->assertEquals($gradingduedate, $assignment->get_instance()->gradingduedate);
             $this->assertEquals(1, $cm->visible);
             $this->assertEquals(2, $cm->completion);
             $this->assertEquals('[assignmentintro note="Do not remove"]', $assignment->get_instance()->intro);
         } else {
-            $cutoffdate = $duedate + $config->cutoffintervalsecondplus;
-            $gradingduedate = $duedate + $config->gradingdueintervalsecondplus;
-            $this->assertEquals($cutoffdate, $assignment->get_instance()->cutoffdate);
-            $this->assertEquals($gradingduedate, $assignment->get_instance()->gradingduedate);
             $this->assertEquals(0, $cm->visible);
             $this->assertEquals(0, $cm->completion);
             $reattemptmessage = get_config('local_solsits', 'assignmentmessage_studentreattempt');
@@ -248,6 +263,26 @@ final class sitsassign_test extends advanced_testcase {
                     'availablefrom' => 0,
                 ],
                 'coursedeleted' => false,
+                'coursecustomfields' => [
+                    'templateapplied' => '1',
+                    'deliverymode' => 'S',
+                ],
+            ],
+            'valid_duedate block' => [
+                'sitsassign' => [
+                    'sitsref' => 'PROJECT1_ABC101_2023/24',
+                    'reattempt' => 0,
+                    'title' => 'Project 1 (100%)',
+                    'weighting' => 100,
+                    'duedate' => strtotime('+1 week'),
+                    'grademarkexempt' => false,
+                    'availablefrom' => 0,
+                ],
+                'coursedeleted' => false,
+                'coursecustomfields' => [
+                    'templateapplied' => '1',
+                    'deliverymode' => 'B',
+                ],
             ],
             'first_reattempt' => [
                 'sitsassign' => [
@@ -260,6 +295,26 @@ final class sitsassign_test extends advanced_testcase {
                     'availablefrom' => 0,
                 ],
                 'coursedeleted' => false,
+                'coursecustomfields' => [
+                    'templateapplied' => '1',
+                    'deliverymode' => 'S',
+                ],
+            ],
+            'first_reattempt block' => [
+                'sitsassign' => [
+                    'sitsref' => 'PROJECT1_ABC101_2023/24',
+                    'reattempt' => 1,
+                    'title' => 'Project 1 (100%)',
+                    'weighting' => 100,
+                    'duedate' => strtotime('+4 week'),
+                    'grademarkexempt' => false,
+                    'availablefrom' => 0,
+                ],
+                'coursedeleted' => false,
+                'coursecustomfields' => [
+                    'templateapplied' => '1',
+                    'deliverymode' => 'B',
+                ],
             ],
             'deleted_course' => [
                 'sitsassign' => [
@@ -272,6 +327,10 @@ final class sitsassign_test extends advanced_testcase {
                     'availablefrom' => 0,
                 ],
                 'coursedeleted' => true,
+                'coursecustomfields' => [
+                    'templateapplied' => '1',
+                    'deliverymode' => 'S',
+                ],
             ],
             'no_duedate' => [
                 'sitsassign' => [
@@ -284,6 +343,10 @@ final class sitsassign_test extends advanced_testcase {
                     'availablefrom' => 0,
                 ],
                 'coursedeleted' => false,
+                'coursecustomfields' => [
+                    'templateapplied' => '1',
+                    'deliverymode' => 'S',
+                ],
             ],
             'availablefrom' => [
                 'sitsassign' => [
@@ -296,6 +359,10 @@ final class sitsassign_test extends advanced_testcase {
                     'availablefrom' => strtotime('+1 week'),
                 ],
                 'coursedeleted' => false,
+                'coursecustomfields' => [
+                    'templateapplied' => '1',
+                    'deliverymode' => 'S',
+                ],
             ],
             'grademark_exempt' => [
                 'sitsassign' => [
@@ -308,6 +375,10 @@ final class sitsassign_test extends advanced_testcase {
                     'availablefrom' => 0,
                 ],
                 'coursedeleted' => false,
+                'coursecustomfields' => [
+                    'templateapplied' => '1',
+                    'deliverymode' => 'S',
+                ],
             ],
             'exam_cutoffdate' => [
                 'sitsassign' => [
@@ -320,6 +391,10 @@ final class sitsassign_test extends advanced_testcase {
                     'availablefrom' => 0,
                 ],
                 'coursedeleted' => false,
+                'coursecustomfields' => [
+                    'templateapplied' => '1',
+                    'deliverymode' => 'S',
+                ],
             ],
             'Long title' => [
                 'sitsassign' => [
@@ -336,6 +411,10 @@ final class sitsassign_test extends advanced_testcase {
                     'sequence' => '001',
                 ],
                 'coursedeleted' => false,
+                'coursecustomfields' => [
+                    'templateapplied' => '1',
+                    'deliverymode' => 'S',
+                ],
             ],
         ];
     }
@@ -347,9 +426,10 @@ final class sitsassign_test extends advanced_testcase {
      * @param array $oldassign
      * @param array $newassign
      * @param bool $coursedeleted
+     * @param array $coursecustomfields
      * @return void
      */
-    public function test_update_assignment($oldassign, $newassign, $coursedeleted): void {
+    public function test_update_assignment($oldassign, $newassign, $coursedeleted, $coursecustomfields): void {
         global $DB;
         $this->resetAfterTest();
         $this->set_settings();
@@ -366,8 +446,9 @@ final class sitsassign_test extends advanced_testcase {
         $customfields = $handler->get_instance_data($course->id, true);
         $context = $handler->get_instance_context($course->id);
         foreach ($customfields as $key => $customfield) {
-            if ($customfield->get_field()->get('shortname') == 'templateapplied') {
-                $customfield->set('value', 1);
+            if (isset($coursecustomfields[$customfield->get_field()->get('shortname')])) {
+                $customfield->set('value', $coursecustomfields[$customfield->get_field()->get('shortname')]);
+                $customfield->set($customfield->datafield(), $coursecustomfields[$customfield->get_field()->get('shortname')]);
                 $customfield->set('contextid', $context->id);
                 $customfield->save();
             }
@@ -441,20 +522,20 @@ final class sitsassign_test extends advanced_testcase {
 
         $this->assertEquals(1, $assignment->get_instance()->markingallocation);
 
-        $gradingduedate = $newduedate + $config->gradingdueinterval;
+        $deliverymode = helper::get_deliverymode($course->id);
+        $gradingdueinterval = helper::calculate_interval($deliverymode, 'gradingdue', $newassign['reattempt']);
+        $gradingduedate = $newduedate + $gradingdueinterval;
         $this->assertEquals($gradingduedate, $assignment->get_instance()->gradingduedate);
+        $cutoffinterval = helper::calculate_interval($deliverymode, 'cutoff', $newassign['reattempt']);
+        if ($newsitsassign->is_exam()) {
+            $cutoffinterval = 0;
+        }
+        $cutoffdate = $newduedate + $cutoffinterval;
+        $this->assertEquals($cutoffdate, $assignment->get_instance()->cutoffdate);
         if ($newassign['reattempt'] == 0) {
-            $cutoffdate = $newduedate + $config->cutoffinterval;
-            // Does an exam have a completion due setting?
-            if ($newsitsassign->is_exam()) {
-                $cutoffdate = $newduedate;
-            }
-            $this->assertEquals($cutoffdate, $assignment->get_instance()->cutoffdate);
             $this->assertEquals(1, $cm->visible);
             $this->assertEquals(2, $cm->completion);
         } else {
-            $cutoffdate = $newduedate + $config->cutoffintervalsecondplus;
-            $this->assertEquals($cutoffdate, $assignment->get_instance()->cutoffdate);
             $this->assertEquals(0, $cm->visible);
             $this->assertEquals(0, $cm->completion);
         }
@@ -511,6 +592,60 @@ final class sitsassign_test extends advanced_testcase {
                     'availablefrom' => 0,
                 ],
                 'coursedeleted' => false,
+                'coursecustomfields' => [
+                    'templateapplied' => '1',
+                    'deliverymode' => 'S',
+                ],
+            ],
+            'new_duedate block' => [
+                'oldassign' => [
+                    'sitsref' => 'PROJECT1_ABC101_2023/24',
+                    'reattempt' => 0,
+                    'title' => 'Project 1 (100%)',
+                    'weighting' => 100,
+                    'duedate' => strtotime('+1 week'),
+                    'grademarkexempt' => false,
+                    'availablefrom' => 0,
+                ],
+                'newassign' => [
+                    'sitsref' => 'PROJECT1_ABC101_2023/24',
+                    'reattempt' => 0,
+                    'title' => 'Project 1 (100%)',
+                    'weighting' => 100,
+                    'duedate' => strtotime('+2 week'),
+                    'grademarkexempt' => false,
+                    'availablefrom' => 0,
+                ],
+                'coursedeleted' => false,
+                'coursecustomfields' => [
+                    'templateapplied' => '1',
+                    'deliverymode' => 'B',
+                ],
+            ],
+            'new_duedate no deliverymode' => [
+                'oldassign' => [
+                    'sitsref' => 'PROJECT1_ABC101_2023/24',
+                    'reattempt' => 0,
+                    'title' => 'Project 1 (100%)',
+                    'weighting' => 100,
+                    'duedate' => strtotime('+1 week'),
+                    'grademarkexempt' => false,
+                    'availablefrom' => 0,
+                ],
+                'newassign' => [
+                    'sitsref' => 'PROJECT1_ABC101_2023/24',
+                    'reattempt' => 0,
+                    'title' => 'Project 1 (100%)',
+                    'weighting' => 100,
+                    'duedate' => strtotime('+2 week'),
+                    'grademarkexempt' => false,
+                    'availablefrom' => 0,
+                ],
+                'coursedeleted' => false,
+                'coursecustomfields' => [
+                    'templateapplied' => '1',
+                    'deliverymode' => '',
+                ],
             ],
             'deleted_course_after_old_assign' => [
                 'oldassign' => [
@@ -532,6 +667,10 @@ final class sitsassign_test extends advanced_testcase {
                     'availablefrom' => 0,
                 ],
                 'coursedeleted' => true,
+                'coursecustomfields' => [
+                    'templateapplied' => '1',
+                    'deliverymode' => 'S',
+                ],
             ],
             // In this scenario, the scheduled task will create the assignment.
             'no_duedate-valid_duedate' => [
@@ -554,6 +693,10 @@ final class sitsassign_test extends advanced_testcase {
                     'availablefrom' => 0,
                 ],
                 'coursedeleted' => false,
+                'coursecustomfields' => [
+                    'templateapplied' => '1',
+                    'deliverymode' => 'S',
+                ],
             ],
             'availablefrom_past-availablefrom_future' => [
                 'oldassign' => [
@@ -575,6 +718,10 @@ final class sitsassign_test extends advanced_testcase {
                     'availablefrom' => strtotime('+1 week'),
                 ],
                 'coursedeleted' => false,
+                'coursecustomfields' => [
+                    'templateapplied' => '1',
+                    'deliverymode' => 'S',
+                ],
             ],
             'grademark_exempt-no_grademarkexempt' => [
                 'oldassign' => [
@@ -596,6 +743,10 @@ final class sitsassign_test extends advanced_testcase {
                     'availablefrom' => 0,
                 ],
                 'coursedeleted' => false,
+                'coursecustomfields' => [
+                    'templateapplied' => '1',
+                    'deliverymode' => 'S',
+                ],
             ],
             'exam_cutoffdate-new_duedate' => [
                 'oldassign' => [
@@ -617,6 +768,10 @@ final class sitsassign_test extends advanced_testcase {
                     'availablefrom' => 0,
                 ],
                 'coursedeleted' => false,
+                'coursecustomfields' => [
+                    'templateapplied' => '1',
+                    'deliverymode' => 'S',
+                ],
             ],
             'new_weighting' => [
                 'oldassign' => [
@@ -638,6 +793,10 @@ final class sitsassign_test extends advanced_testcase {
                     'availablefrom' => 0,
                 ],
                 'coursedeleted' => false,
+                'coursecustomfields' => [
+                    'templateapplied' => '1',
+                    'deliverymode' => 'S',
+                ],
             ],
         ];
     }
@@ -895,8 +1054,9 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_ABC10
         /** @var \local_solsits_generator $ssdg */
         $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $ssdg->create_solent_gradescales();
-        set_config('gradingdueinterval', (4 * WEEKSECS), 'local_solsits');
-        set_config('gradingdueintervalsecondplus', (2 * WEEKSECS), 'local_solsits');
+        foreach ($this->defaultintervalsettings as $key => $value) {
+            set_config($key, $value, 'local_solsits');
+        }
     }
 
     /**
@@ -1048,7 +1208,7 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_ABC10
         set_config('createreattemptgroups', $creategroup, 'local_solsits');
         set_config('addavailabilitytoreattempt', $addavailability, 'local_solsits');
         $this->setAdminUser();
-        /** @var local_solsits_generator $ssdg */
+        /** @var \local_solsits_generator $ssdg */
         $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
         $course = $this->getDataGenerator()->create_course();
         // Pretend to apply template to the course.
@@ -1057,7 +1217,8 @@ Queued - Course: ABC101_A_S1_2022/23, Assignment code: ABC101_A_S1_2022/23_ABC10
         $context = $handler->get_instance_context($course->id);
         foreach ($customfields as $key => $customfield) {
             if ($customfield->get_field()->get('shortname') == 'templateapplied') {
-                $customfield->set('value', 1);
+                $customfield->set('value', '1');
+                $customfield->set($customfield->datafield(), '1');
                 $customfield->set('contextid', $context->id);
                 $customfield->save();
             }

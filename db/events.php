@@ -34,4 +34,8 @@ $observers = [
         'eventname' => '\core\event\course_module_updated',
         'callback'  => '\local_solsits\observers::course_module_updated',
     ],
+    [
+        'eventname' => '\core\event\course_updated',
+        'callback'  => '\local_solsits\observers::course_updated',
+    ],
 ];

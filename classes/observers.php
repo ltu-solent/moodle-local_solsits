@@ -25,6 +25,7 @@
 
 namespace local_solsits;
 
+use assign;
 use core\output\html_writer;
 use core\url;
 use core\user;
@@ -132,6 +133,63 @@ class observers {
         $noreply = user::get_noreply_user();
         foreach ($recipients as $recipient) {
             email_to_user($recipient, $noreply, $subject, html_to_text($body), $body);
+        }
+    }
+
+    /**
+     * Actions when the course has been updated.
+     *
+     * @param \core\event\course_updated $event
+     * @return void
+     */
+    public static function course_updated(\core\event\course_updated $event): void {
+        self::update_sitsassigns($event);
+    }
+
+    /**
+     * Update sitsassigns
+     *
+     * @param \core\event\course_updated $event
+     * @return void
+     */
+    private static function update_sitsassigns(\core\event\course_updated $event): void {
+        global $DB;
+        $courseid = $event->objectid;
+        // We don't have the delivery mode in the sitsassign record, so we need to get it from the course record.
+        $deliverymode = helper::get_deliverymode($courseid);
+        $course = $DB->get_record('course', ['id' => $courseid]);
+        if (!$course) {
+            return;
+        }
+        $sitsassigns = sitsassign::get_records_select(
+            'courseid = :courseid',
+            ['courseid' => $courseid],
+        );
+
+        if (count($sitsassigns) == 0) {
+            return;
+        }
+
+        foreach ($sitsassigns as $sitsassign) {
+            $duedate = $sitsassign->get('duedate');
+            if ($duedate == 0) {
+                continue;
+            }
+            $cutoffinterval = helper::calculate_interval($deliverymode, 'cutoff', $sitsassign->get('reattempt'));
+            $cutoff = $duedate + $cutoffinterval;
+            $gradingdueinterval = helper::calculate_interval($deliverymode, 'gradingdue', $sitsassign->get('reattempt'));
+            $gradingdue = $duedate + $gradingdueinterval;
+
+            $cm = get_coursemodule_from_id('assign', $sitsassign->get('cmid'));
+            $context = \core\context\module::instance($cm->id);
+            $modassign = new assign($context, $cm, $course);
+            $modcutoff = $modassign->get_instance()->cutoffdate;
+            $modgradingdue = $modassign->get_instance()->gradingduedate;
+
+            if ($modcutoff != $cutoff || $modgradingdue != $gradingdue) {
+                // This will trigger all the recalcuations and update the assignment record.
+                $sitsassign->update_assignment();
+            }
         }
     }
 }

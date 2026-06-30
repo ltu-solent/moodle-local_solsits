@@ -12,6 +12,7 @@ It is bespoke to Southampton Solent University and is not intended as a general-
 - Web service endpoints to add and update SITS assignment records in Moodle (`local_solsits_add_assignments`, `local_solsits_update_assignments`).
 - Assignment metadata handled includes SITS reference, title, sequence, weighting, attempt number, due date, and grading scale hints.
 - Scale selection can be automated from configuration and assignment flags (for example grademark exempt).
+- Relative Cut-off/Late submission and Grading due dates, depending on Delivery type with observer on `course_updated` to recalculate if necessary.
 
 ### 2) Automated assignment creation in courses
 - A scheduled task (`create_assignment_task`) creates Moodle assignment activities from queued SITS assignment records.

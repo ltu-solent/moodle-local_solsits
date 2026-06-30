@@ -50,9 +50,9 @@ final class observers_test extends \advanced_testcase {
      *
      * @covers ::course_updated
      * @dataProvider course_updated_event_provider
-     * @param array<string, string> $originalfields Original course fields.
-     * @param array<string, string> $updatedfields Updated course fields.
-     * @param array<string, mixed> $assign Assignment fields.
+     * @param array $originalfields Original course fields.
+     * @param array $updatedfields Updated course fields.
+     * @param array $assign Assignment fields.
      * @return void
      */
     public function test_course_updated_event(array $originalfields, array $updatedfields, array $assign): void {

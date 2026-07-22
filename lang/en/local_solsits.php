@@ -121,6 +121,7 @@ $string['defaultscale'] = 'Default scale';
 $string['defaultscale_desc'] = 'Scale to use when none specified. When empty, assignments will be created with a scale based on grademark exempt flag.';
 $string['deletedtemplate'] = '"{$a}" has been deleted.';
 $string['deleteduser'] = 'Deleted user';
+$string['deliverymode'] = 'Delivery mode';
 $string['digestemails'] = 'Digest emails';
 $string['digestemails_desc'] = 'These messages will be sent to Module leaders and extra recipients when assignment settings are changed that could affect student submissions.';
 $string['duedate'] = 'Due date';

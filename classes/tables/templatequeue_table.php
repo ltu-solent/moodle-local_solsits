@@ -54,6 +54,7 @@ class templatequeue_table extends sql_table {
             'id' => 'id',
             'coursename' => new lang_string('coursename', 'local_solsits'),
             'shortname' => new lang_string('shortname', 'local_solsits'),
+            'deliverymode' => new lang_string('deliverymode', 'local_solsits'),
             'startdate' => new lang_string('startdate', 'local_solsits'),
             'enddate' => new lang_string('enddate', 'local_solsits'),
             'visibility' => new lang_string('visibility', 'local_solsits'),
@@ -144,6 +145,19 @@ class templatequeue_table extends sql_table {
             $row->fullname
         );
         return $link;
+    }
+
+    /**
+     * Delivery mode
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_deliverymode($row) {
+        return match ($row->deliverymode) {
+            'B' => ucwords(helper::DELIVERY_BLOCK),
+            default => ucwords(helper::DELIVERY_STANDARD),
+        };
     }
 
     /**

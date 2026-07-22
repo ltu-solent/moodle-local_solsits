@@ -154,7 +154,7 @@ class soltemplate extends persistent {
         // Pages that don't have the pagetype, session and templateapplied field set are not interesting to us.
         // Get the pagetype, academic_year and templateapplied field ids
         // I've broken this up into two queries, just to make it a bit easier to read.
-        [$insql, $inparams] = $DB->get_in_or_equal(['pagetype', 'academic_year', 'templateapplied']);
+        [$insql, $inparams] = $DB->get_in_or_equal(['pagetype', 'academic_year', 'templateapplied', 'deliverymode']);
         $sql = "SELECT cf.id, cf.shortname
             FROM {customfield_field} cf
             JOIN {customfield_category} cat ON cat.id = cf.categoryid AND cat.name = 'Student Records System'
@@ -184,13 +184,15 @@ class soltemplate extends persistent {
         }
 
         $select = "c.id, c.visible, c.shortname, c.fullname, c.startdate, c.enddate, c.timecreated,
-        cfdpt.value pagetype, cfdt.value templateapplied, cfday.value academic_year ";
+        cfdpt.value pagetype, cfdt.value templateapplied, cfday.value academic_year, cfddm.value deliverymode";
 
         $from = "{course} c
         JOIN {customfield_data} cfdpt ON cfdpt.instanceid = c.id AND cfdpt.fieldid = :pagetypeid
             AND cfdpt.value IN ('module', 'course')
         LEFT JOIN {customfield_data} cfdt ON cfdt.instanceid = c.id AND cfdt.fieldid = :templateappliedid
-        JOIN {customfield_data} cfday ON cfday.instanceid = c.id AND cfday.fieldid = :academic_yearid ";
+        JOIN {customfield_data} cfday ON cfday.instanceid = c.id AND cfday.fieldid = :academic_yearid
+        LEFT JOIN {customfield_data} cfddm ON cfddm.instanceid = c.id AND cfddm.fieldid = :deliverymodeid
+        ";
 
         $where = '';
         if (count($wheres) > 0) {

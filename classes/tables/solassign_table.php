@@ -61,6 +61,7 @@ class solassign_table extends sql_table {
         $columns = [
             'id',
             'course',
+            'deliverymode',
             'title',
             'sitsref',
             'cmid',
@@ -79,6 +80,7 @@ class solassign_table extends sql_table {
         $columnheadings = [
             'id',
             new lang_string('coursename', 'local_solsits'),
+            new lang_string('deliverymode', 'local_solsits'),
             new lang_string('assignmenttitle', 'local_solsits'),
             new lang_string('sitsreference', 'local_solsits'),
             new lang_string('cmid', 'local_solsits'),
@@ -109,11 +111,20 @@ class solassign_table extends sql_table {
         $baseurl->params($sc);
         $this->define_baseurl($baseurl);
         $wherestring = '1=1';
+        // Get delivery mode information, if available.
+        $sql = "SELECT cf.id, cf.shortname
+            FROM {customfield_field} cf
+            JOIN {customfield_category} cat ON cat.id = cf.categoryid AND cat.name = 'Student Records System'
+            WHERE cf.shortname = 'deliverymode'";
+        $deliverymodefield = $DB->get_record_sql($sql);
         // Do left joins in case the course or activities have been deleted.
         $from = "{local_solsits_assign} ssa
         LEFT JOIN {course} c ON c.id = ssa.courseid
-        LEFT JOIN {course_modules} cm ON cm.id = ssa.cmid";
-        $params = [];
+        LEFT JOIN {course_modules} cm ON cm.id = ssa.cmid
+        LEFT JOIN {customfield_data} cfd ON cfd.instanceid = ssa.courseid AND cfd.fieldid = :fieldid";
+        $params = [
+            'fieldid' => $deliverymodefield->id,
+        ];
         $wheres = [];
         if ($filters['session']) {
             $sessionmenu = helper::get_session_menu();
@@ -137,7 +148,7 @@ class solassign_table extends sql_table {
             $wherestring = join(' AND ', $wheres);
         }
         $this->set_sql(
-            'ssa.*, c.fullname, c.idnumber course_idnumber, cm.visible cmvisible, c.visible cvisible',
+            'ssa.*, c.fullname, c.idnumber course_idnumber, cm.visible cmvisible, c.visible cvisible, cfd.value deliverymode',
             $from,
             $wherestring,
             $params
@@ -218,6 +229,19 @@ class solassign_table extends sql_table {
     public function col_course($row) {
         $url = new url('/course/view.php', ['id' => $row->courseid]);
         return html_writer::link($url, $row->fullname) . '<br><small>' . $row->course_idnumber . '</small>';
+    }
+
+    /**
+     * Delivery mode
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_deliverymode($row) {
+        return match ($row->deliverymode) {
+            'B' => ucwords(helper::DELIVERY_BLOCK),
+            default => ucwords(helper::DELIVERY_STANDARD),
+        };
     }
 
     /**

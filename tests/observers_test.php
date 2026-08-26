@@ -16,8 +16,6 @@
 
 namespace local_solsits;
 
-use local_solsits\external\add_assignments;
-
 /**
  * Tests for SOL-SITS Integration
  *
@@ -28,8 +26,6 @@ use local_solsits\external\add_assignments;
  * @coversDefaultClass \local_solsits\observers
  */
 final class observers_test extends \advanced_testcase {
-    use \local_solsits\task\task_trait;
-
     /**
      * Default interval settings for assignments.
      * @var array $defaultsettings
@@ -174,6 +170,63 @@ final class observers_test extends \advanced_testcase {
                 'assign' => ['reattempt' => 1],
             ],
         ];
+    }
+
+    /**
+     * The case where the assignment either hasn't been created yet, or has been deleted when the course is updated.
+     *
+     * @return void
+     */
+    public function test_sitsassign_assignment_not_exists(): void {
+        // Must be admin, or have capabilities, to create assignments and update hidden custom fields.
+        $this->setAdminUser();
+        $this->resetAfterTest();
+        $this->set_settings();
+        /** @var \local_solsits_generator $ssdg */
+        $ssdg = $this->getDataGenerator()->get_plugin_generator('local_solsits');
+        // Create a course.
+        $courseparams = [
+            'idnumber' => 'AAP502_A_SEM1_2023/24',
+            'shortname' => 'AAP502_A_SEM1_2023/24',
+            'fullname' => 'CGI Production (AAP502)',
+            'customfield_templateapplied' => 1,
+        ];
+
+        $course = $this->getDataGenerator()->create_course($courseparams);
+
+        $assign = [
+            'sitsref' => 'AAP502_A_SEM1_2023/24_AAP50201_001_0',
+            'title' => 'CGI Production - Portfolio 1 (50%)',
+            'weighting' => '50',
+            'duedate' => strtotime('+2 weeks 16:00'),
+            'grademarkexempt' => false,
+            'availablefrom' => 0,
+            'reattempt' => 0,
+            'assessmentcode' => 'AAP50201',
+            'assessmentname' => 'Project 1',
+            'sequence' => '001',
+            'courseid' => $course->id,
+        ];
+
+        // Create sitsassign record.
+        $sitsassign = $ssdg->create_sits_assign($assign);
+
+        // Update the course, this will trigger the event we're observing.
+        update_course((object)array_merge(['id' => $course->id], []));
+        $cm = get_coursemodule_from_id('assign', $sitsassign->get('cmid'), $course->id);
+        $this->assertFalse($cm);
+
+        $sitsassign->create_assignment();
+
+        update_course((object)array_merge(['id' => $course->id], []));
+        $cm = get_coursemodule_from_id('assign', $sitsassign->get('cmid'), $course->id);
+        $this->assertNotFalse($cm);
+
+        course_delete_module($cm->id);
+        // Update the course, this will trigger the event we're observing.
+        update_course((object)array_merge(['id' => $course->id], []));
+        $cm = get_coursemodule_from_id('assign', $sitsassign->get('cmid'), $course->id);
+        $this->assertFalse($cm);
     }
 
     /**

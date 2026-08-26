@@ -175,12 +175,20 @@ class observers {
             if ($duedate == 0) {
                 continue;
             }
+            if ($sitsassign->get('cmid') == 0) {
+                // There's no course module associated with this sitsassign to update.
+                continue;
+            }
             $cutoffinterval = helper::calculate_interval($deliverymode, 'cutoff', $sitsassign->get('reattempt'));
             $cutoff = $duedate + $cutoffinterval;
             $gradingdueinterval = helper::calculate_interval($deliverymode, 'gradingdue', $sitsassign->get('reattempt'));
             $gradingdue = $duedate + $gradingdueinterval;
 
             $cm = get_coursemodule_from_id('assign', $sitsassign->get('cmid'));
+            if (!$cm) {
+                // The course module could not be found. Perhaps it's been deleted.
+                continue;
+            }
             $context = \core\context\module::instance($cm->id);
             $modassign = new assign($context, $cm, $course);
             $modcutoff = $modassign->get_instance()->cutoffdate;

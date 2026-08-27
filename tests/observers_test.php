@@ -174,7 +174,9 @@ final class observers_test extends \advanced_testcase {
 
     /**
      * The case where the assignment either hasn't been created yet, or has been deleted when the course is updated.
+     * The test is checking that an exception isn't thrown, which it was before the fix.
      *
+     * @covers ::course_updated
      * @return void
      */
     public function test_sitsassign_assignment_not_exists(): void {

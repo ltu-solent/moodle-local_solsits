@@ -6,9 +6,9 @@ Feature: Manage SITS assignments
 
   Background:
     Given the following "courses" exist:
-    | fullname | shortname | category | customfield_templateapplied |
-    | Course1  | C1        | 0        | 1                           |
-    | Course2  | C2        | 0        | 1                           |
+    | fullname | shortname | category | customfield_templateapplied | enddate |
+    | Course1  | C1        | 0        | 1                           | ## +1 year ## |
+    | Course2  | C2        | 0        | 1                           | ## +1 year ## |
     And the solent gradescales are setup
     And the following SITS assignment exists:
     | sitsref         | C1_SITS1       |

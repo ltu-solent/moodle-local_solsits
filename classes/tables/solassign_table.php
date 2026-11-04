@@ -103,7 +103,7 @@ class solassign_table extends sql_table {
         $this->define_headers($columnheadings);
         $this->no_sorting('actions');
         $this->sortable(true, 'sitsref', SORT_ASC);
-        
+
         $this->set_hidden_columns(['scale', 'grademarkexempt', 'availablefrom']);
         $urlparams = [
             'showerrorsonly' => $filters['showerrorsonly'],

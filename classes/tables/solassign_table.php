@@ -61,6 +61,8 @@ class solassign_table extends sql_table {
         $columns = [
             'id',
             'course',
+            'coursestartdate',
+            'courseenddate',
             'deliverymode',
             'title',
             'sitsref',
@@ -80,6 +82,8 @@ class solassign_table extends sql_table {
         $columnheadings = [
             'id',
             new lang_string('coursename', 'local_solsits'),
+            new lang_string('coursestartdate', 'local_solsits'),
+            new lang_string('courseenddate', 'local_solsits'),
             new lang_string('deliverymode', 'local_solsits'),
             new lang_string('assignmenttitle', 'local_solsits'),
             new lang_string('sitsreference', 'local_solsits'),
@@ -99,6 +103,8 @@ class solassign_table extends sql_table {
         $this->define_headers($columnheadings);
         $this->no_sorting('actions');
         $this->sortable(true, 'sitsref', SORT_ASC);
+        
+        $this->set_hidden_columns(['scale', 'grademarkexempt', 'availablefrom']);
         $urlparams = [
             'showerrorsonly' => $filters['showerrorsonly'],
             'session' => $filters['session'],
@@ -148,7 +154,8 @@ class solassign_table extends sql_table {
             $wherestring = join(' AND ', $wheres);
         }
         $this->set_sql(
-            'ssa.*, c.fullname, c.idnumber course_idnumber, cm.visible cmvisible, c.visible cvisible, cfd.value deliverymode',
+            'ssa.*, c.fullname, c.idnumber course_idnumber, cm.visible cmvisible, c.visible cvisible, cfd.value deliverymode,
+            c.startdate coursestartdate, c.enddate courseenddate',
             $from,
             $wherestring,
             $params
@@ -229,6 +236,32 @@ class solassign_table extends sql_table {
     public function col_course($row) {
         $url = new url('/course/view.php', ['id' => $row->courseid]);
         return html_writer::link($url, $row->fullname) . '<br><small>' . $row->course_idnumber . '</small>';
+    }
+
+    /**
+     * Course end date
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_courseenddate($row) {
+        if ($row->courseenddate > 0) {
+            return userdate($row->courseenddate, get_string('strftimedate', 'core_langconfig'));
+        }
+        return '-';
+    }
+
+    /**
+     * Course start date
+     *
+     * @param stdClass $row
+     * @return string HTML for row's column value
+     */
+    public function col_coursestartdate($row) {
+        if ($row->coursestartdate > 0) {
+            return userdate($row->coursestartdate, get_string('strftimedate', 'core_langconfig'));
+        }
+        return '-';
     }
 
     /**

@@ -388,4 +388,4 @@ $string['visibility'] = 'Visibility';
 $string['visible'] = 'Visible';
 
 $string['weighting'] = 'Weighting';
-$string['wrongassignmentonwrongcourse'] = 'This assignment ({$a->assignidnumber}) should not be on {$a->courseidnumber}, please contact Guided.Learning@solent.ac.uk to remove it.';
+$string['wrongassignmentonwrongcourse'] = 'This assignment ({$a->assignidnumber}) should not be on {$a->courseidnumber}, please contact CAPE@solent.ac.uk to remove it.';
